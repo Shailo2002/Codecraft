@@ -1,6 +1,7 @@
 "use client"
 
 import { Button } from "@/components/ui/button";
+import { SignInButton } from "@clerk/nextjs";
 import {
   ArrowUp,
   HomeIcon,
@@ -64,17 +65,26 @@ function Hero() {
           <Button variant={"ghost"}>
             <ImagePlus />
           </Button>
-          <Button size={"icon"}>
-            <ArrowUp />
-          </Button>
+
+          <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
+            <Button size={"icon"} disabled={!userInput}>
+              <ArrowUp />
+            </Button>
+          </SignInButton>
         </div>
       </div>
-
 
       {/* options */}
       <div className="flex gap-3 mt-4">
         {suggestion.map((value, index) => (
-            <Button variant={"outline"} onClick={() => setUserInput(value.prompt)}><value.icon/>{value.label}</Button>
+          <Button
+            variant={"outline"}
+            onClick={() => setUserInput(value.prompt)}
+            key={index}
+          >
+            <value.icon />
+            {value.label}
+          </Button>
         ))}
       </div>
     </div>

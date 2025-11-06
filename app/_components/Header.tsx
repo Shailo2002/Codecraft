@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { SignInButton } from "@clerk/nextjs";
 import Image from "next/image";
 import React from "react";
 
@@ -16,13 +17,17 @@ function Header() {
 
       {/* menu options */}
       <div className="flex gap-2">
-        {menuOptions.map((menu,key) => (
-            <Button variant={"ghost"} key={key}>{menu?.name}</Button>
+        {menuOptions.map((menu, key) => (
+          <Button variant={"ghost"} key={key}>
+            {menu?.name}
+          </Button>
         ))}
       </div>
-      
+
       {/* get started button */}
-      <Button>Get Started</Button>
+      <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
+        <Button>Get Started</Button>
+      </SignInButton>
     </div>
   );
 }
