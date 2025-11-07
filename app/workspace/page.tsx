@@ -1,9 +1,10 @@
 import React from 'react'
+import Hero from '../_components/Hero'
 
 function page() {
   return (
     <div>
-      workspace
+      <Hero/>
     </div>
   )
 }

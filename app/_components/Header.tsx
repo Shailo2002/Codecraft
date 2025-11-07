@@ -1,7 +1,10 @@
+"use client"
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@clerk/nextjs";
+import Link from "next/link";
 import Image from "next/image";
-import React from "react";
+import React, { useContext } from "react";
+import { UserDetailContext } from "../context/UserDetailContext";
 
 const menuOptions = [
     {name: "Pricing", path:"/pricing"},{
@@ -10,6 +13,7 @@ const menuOptions = [
 ]
 
 function Header() {
+  const user = useContext(UserDetailContext);
   return (
     <div className="flex justify-between items-center p-4 shadow-lg">
       {/* logo  */}
@@ -25,9 +29,15 @@ function Header() {
       </div>
 
       {/* get started button */}
-      <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
-        <Button>Get Started</Button>
-      </SignInButton>
+      {!user ? (
+        <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
+          <Button>Get Started</Button>
+        </SignInButton>
+      ) : (
+        <Link href={"/workspace"}>
+          <Button>Get Started</Button>
+        </Link>
+      )}
     </div>
   );
 }
