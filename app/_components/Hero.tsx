@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@clerk/nextjs";
@@ -8,9 +8,16 @@ import {
   ImagePlus,
   Key,
   LayoutDashboard,
+  Loader2Icon,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import Link from "next/link";
+import { useContext, useState } from "react";
+import { UserDetailContext } from "../context/UserDetailContext";
+import { v4 as uuidv4 } from "uuid";
+import axios from "axios";
+import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 const suggestion = [
   {
@@ -40,7 +47,32 @@ const suggestion = [
 ];
 
 function Hero() {
-    const [userInput, setUserInput] = useState<string>();
+  const user = useContext(UserDetailContext);
+  const [userInput, setUserInput] = useState<string>();
+  const router = useRouter();
+  const [loading, setLoading] = useState<boolean>(false)
+
+  const CreateNewProject = async () => {
+        setLoading(true);
+    const projectId = await uuidv4();
+    const frameId = await crypto.randomUUID().slice(0, 8);
+    try {
+      const response = await axios.post("/api/projects", {
+        projectId,
+        frameId,
+        chatMessage: userInput,
+      });
+      console.log("response : ", response);
+      toast.success("Project created!");
+      router.push(`/playground/${projectId}?frameId=${frameId}`);
+    } catch (error) {
+      toast.error("Internal server error!");
+      console.log("error");
+    } finally{
+      setLoading(false)
+    }
+  };
+
   return (
     <div className="flex flex-col justify-center items-center h-[80vh]">
       {/* description */}
@@ -66,11 +98,17 @@ function Hero() {
             <ImagePlus />
           </Button>
 
-          <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
-            <Button size={"icon"} disabled={!userInput}>
-              <ArrowUp />
+          {!user ? (
+            <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
+              <Button size={"icon"} disabled={!userInput || loading}>
+                <ArrowUp />
+              </Button>
+            </SignInButton>
+          ) : (
+            <Button onClick={CreateNewProject} disabled={!userInput || loading}>
+              {loading ? <Loader2Icon className="animate-spin" /> : <ArrowUp />}
             </Button>
-          </SignInButton>
+          )}
         </div>
       </div>
 
