@@ -45,13 +45,17 @@ function page() {
     setFrameDetail(result?.data);
   };
 
+  const SendMessage = (userInput:string) => {
+   console.log("sendMessage " ) 
+  }
+
   return (
     <div>
       <PlayGroundHeader />
 
       <div className="flex">
         {/* chatSection */}
-        <ChatSection messages={frameDetail?.chatMessages ?? []} />
+        <ChatSection messages={frameDetail?.chatMessages ?? []} onSend={(input:string) => SendMessage(input)}/>
 
         {/* websiteDesign */}
         <WebsiteDesign />
