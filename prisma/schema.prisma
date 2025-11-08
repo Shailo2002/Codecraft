@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client"
   output   = "../lib/generated/prisma"
@@ -15,34 +9,38 @@ datasource db {
 }
 
 model User {
-  id        String       @id @default(uuid())
-  email     String       @unique
-  name      String?
-  credits   Int          @default(2)
-  projects  Project[]
-  chats     ChatMessage[]
+  id       String        @id @default(uuid())
+  email    String        @unique
+  name     String?
+  credits  Int           @default(2)
+  chats    ChatMessage[]
+  projects Project[]
 }
 
 model Project {
-  id         String     @id @default(uuid())
-  projectId  String     @unique
-  user       User       @relation(fields: [userId], references: [id])
-  userId     String
-  frames     Frame[]
-  createdAt  DateTime    @default(now())
+  id        String   @id @default(uuid())
+  projectId String   @unique
+  userId    String
+  createdAt DateTime @default(now())
+  frames    Frame[]
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model Frame {
-  id         String     @id @default(uuid())
-  frameId    String     @unique
-  project    Project    @relation(fields: [projectId], references: [id])
-  projectId  String
+  id           String        @id @default(uuid())
+  frameId      String        @unique
+  projectId    String
+  designCode   String        @default("temp")
+  chatMessages ChatMessage[]
+  project      Project       @relation(fields: [projectId], references: [id])
 }
 
 model ChatMessage {
-  id         String     @id @default(uuid())
+  id          String   @id @default(uuid())
   chatMessage Json
-  user       User        @relation(fields: [userId], references: [id])
-  userId     String
-  createdAt  DateTime     @default(now())
+  userId      String
+  createdAt   DateTime @default(now())
+  frameId     String   @default("temp")
+  frame       Frame    @relation(fields: [frameId], references: [id])
+  user        User     @relation(fields: [userId], references: [id])
 }

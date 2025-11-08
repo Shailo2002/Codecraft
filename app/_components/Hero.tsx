@@ -51,10 +51,7 @@ function Hero() {
   const [userInput, setUserInput] = useState<string>();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false)
-  if(userDetail){
-  console.log("userDetail : ", userDetail);
 
-  }
 
   const CreateNewProject = async () => {
         setLoading(true);
@@ -65,7 +62,7 @@ function Hero() {
       const response = await axios.post("/api/projects", {
         projectId,
         frameId,
-        chatMessage: userInput,
+        chatMessage: [{role:"user", content: userInput}],
       });
       console.log("response : ", response);
       toast.success("Project created!");

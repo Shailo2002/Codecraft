@@ -4,8 +4,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-        console.log("check 1");
-
     const userDetail = await currentUser();
     const {
       projectId,
@@ -13,12 +11,10 @@ export async function POST(req: NextRequest) {
       chatMessage,
     }: { projectId: string; frameId: string; chatMessage: string } =
       await req.json();
-    console.log("check 2 : ", projectId, frameId, chatMessage);
 
     const dbUser = await prisma.user.findUnique({
       where: { email: userDetail?.primaryEmailAddress?.emailAddress },
     });
-    console.log("check 3 : ", dbUser);
 
     if (!dbUser) {
       return NextResponse.json(
@@ -30,7 +26,6 @@ export async function POST(req: NextRequest) {
     }
 
     const userId = dbUser?.id;
-    console.log("check 4");
 
     const result = await prisma.$transaction(async (tx) => {
       //create Project table
@@ -41,29 +36,28 @@ export async function POST(req: NextRequest) {
         },
       });
       const newProjectId = newProject?.id;
-    console.log("check 5");
 
       //create frame
       const newFrame = await tx.frame.create({
         data: {
           frameId,
           projectId: newProjectId,
+          designCode: "<div> test code </div>"
         },
       });
-    console.log("check 6");
+       const newFrameId = newFrame?.id
 
       //create chatMessage
       const newChat = await tx.chatMessage.create({
         data: {
           chatMessage,
           userId,
+          frameId:newFrameId
         },
       });
-    console.log("check 7");
 
       return { newProject, newFrame, newChat };
     });
-    console.log("check 8");
 
     return NextResponse.json(result);
   } catch (error) {
