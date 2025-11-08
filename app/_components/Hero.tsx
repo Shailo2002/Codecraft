@@ -47,16 +47,21 @@ const suggestion = [
 ];
 
 function Hero() {
-  const user = useContext(UserDetailContext);
+  const {userDetail} = useContext(UserDetailContext);
   const [userInput, setUserInput] = useState<string>();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false)
+  if(userDetail){
+  console.log("userDetail : ", userDetail);
+
+  }
 
   const CreateNewProject = async () => {
         setLoading(true);
     const projectId = await uuidv4();
     const frameId = await crypto.randomUUID().slice(0, 8);
     try {
+      console.log("project creation called")
       const response = await axios.post("/api/projects", {
         projectId,
         frameId,
@@ -98,14 +103,17 @@ function Hero() {
             <ImagePlus />
           </Button>
 
-          {!user ? (
+          {!userDetail ? (
             <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
               <Button size={"icon"} disabled={!userInput || loading}>
                 <ArrowUp />
               </Button>
             </SignInButton>
           ) : (
-            <Button onClick={CreateNewProject} disabled={!userInput || loading}>
+            <Button
+              onClick={() => CreateNewProject()}
+              disabled={!userInput || loading}
+            >
               {loading ? <Loader2Icon className="animate-spin" /> : <ArrowUp />}
             </Button>
           )}
