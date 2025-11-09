@@ -2,14 +2,17 @@ import React, { useState } from "react";
 import { Messages } from "../[projectId]/page";
 import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = {
   messages: Messages[];
   onSend: any
 };
 
+
 function ChatSection({ messages, onSend }: Props) {
   const [input, setInput] = useState<string>();
+  console.log("messages : ", messages)
 
   const handleSend = () => {
     if (!input?.trim()) return;
@@ -19,48 +22,52 @@ function ChatSection({ messages, onSend }: Props) {
 
   console.log("chatSection : ", messages);
   return (
-    <div className="flex flex-col w-96 shadow h-[92.75vh] p-4 ">
+    <div className="flex flex-col w-96 shadow h-[90.25vh]  p-2">
       {/* Message Section */}
-      <div className="flex-1 flex flex-col overflow-y-auto p-4 space-y-4 ">
-        {messages?.length === 0 ? (
-          <p className="text-gray-400 text-center">No Messages Yet</p>
-        ) : (
-          messages?.map((msg, index) => (
-            <div
-              className={`flex ${
-                msg?.chatMessage[0]?.role == "user"
-                  ? "justify-end"
-                  : "justify-start"
-              } `}
-              key={index}
-            >
+      <ScrollArea className="flex-1 flex flex-col overflow-y-auto rounded-md border bg-white">
+        <div className="  p-4 space-y-4 ">
+          {messages?.length === 0 ? (
+            <p className="text-gray-400 text-center">No Messages Yet</p>
+          ) : (
+            messages?.map((msg, index) => (
               <div
-                className={`p-2 rounded-lg max-w-[80%] ${
+                className={`flex ${
                   msg?.chatMessage[0]?.role == "user"
-                    ? "bg-gray-100 text-black"
-                    : "bg-gray-300 text-black"
-                }`}
+                    ? "justify-end"
+                    : "justify-start"
+                } `}
+                key={index}
               >
-                {msg?.chatMessage[0]?.content}
+                <div
+                  className={`p-2 rounded-lg max-w-[80%] ${
+                    msg?.chatMessage[0]?.role == "user"
+                      ? "bg-gray-100 text-black"
+                      : "bg-gray-300 text-black"
+                  }`}
+                >
+                  {msg?.chatMessage[0]?.content}
+                </div>
               </div>
-            </div>
-          ))
-        )}
-      </div>
+            ))
+          )}
+        </div>
+      </ScrollArea>
 
-      {/* Footere Section */}
-      <div className="relative flex border rounded-xl items-end">
-        <textarea
-          className="w-full h-32 p-2 resize-none overflow-y-auto focus:outline-none focus:ring-0"
-          placeholder="Describe your page design"
-          onChange={(e) => setInput(e.target.value)}
-          value={input}
-        ></textarea>
+      {/* Footer Section */}
+     <div className="relative flex border rounded-md mt-2 bg-white">
+  <ScrollArea className="w-full h-32">
+    <div
+      contentEditable
+      className="p-2 outline-none"
+      onInput={(e) => setInput(e.currentTarget.textContent || "")}
+    />
+  </ScrollArea>
 
-        <Button className="m-2 absolute right-1 bottom-0">
-          <ArrowUp />
-        </Button>
-      </div>
+  <Button className="m-2 absolute right-1 bottom-0">
+    <ArrowUp />
+  </Button>
+</div>
+
     </div>
   );
 }
