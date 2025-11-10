@@ -6,13 +6,12 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 type Props = {
   messages: Messages[];
-  onSend: any
+  onSend: any;
 };
-
 
 function ChatSection({ messages, onSend }: Props) {
   const [input, setInput] = useState<string>();
-  console.log("messages : ", messages)
+  console.log("messages : ", messages);
 
   const handleSend = () => {
     if (!input?.trim()) return;
@@ -54,20 +53,17 @@ function ChatSection({ messages, onSend }: Props) {
       </ScrollArea>
 
       {/* Footer Section */}
-     <div className="relative flex border rounded-md mt-2 bg-white">
-  <ScrollArea className="w-full h-32">
-    <div
-      contentEditable
-      className="p-2 outline-none"
-      onInput={(e) => setInput(e.currentTarget.textContent || "")}
-    />
-  </ScrollArea>
-
-  <Button className="m-2 absolute right-1 bottom-0">
-    <ArrowUp />
-  </Button>
-</div>
-
+      <div className="relative flex border rounded-md items-end mt-2 bg-white">
+        <textarea
+          className="w-full h-32 p-2 resize-none overflow-y-auto focus:outline-none"
+          placeholder="Describe your page design"
+          onChange={(e) => setInput(e.target.value)}
+          value={input}
+        />
+        <Button className="m-2 absolute right-1 bottom-0" onClick={handleSend}>
+          <ArrowUp />
+        </Button>
+      </div>
     </div>
   );
 }
