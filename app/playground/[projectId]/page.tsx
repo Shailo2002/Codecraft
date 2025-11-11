@@ -84,6 +84,7 @@ function page() {
         setGeneratedCode((prev: any) => prev + chunk);
       }
     }
+    
     //After Streaming End
     if (!isCode) {
       setMessages((prev: any) => [
