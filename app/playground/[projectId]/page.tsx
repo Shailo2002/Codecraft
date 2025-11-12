@@ -6,6 +6,7 @@ import WebsiteDesign from "../_components/WebsiteDesign";
 import ElementSettingSection from "../_components/ElementSettingSection";
 import { useParams, useSearchParams } from "next/navigation";
 import axios from "axios";
+import { deleteReactDebugChannel } from "next/dist/server/dev/debug-channel";
 
 export type Frame = {
   id: String;
@@ -34,7 +35,7 @@ function page() {
   const [frameDetail, setFrameDetail] = useState<Frame>();
   const [loading, setLoading] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [generatedCode, setGeneratedCode] = useState<any>();
+  const [generatedCode, setGeneratedCode] = useState<any>("");
 
   useEffect(() => {
     GetFrameDetails();
@@ -44,16 +45,19 @@ function page() {
     const result = await axios.get(
       `/api/frames?frameId=${frameId}&projectId=${projectId}`
     );
-    console.log("result : ", result?.data);
     setFrameDetail(result?.data);
   };
 
+  // for stream:true
   const SendMessage = async (userInput: string) => {
     setLoading(true);
 
-    setMessages((prev: any) => [...prev, { role: "user", content: userInput }]);
+    setMessages((prev: any) => [
+      ...prev,
+      { chatMessage: [{ role: "user", content: userInput }] },
+    ]);
 
-    const result = await fetch("/api/ai-model", {
+    const result = await fetch("/api/ai-testing", {
       method: "POST",
       body: JSON.stringify({
         messages: [{ role: "user", content: userInput }],
@@ -63,42 +67,118 @@ function page() {
     const reader = result.body?.getReader();
     const decoder = new TextDecoder();
 
+    let buffer = "";
     let aiResponse = "";
     let isCode = false;
 
     while (true) {
-      //@ts-ignore
       const { done, value } = await reader?.read();
       if (done) break;
 
-      const chunk = decoder.decode(value, { stream: true });
-      aiResponse += chunk;
+      buffer += decoder.decode(value, { stream: true });
 
-      //check if AI start sending code
-      if (!isCode && aiResponse.includes("'''html")) {
-        isCode = true;
-        const index = aiResponse.indexOf("'''html") + 7;
-        const initialCodeChunk = aiResponse.slice(index);
-        setGeneratedCode((prev: any) => prev + initialCodeChunk);
-      } else if (isCode) {
-        setGeneratedCode((prev: any) => prev + chunk);
+      // Split by newlines — each event may have multiple lines
+      const lines = buffer.split("\n");
+
+      for (const line of lines) {
+        // Only process "data:" lines
+        if (line.startsWith("data: ")) {
+          const data = line.slice(6).trim();
+          if (data === "[DONE]") continue;
+
+          try {
+            const json = JSON.parse(data);
+            const delta = json.choices?.[0]?.delta?.content;
+            console.log("chunk : ", delta);
+
+            if (delta) {
+              aiResponse += delta;
+
+              // detect code start
+              if (!isCode && aiResponse.includes("```html")) {
+                isCode = true;
+                const index = aiResponse.indexOf("```html") + 7;
+                const initialCodeChunk = aiResponse.slice(index);
+                setGeneratedCode((prev: any) => prev + initialCodeChunk);
+              } else if (isCode) {
+                setGeneratedCode((prev: any) => prev + delta);
+              }
+            }
+          } catch (err) {
+            console.error("JSON parse error:", err, line);
+          }
+        }
       }
+
+      // keep only last partial line in buffer
+      buffer = lines[lines.length - 1];
     }
-    
-    //After Streaming End
+
+    // After stream ends
     if (!isCode) {
       setMessages((prev: any) => [
         ...prev,
-        { role: "assistant", content: aiResponse },
+        { chatMessage: [{ role: "assistant", content: aiResponse.trim() }] },
       ]);
     } else {
       setMessages((prev: any) => [
         ...prev,
-        { role: "assistant", content: "Your code is ready!" },
+        {
+          chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
+        },
       ]);
     }
+
     setLoading(false);
   };
+
+  // for stream:false
+  // const SendMessage = async (userInput: string) => {
+  //   setLoading(true);
+
+  //   setMessages((prev: any) => [
+  //     ...prev,
+  //     { chatMessage: [{ role: "user", content: userInput }] },
+  //   ]);
+
+  //   const result = await fetch("/api/ai-testing", {
+  //     method: "POST",
+  //     body: JSON.stringify({
+  //       messages: [{ role: "user", content: userInput }],
+  //     }),
+  //   });
+
+  //   const data = await result.json();
+  //   const message = data.message?.content || "";
+
+  //   // Extract HTML code if enclosed in ```html ... ```
+  //   const htmlMatch = message.match(/```html([\s\S]*?)```/i);
+
+  //   if (htmlMatch) {
+  //     const htmlCode = htmlMatch[1].trim();
+  //     const textOnly = message.replace(/```html[\s\S]*?```/i, "").trim();
+
+  //     setGeneratedCode(htmlCode);
+  //     setMessages((prev: any) => [
+  //       ...prev,
+  //       {
+  //         chatMessage: [
+  //           { role: "assistant", content: textOnly || "Your code is ready!" },
+  //         ],
+  //       },
+  //     ]);
+  //   } else {
+  //     setMessages((prev: any) => [
+  //       ...prev,
+  //       { chatMessage: [{ role: "assistant", content: message }] },
+  //     ]);
+  //   }
+
+  //   setLoading(false);
+  // };
+
+  console.log("messages : ", messages);
+  console.log("generated code : ", generatedCode);
 
   return (
     <div>

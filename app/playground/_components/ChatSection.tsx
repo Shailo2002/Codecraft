@@ -11,7 +11,6 @@ type Props = {
 
 function ChatSection({ messages, onSend }: Props) {
   const [input, setInput] = useState<string>();
-  console.log("messages : ", messages);
 
   const handleSend = () => {
     if (!input?.trim()) return;
@@ -19,7 +18,7 @@ function ChatSection({ messages, onSend }: Props) {
     setInput("");
   };
 
-  console.log("chatSection : ", messages);
+
   return (
     <div className="flex flex-col w-96 shadow h-[90.25vh]  p-2">
       {/* Message Section */}

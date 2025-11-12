@@ -58,13 +58,11 @@ function Hero() {
     const projectId = await uuidv4();
     const frameId = await crypto.randomUUID().slice(0, 8);
     try {
-      console.log("project creation called")
       const response = await axios.post("/api/projects", {
         projectId,
         frameId,
         chatMessage: [{role:"user", content: userInput}],
       });
-      console.log("response : ", response);
       toast.success("Project created!");
       router.push(`/playground/${projectId}?frameId=${frameId}`);
     } catch (error) {

@@ -4,14 +4,16 @@ import axios from "axios";
 export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json();
+    console.log("messages : ", messages);
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",
       {
-        model: "qwen/qwen3-coder:free",
+        model: "google/gemini-2.5-flash-preview-09-2025",
         messages,
         stream: true,
       },
+
       {
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,

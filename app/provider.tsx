@@ -17,7 +17,6 @@ function Provider({
   }, [user]);
   const CreateNewUser = async () => {
     const result = await axios.post("/api/users", {});
-    console.log("result data : ", result?.data?.data);
     setUserDetail(result?.data?.data)
   };
 
