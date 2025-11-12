@@ -1,12 +1,11 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import PlayGroundHeader from "../_components/PlayGroundHeader";
 import ChatSection from "../_components/ChatSection";
 import WebsiteDesign from "../_components/WebsiteDesign";
 import ElementSettingSection from "../_components/ElementSettingSection";
 import { useParams, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { deleteReactDebugChannel } from "next/dist/server/dev/debug-channel";
 
 export type Frame = {
   id: String;
@@ -72,6 +71,7 @@ function page() {
     let isCode = false;
 
     while (true) {
+      //@ts-ignore
       const { done, value } = await reader?.read();
       if (done) break;
 
