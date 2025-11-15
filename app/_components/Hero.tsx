@@ -46,30 +46,31 @@ const suggestion = [
   },
 ];
 
+
+
 function Hero() {
-  const {userDetail} = useContext(UserDetailContext);
+  const { userDetail } = useContext(UserDetailContext);
   const [userInput, setUserInput] = useState<string>();
   const router = useRouter();
-  const [loading, setLoading] = useState<boolean>(false)
-
+  const [loading, setLoading] = useState<boolean>(false);
 
   const CreateNewProject = async () => {
-        setLoading(true);
+    setLoading(true);
     const projectId = await uuidv4();
     const frameId = await crypto.randomUUID().slice(0, 8);
     try {
       const response = await axios.post("/api/projects", {
         projectId,
         frameId,
-        chatMessage: [{role:"user", content: userInput}],
+        chatMessage: [{ role: "user", content: userInput }],
       });
       toast.success("Project created!");
       router.push(`/playground/${projectId}?frameId=${frameId}`);
     } catch (error) {
       toast.error("Internal server error!");
       console.log("error");
-    } finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -109,7 +110,7 @@ function Hero() {
               onClick={() => CreateNewProject()}
               disabled={!userInput || loading}
             >
-              {loading ? <Loader2Icon className="animate-spin" /> : <ArrowUp />}
+              {loading ? <Loader2Icon className="animate-spin" /> : <ArrowUp/>}
             </Button>
           )}
         </div>

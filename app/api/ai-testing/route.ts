@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json();
+    console.log("message : ", messages)
 
     const response = await fetch(
       "https://openrouter.ai/api/v1/chat/completions",
@@ -15,10 +16,11 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           model: "openai/gpt-oss-20b:free",
           messages,
-          stream: true,
+          stream: false,
         }),
       }
     );
+
 
     return new Response(response.body, {
       headers: { "Content-Type": "text/event-stream" },

@@ -3,13 +3,15 @@ import { Messages } from "../[projectId]/page";
 import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Spinner } from "@/components/ui/spinner";
 
 type Props = {
   messages: Messages[];
   onSend: any;
+  loading: boolean;
 };
 
-function ChatSection({ messages, onSend }: Props) {
+function ChatSection({ messages, onSend, loading }: Props) {
   const [input, setInput] = useState<string>();
 
   const handleSend = () => {
@@ -60,7 +62,7 @@ function ChatSection({ messages, onSend }: Props) {
           value={input}
         />
         <Button className="m-2 absolute right-1 bottom-0" onClick={handleSend}>
-          <ArrowUp />
+          {loading ? <Spinner/> :<ArrowUp />}
         </Button>
       </div>
     </div>
