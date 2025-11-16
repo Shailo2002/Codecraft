@@ -6,7 +6,6 @@ import WebsiteDesign from "../_components/WebsiteDesign";
 import ElementSettingSection from "../_components/ElementSettingSection";
 import { useParams, useSearchParams } from "next/navigation";
 import axios from "axios";
-import { fixedAiResult } from "@/rough";
 
 export type Frame = {
   id: String;
@@ -107,100 +106,15 @@ function page() {
       `/api/frames?frameId=${frameId}&projectId=${projectId}`
     );
     setFrameDetail(result?.data);
-    // if (result.data?.chatMessages[0].chatMessage?.length == 1) {
-    //   const userMessage = result.data?.chatMessages[0].chatMessage[0]?.content;
-    //   SendMessage(userMessage);
-    // }
+    if (result.data?.chatMessages[0].chatMessage?.length == 1) {
+      const userMessage = result.data?.chatMessages[0].chatMessage[0]?.content;
+      SendMessage(userMessage);
+    }
   };
 
-  // for stream:true
-  // const SendMessage = async (userInput: string) => {
-  //   setLoading(true);
-
-  //   setMessages((prev: any) => [
-  //     ...prev,
-  //     { chatMessage: [{ role: "user", content: userInput }] },
-  //   ]);
-
-  //   const result = await fetch("/api/ai-model-openai", {
-  //     method: "POST",
-  //     body: JSON.stringify({
-  //       messages: [
-  //         { role: "user", content: Prompt.replace("{userInput}", userInput) },
-  //       ],
-  //     }),
-  //   });
-
-  //   const reader = result.body?.getReader();
-  //   const decoder = new TextDecoder();
-
-  //   let buffer = "";
-  //   let aiResponse = "";
-  //   let isCode = false;
-
-  //   while (true) {
-  //     //@ts-ignore
-  //     const { done, value } = await reader?.read();
-  //     if (done) break;
-
-  //     buffer += decoder.decode(value, { stream: true });
-  //     console.log("buffer : ", buffer)
-  //     // Split by newlines — each event may have multiple lines
-  //     const lines = buffer.split("\n");
-
-  //     for (const line of lines) {
-  //       // Only process "data:" lines
-  //       if (line.startsWith("data: ")) {
-  //         const data = line.slice(6).trim();
-  //         if (data === "[DONE]") continue;
-
-  //         try {
-  //           const json = JSON.parse(data);
-  //           const delta = json.choices?.[0]?.delta?.content;
-
-  //           if (delta) {
-  //             aiResponse += delta;
-  //             console.log("chunk : ", delta)
-  //             // detect code start
-  //             if (!isCode && aiResponse.includes("```html")) {
-  //               isCode = true;
-  //               const index = aiResponse.indexOf("```html") + 7;
-  //               const initialCodeChunk = aiResponse.slice(index);
-  //               setGeneratedCode((prev: any) => prev + initialCodeChunk);
-  //             } else if (isCode) {
-  //               setGeneratedCode((prev: any) => prev + delta);
-  //             }
-  //           }
-  //         } catch (err) {
-  //           console.error("JSON parse error:", err, line);
-  //         }
-  //       }
-  //     }
-
-  //     // keep only last partial line in buffer
-  //     buffer = lines[lines.length - 1];
-  //   }
-
-  //   // After stream ends
-  //   if (!isCode) {
-  //     setMessages((prev: any) => [
-  //       ...prev,
-  //       { chatMessage: [{ role: "assistant", content: aiResponse.trim() }] },
-  //     ]);
-  //   } else {
-  //     setMessages((prev: any) => [
-  //       ...prev,
-  //       {
-  //         chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
-  //       },
-  //     ]);
-  //   }
-
-  //   setLoading(false);
-  // };
-
-  // for stream:false
   
+
+  // chatgpt stream true code
   const SendMessage = async (userInput: string) => {
     setLoading(true);
 
@@ -209,211 +123,162 @@ function page() {
       { chatMessage: [{ role: "user", content: userInput }] },
     ]);
 
-    // const result = await fetch("/api/ai-testing", {
-    //   method: "POST",
-    //   body: JSON.stringify({
-    //     messages: [
-    //       { role: "user", content: Prompt.replace("{userInput}", userInput) },
-    //     ],
-    //   }),
-    // });
+    const res = await fetch("/api/ai-model-openai", {
+      method: "POST",
+      body: JSON.stringify({
+        messages: [
+          { role: "user", content: Prompt.replace("{userInput}", userInput) },
+        ],
+      }),
+    });
 
-    const data = await fixedAiResult.json();
-    console.log("data from ai : ", data);
+    const reader = res.body?.getReader();
+    const decoder = new TextDecoder();
 
-    const message = data.choices[0]?.message?.content || "";
-    console.log("message from ai : ", message);
-    // Extract HTML code if enclosed in ```html ... ```
-    const htmlMatch = message.match(/```html([\s\S]*?)```/i);
+    let buffer = ""; // holds partial chunk text between reads
+    let aiResponse = ""; // accumulated plain text (before a code fence)
+    let codeBuffer = ""; // accumulating code while inside a fence
+    let inCode = false;
 
-    if (htmlMatch) {
-      const htmlCode = htmlMatch[1].trim();
-      const textOnly = message.replace(/```html[\s\S]*?```/i, "").trim();
+    while (true) {
+      // @ts-ignore
+      const { done, value } = await reader?.read();
+      if (done) break;
 
-      setGeneratedCode(htmlCode);
+      buffer += decoder.decode(value, { stream: true });
+
+      // split into lines, keep last partial line in buffer
+      const lines = buffer.split("\n");
+      for (let i = 0; i < lines.length - 1; i++) {
+        let line = lines[i].trim();
+        if (!line) continue;
+
+        // If server sent SSE style, remove "data:" prefix
+        if (line.startsWith("data:")) {
+          line = line.replace(/^data:\s*/, "");
+        }
+
+        // Some servers may send "[DONE]" as raw line
+        if (line === "[DONE]") continue;
+
+        // Try parse JSON — supports both NDJSON and SSE JSON payloads
+        try {
+          const json = JSON.parse(line);
+          const delta = json.choices?.[0]?.delta?.content || "";
+
+          if (!delta) continue;
+
+          // If not inside code fence, append to aiResponse and check for fence start
+          if (!inCode) {
+            aiResponse += delta;
+
+            // detect start of a code fence (``` or ```lang)
+            const startIdx = aiResponse.indexOf("```");
+            if (startIdx !== -1) {
+              // everything after the fence start moves to codeBuffer
+              const afterFence = aiResponse.slice(startIdx + 3);
+              // keep text before fence as final assistant text chunk so far
+              const textBefore = aiResponse.slice(0, startIdx);
+
+              // push/flush the non-code text to messages state (incremental)
+              if (textBefore.trim()) {
+                setMessages((prev: any) => [
+                  ...prev,
+                  { chatMessage: [{ role: "assistant", content: textBefore }] },
+                ]);
+              }
+
+              // start collecting code
+              inCode = true;
+              codeBuffer = afterFence;
+              aiResponse = ""; // reset text accumulator
+              // also update generated code state with initial chunk
+              setGeneratedCode((prev: any) => prev + afterFence);
+            }
+          } else {
+            // inside code fence: append to codeBuffer and generatedCode
+            codeBuffer += delta;
+            setGeneratedCode((prev: any) => prev + delta);
+
+            // detect fence close
+            const endIdx = codeBuffer.indexOf("```");
+            if (endIdx !== -1) {
+              // found closing fence — split code and any trailing text
+              const codePart = codeBuffer.slice(0, endIdx);
+              const afterFence = codeBuffer.slice(endIdx + 3);
+
+              // make sure setGeneratedCode already has codePart (we've been appending it incrementally).
+              // Now clear flags and move trailing text into aiResponse (and into messages)
+              inCode = false;
+              codeBuffer = "";
+
+              if (afterFence.trim()) {
+                // any trailing content after closing fence becomes assistant text
+                setMessages((prev: any) => [
+                  ...prev,
+                  { chatMessage: [{ role: "assistant", content: afterFence }] },
+                ]);
+              } else {
+                // if nothing else, let the loop continue; final message may be set after stream ends
+              }
+            }
+          }
+        } catch (err) {
+          // If JSON.parse fails, ignore this line for now (it might be partial) — parser will try again
+          console.error("JSON parse error:", err, line);
+        }
+      }
+
+      // keep only the last partial line in buffer for next read
+      buffer = lines[lines.length - 1];
+    }
+
+    // Stream ended. If we have leftover buffer (a final json line) try parse it
+    if (buffer.trim()) {
+      let line = buffer.trim();
+      if (line.startsWith("data:")) line = line.replace(/^data:\s*/, "");
+      if (line !== "[DONE]") {
+        try {
+          const json = JSON.parse(line);
+          const delta = json.choices?.[0]?.delta?.content || "";
+          if (!inCode) {
+            aiResponse += delta;
+          } else {
+            codeBuffer += delta;
+            setGeneratedCode((prev: any) => prev + delta);
+          }
+        } catch (err) {
+          console.error("Final JSON parse error:", err, line);
+        }
+      }
+    }
+
+    // Finalize: if still collecting code, we already appended it to setGeneratedCode as it arrived.
+    if (!inCode && aiResponse.trim()) {
+      setMessages((prev: any) => [
+        ...prev,
+        { chatMessage: [{ role: "assistant", content: aiResponse.trim() }] },
+      ]);
+    } else if (inCode) {
+      // stream ended while still inside a fence — treat collected code as final
       setMessages((prev: any) => [
         ...prev,
         {
-          chatMessage: [
-            { role: "assistant", content: textOnly || "Your code is ready!" },
-          ],
+          chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
         },
       ]);
     } else {
+      // no content
       setMessages((prev: any) => [
         ...prev,
-        { chatMessage: [{ role: "assistant", content: message }] },
+        {
+          chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
+        },
       ]);
     }
 
     setLoading(false);
   };
-
-  // chatgpt stream true code
-  // const SendMessage = async (userInput: string) => {
-  //   setLoading(true);
-
-  //   setMessages((prev: any) => [
-  //     ...prev,
-  //     { chatMessage: [{ role: "user", content: userInput }] },
-  //   ]);
-
-  //   const res = await fetch("/api/ai-model-openai", {
-  //     method: "POST",
-  //     body: JSON.stringify({
-  //       messages: [
-  //         { role: "user", content: Prompt.replace("{userInput}", userInput) },
-  //       ],
-  //     }),
-  //   });
-
-  //   const reader = res.body?.getReader();
-  //   const decoder = new TextDecoder();
-
-  //   let buffer = ""; // holds partial chunk text between reads
-  //   let aiResponse = ""; // accumulated plain text (before a code fence)
-  //   let codeBuffer = ""; // accumulating code while inside a fence
-  //   let inCode = false;
-
-  //   while (true) {
-  //     // @ts-ignore
-  //     const { done, value } = await reader?.read();
-  //     if (done) break;
-
-  //     buffer += decoder.decode(value, { stream: true });
-
-  //     // split into lines, keep last partial line in buffer
-  //     const lines = buffer.split("\n");
-  //     for (let i = 0; i < lines.length - 1; i++) {
-  //       let line = lines[i].trim();
-  //       if (!line) continue;
-
-  //       // If server sent SSE style, remove "data:" prefix
-  //       if (line.startsWith("data:")) {
-  //         line = line.replace(/^data:\s*/, "");
-  //       }
-
-  //       // Some servers may send "[DONE]" as raw line
-  //       if (line === "[DONE]") continue;
-
-  //       // Try parse JSON — supports both NDJSON and SSE JSON payloads
-  //       try {
-  //         const json = JSON.parse(line);
-  //         const delta = json.choices?.[0]?.delta?.content || "";
-
-  //         if (!delta) continue;
-
-  //         // If not inside code fence, append to aiResponse and check for fence start
-  //         if (!inCode) {
-  //           aiResponse += delta;
-
-  //           // detect start of a code fence (``` or ```lang)
-  //           const startIdx = aiResponse.indexOf("```");
-  //           if (startIdx !== -1) {
-  //             // everything after the fence start moves to codeBuffer
-  //             const afterFence = aiResponse.slice(startIdx + 3);
-  //             // keep text before fence as final assistant text chunk so far
-  //             const textBefore = aiResponse.slice(0, startIdx);
-
-  //             // push/flush the non-code text to messages state (incremental)
-  //             if (textBefore.trim()) {
-  //               setMessages((prev: any) => [
-  //                 ...prev,
-  //                 { chatMessage: [{ role: "assistant", content: textBefore }] },
-  //               ]);
-  //             }
-
-  //             // start collecting code
-  //             inCode = true;
-  //             codeBuffer = afterFence;
-  //             aiResponse = ""; // reset text accumulator
-  //             // also update generated code state with initial chunk
-  //             setGeneratedCode((prev: any) => prev + afterFence);
-  //           }
-  //         } else {
-  //           // inside code fence: append to codeBuffer and generatedCode
-  //           codeBuffer += delta;
-  //           setGeneratedCode((prev: any) => prev + delta);
-
-  //           // detect fence close
-  //           const endIdx = codeBuffer.indexOf("```");
-  //           if (endIdx !== -1) {
-  //             // found closing fence — split code and any trailing text
-  //             const codePart = codeBuffer.slice(0, endIdx);
-  //             const afterFence = codeBuffer.slice(endIdx + 3);
-
-  //             // make sure setGeneratedCode already has codePart (we've been appending it incrementally).
-  //             // Now clear flags and move trailing text into aiResponse (and into messages)
-  //             inCode = false;
-  //             codeBuffer = "";
-
-  //             if (afterFence.trim()) {
-  //               // any trailing content after closing fence becomes assistant text
-  //               setMessages((prev: any) => [
-  //                 ...prev,
-  //                 { chatMessage: [{ role: "assistant", content: afterFence }] },
-  //               ]);
-  //             } else {
-  //               // if nothing else, let the loop continue; final message may be set after stream ends
-  //             }
-  //           }
-  //         }
-  //       } catch (err) {
-  //         // If JSON.parse fails, ignore this line for now (it might be partial) — parser will try again
-  //         console.error("JSON parse error:", err, line);
-  //       }
-  //     }
-
-  //     // keep only the last partial line in buffer for next read
-  //     buffer = lines[lines.length - 1];
-  //   }
-
-  //   // Stream ended. If we have leftover buffer (a final json line) try parse it
-  //   if (buffer.trim()) {
-  //     let line = buffer.trim();
-  //     if (line.startsWith("data:")) line = line.replace(/^data:\s*/, "");
-  //     if (line !== "[DONE]") {
-  //       try {
-  //         const json = JSON.parse(line);
-  //         const delta = json.choices?.[0]?.delta?.content || "";
-  //         if (!inCode) {
-  //           aiResponse += delta;
-  //         } else {
-  //           codeBuffer += delta;
-  //           setGeneratedCode((prev: any) => prev + delta);
-  //         }
-  //       } catch (err) {
-  //         console.error("Final JSON parse error:", err, line);
-  //       }
-  //     }
-  //   }
-
-  //   // Finalize: if still collecting code, we already appended it to setGeneratedCode as it arrived.
-  //   if (!inCode && aiResponse.trim()) {
-  //     setMessages((prev: any) => [
-  //       ...prev,
-  //       { chatMessage: [{ role: "assistant", content: aiResponse.trim() }] },
-  //     ]);
-  //   } else if (inCode) {
-  //     // stream ended while still inside a fence — treat collected code as final
-  //     setMessages((prev: any) => [
-  //       ...prev,
-  //       {
-  //         chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
-  //       },
-  //     ]);
-  //   } else {
-  //     // no content
-  //     setMessages((prev: any) => [
-  //       ...prev,
-  //       {
-  //         chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
-  //       },
-  //     ]);
-  //   }
-
-  //   setLoading(false);
-  // };
 
   useEffect(() => {
     console.log("messages : ", messages);

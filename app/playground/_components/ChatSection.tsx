@@ -12,7 +12,7 @@ type Props = {
 };
 
 function ChatSection({ messages, onSend, loading }: Props) {
-  const [input, setInput] = useState<string>();
+  const [input, setInput] = useState<string>("");
 
   const handleSend = () => {
     if (!input?.trim()) return;
