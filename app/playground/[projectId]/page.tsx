@@ -106,13 +106,18 @@ function page() {
       `/api/frames?frameId=${frameId}&projectId=${projectId}`
     );
     setFrameDetail(result?.data);
-    if (result.data?.chatMessages[0].chatMessage?.length == 1) {
+    setMessages(result?.data?.chatMessages)
+    console.log(
+      "get frame detail from frontend : ",
+      result.data?.chatMessages
+    );
+
+    if (result.data?.chatMessages?.length == 1) {
       const userMessage = result.data?.chatMessages[0].chatMessage[0]?.content;
+      console.log("ai call initiated")
       SendMessage(userMessage);
     }
   };
-
-  
 
   // chatgpt stream true code
   const SendMessage = async (userInput: string) => {
@@ -122,6 +127,12 @@ function page() {
       ...prev,
       { chatMessage: [{ role: "user", content: userInput }] },
     ]);
+
+    console.log("frameId : ", frameId)
+
+    const userChatResponse = await axios.post(`/api/chats/${frameId}`, {
+      chatMessage: [{ role: "user", content: userInput }],
+    });
 
     const res = await fetch("/api/ai-model-openai", {
       method: "POST",
@@ -135,9 +146,9 @@ function page() {
     const reader = res.body?.getReader();
     const decoder = new TextDecoder();
 
-    let buffer = ""; // holds partial chunk text between reads
-    let aiResponse = ""; // accumulated plain text (before a code fence)
-    let codeBuffer = ""; // accumulating code while inside a fence
+    let buffer = "";
+    let aiResponse = "";
+    let codeBuffer = "";
     let inCode = false;
 
     while (true) {
@@ -147,40 +158,31 @@ function page() {
 
       buffer += decoder.decode(value, { stream: true });
 
-      // split into lines, keep last partial line in buffer
       const lines = buffer.split("\n");
       for (let i = 0; i < lines.length - 1; i++) {
         let line = lines[i].trim();
         if (!line) continue;
 
-        // If server sent SSE style, remove "data:" prefix
         if (line.startsWith("data:")) {
           line = line.replace(/^data:\s*/, "");
         }
 
-        // Some servers may send "[DONE]" as raw line
         if (line === "[DONE]") continue;
 
-        // Try parse JSON — supports both NDJSON and SSE JSON payloads
         try {
           const json = JSON.parse(line);
           const delta = json.choices?.[0]?.delta?.content || "";
 
           if (!delta) continue;
 
-          // If not inside code fence, append to aiResponse and check for fence start
           if (!inCode) {
             aiResponse += delta;
 
-            // detect start of a code fence (``` or ```lang)
             const startIdx = aiResponse.indexOf("```");
             if (startIdx !== -1) {
-              // everything after the fence start moves to codeBuffer
               const afterFence = aiResponse.slice(startIdx + 3);
-              // keep text before fence as final assistant text chunk so far
               const textBefore = aiResponse.slice(0, startIdx);
 
-              // push/flush the non-code text to messages state (incremental)
               if (textBefore.trim()) {
                 setMessages((prev: any) => [
                   ...prev,
@@ -188,52 +190,40 @@ function page() {
                 ]);
               }
 
-              // start collecting code
               inCode = true;
               codeBuffer = afterFence;
-              aiResponse = ""; // reset text accumulator
-              // also update generated code state with initial chunk
+              aiResponse = ""; 
               setGeneratedCode((prev: any) => prev + afterFence);
             }
           } else {
-            // inside code fence: append to codeBuffer and generatedCode
             codeBuffer += delta;
             setGeneratedCode((prev: any) => prev + delta);
 
-            // detect fence close
             const endIdx = codeBuffer.indexOf("```");
             if (endIdx !== -1) {
-              // found closing fence — split code and any trailing text
               const codePart = codeBuffer.slice(0, endIdx);
               const afterFence = codeBuffer.slice(endIdx + 3);
 
-              // make sure setGeneratedCode already has codePart (we've been appending it incrementally).
-              // Now clear flags and move trailing text into aiResponse (and into messages)
               inCode = false;
               codeBuffer = "";
 
               if (afterFence.trim()) {
-                // any trailing content after closing fence becomes assistant text
                 setMessages((prev: any) => [
                   ...prev,
                   { chatMessage: [{ role: "assistant", content: afterFence }] },
                 ]);
               } else {
-                // if nothing else, let the loop continue; final message may be set after stream ends
               }
             }
           }
         } catch (err) {
-          // If JSON.parse fails, ignore this line for now (it might be partial) — parser will try again
           console.error("JSON parse error:", err, line);
         }
       }
 
-      // keep only the last partial line in buffer for next read
       buffer = lines[lines.length - 1];
     }
 
-    // Stream ended. If we have leftover buffer (a final json line) try parse it
     if (buffer.trim()) {
       let line = buffer.trim();
       if (line.startsWith("data:")) line = line.replace(/^data:\s*/, "");
@@ -253,14 +243,12 @@ function page() {
       }
     }
 
-    // Finalize: if still collecting code, we already appended it to setGeneratedCode as it arrived.
     if (!inCode && aiResponse.trim()) {
       setMessages((prev: any) => [
         ...prev,
         { chatMessage: [{ role: "assistant", content: aiResponse.trim() }] },
       ]);
     } else if (inCode) {
-      // stream ended while still inside a fence — treat collected code as final
       setMessages((prev: any) => [
         ...prev,
         {
@@ -268,7 +256,6 @@ function page() {
         },
       ]);
     } else {
-      // no content
       setMessages((prev: any) => [
         ...prev,
         {
