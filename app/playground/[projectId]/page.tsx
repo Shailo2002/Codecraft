@@ -105,6 +105,7 @@ function page() {
     const result = await axios.get(
       `/api/frames?frameId=${frameId}&projectId=${projectId}`
     );
+    
     setFrameDetail(result?.data);
     setMessages(result?.data?.chatMessages)
     console.log(
