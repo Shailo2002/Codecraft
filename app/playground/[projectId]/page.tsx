@@ -98,42 +98,45 @@ function page() {
   const [generatedCode, setGeneratedCode] = useState<any>("");
 
   useEffect(() => {
-    GetFrameDetails();
+    frameId && GetFrameDetails();
   }, [frameId]);
 
   const GetFrameDetails = async () => {
     const result = await axios.get(
       `/api/frames?frameId=${frameId}&projectId=${projectId}`
     );
-    
+
     setFrameDetail(result?.data);
-    setMessages(result?.data?.chatMessages)
-    console.log(
-      "get frame detail from frontend : ",
-      result.data?.chatMessages
-    );
+    setMessages(result?.data?.chatMessages);
+    console.log("get frame detail from frontend : ", result.data?.chatMessages);
 
     if (result.data?.chatMessages?.length == 1) {
       const userMessage = result.data?.chatMessages[0].chatMessage[0]?.content;
-      console.log("ai call initiated")
+      console.log("ai call initiated");
       SendMessage(userMessage);
+    }
+  };
+
+  const saveMsgToDb = async (msg: Message) => {
+    try {
+      await axios.post(`/api/chats/${frameId}`, {
+        chatMessage: [msg],
+      });
+    } catch (error) {
+      console.error("Failed to save message:", error);
     }
   };
 
   // chatgpt stream true code
   const SendMessage = async (userInput: string) => {
     setLoading(true);
+    setGeneratedCode("");
 
-    setMessages((prev: any) => [
-      ...prev,
-      { chatMessage: [{ role: "user", content: userInput }] },
-    ]);
+    const userMsgObj = { role: "user", content: userInput };
 
-    console.log("frameId : ", frameId)
+    setMessages((prev: any) => [...prev, { chatMessage: [userMsgObj] }]);
 
-    const userChatResponse = await axios.post(`/api/chats/${frameId}`, {
-      chatMessage: [{ role: "user", content: userInput }],
-    });
+    saveMsgToDb(userMsgObj);
 
     const res = await fetch("/api/ai-model-openai", {
       method: "POST",
@@ -193,7 +196,7 @@ function page() {
 
               inCode = true;
               codeBuffer = afterFence;
-              aiResponse = ""; 
+              aiResponse = "";
               setGeneratedCode((prev: any) => prev + afterFence);
             }
           } else {
@@ -249,6 +252,8 @@ function page() {
         ...prev,
         { chatMessage: [{ role: "assistant", content: aiResponse.trim() }] },
       ]);
+
+      await saveMsgToDb({ role: "assistant", content: aiResponse.trim() });
     } else if (inCode) {
       setMessages((prev: any) => [
         ...prev,
@@ -256,6 +261,10 @@ function page() {
           chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
         },
       ]);
+      await saveMsgToDb({
+        role: "assistant",
+        content: "Your code is ready!",
+      });
     } else {
       setMessages((prev: any) => [
         ...prev,
@@ -263,6 +272,10 @@ function page() {
           chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
         },
       ]);
+      await saveMsgToDb({
+        role: "assistant",
+        content: "Your code is ready!",
+      });
     }
 
     setLoading(false);
@@ -271,7 +284,7 @@ function page() {
   useEffect(() => {
     console.log("messages : ", messages);
     console.log("generated code : ", generatedCode);
-  }, [generatedCode, messages]);
+  }, [messages]);
 
   return (
     <div>
@@ -286,7 +299,9 @@ function page() {
         />
 
         {/* websiteDesign */}
-        <WebsiteDesign />
+        <WebsiteDesign
+          generatedCode={generatedCode.replace(/html/g, "").replace(/'''/g, "")}
+        />
 
         {/* Element seting section */}
         <ElementSettingSection />
