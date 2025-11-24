@@ -108,11 +108,9 @@ function page() {
 
     setFrameDetail(result?.data);
     setMessages(result?.data?.chatMessages);
-    console.log("get frame detail from frontend : ", result.data?.chatMessages);
 
     if (result.data?.chatMessages?.length == 1) {
       const userMessage = result.data?.chatMessages[0].chatMessage[0]?.content;
-      console.log("ai call initiated");
       SendMessage(userMessage);
     }
   };
@@ -122,6 +120,19 @@ function page() {
       await axios.post(`/api/chats/${frameId}`, {
         chatMessage: [msg],
       });
+    } catch (error) {
+      console.error("Failed to save message:", error);
+    }
+  };
+
+  const saveGeneratedCode = async () => {
+    try {
+      console.log("saveGenerated Code : ", generatedCode);
+
+      // await axios.put(`/api/frames/`, {
+      //   frameId,
+      //   generatedCode,
+      // });
     } catch (error) {
       console.error("Failed to save message:", error);
     }
@@ -278,13 +289,13 @@ function page() {
       });
     }
 
+    await saveGeneratedCode();
     setLoading(false);
   };
 
   useEffect(() => {
-    console.log("messages : ", messages);
-    console.log("generated code : ", generatedCode);
-  }, [messages]);
+    console.log("generatedCode check  ");
+  }, [generatedCode]);
 
   return (
     <div>

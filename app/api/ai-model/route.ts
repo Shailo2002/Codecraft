@@ -4,7 +4,6 @@ import axios from "axios";
 export async function POST(req: NextRequest) {
   try {
     const { messages } = await req.json();
-    console.log("messages : ", messages);
 
     const response = await axios.post(
       "https://openrouter.ai/api/v1/chat/completions",

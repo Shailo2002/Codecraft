@@ -27,11 +27,6 @@ export async function POST(
       },
     });
 
-    console.log("user : ", dbUser);
-    console.log("chatMessage : ", chatMessage);
-    console.log("frameId : ", frameId);
-    console.log("newChat : ", newChat);
-
     return NextResponse.json({ status: 200, message: "chat added" });
   } catch (error) {
     return NextResponse.json({ error: "internal error" }, { status: 500 });

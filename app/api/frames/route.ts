@@ -20,3 +20,23 @@ export async function GET(req: NextRequest) {
    return NextResponse.json({ error: "internal error" }, { status: 500 });
  }
 }
+
+export async function PUT(req: NextRequest) {
+  try {
+    const data = await req.json();
+     const { frameId,generatedCode } = data;
+     console.log("frameId :", frameId)
+     console.log("generatedCode :", generatedCode);
+
+    //  const result = await prisma.frame.update({
+    //    where: { frameId: frameId ?? "" },
+    //    data: {
+    //      designCode: generatedCode,
+    //    },
+    //  });
+    return NextResponse.json( { status: 200 });
+  } catch (error) {
+    return NextResponse.json({ error: "internal error" }, { status: 500 });
+  }
+}
+
