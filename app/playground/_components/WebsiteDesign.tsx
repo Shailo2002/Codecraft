@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from "react";
+import WebPageTools from "./WebPageTools";
 
 type Props = {
   generatedCode: string;
@@ -76,12 +77,13 @@ function WebsiteDesign({generatedCode}: Props) {
   }, [generatedCode]);
 
   return (
-    <div className="p-4 w-full ">
+    <div className="p-4 w-full  ">
       <iframe
         ref={iframeRef}
-        className="w-full h-[635px] border rounded"
+        className="w-full h-[80vh] border rounded-t-xl"
         sandbox="allow-scripts allow-same-origin"
       />
+      <WebPageTools />
     </div>
   );
 }
