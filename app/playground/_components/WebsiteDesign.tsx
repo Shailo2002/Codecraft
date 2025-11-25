@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import WebPageTools from "./WebPageTools";
 
 type Props = {
@@ -7,6 +7,8 @@ type Props = {
 
 function WebsiteDesign({generatedCode}: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+      const [selectedSize, setSelectedSize] = useState("web");
+
 
   console.log("generatedCode webdesign check : ", generatedCode);
 
@@ -77,13 +79,21 @@ function WebsiteDesign({generatedCode}: Props) {
   }, [generatedCode]);
 
   return (
-    <div className="p-4 w-full  ">
+    <div className="flex flex-col items-center justify-center p-4 w-full border rounded-t-xl ">
       <iframe
         ref={iframeRef}
-        className="w-full h-[80vh] border rounded-t-xl"
+        className={`${
+          selectedSize === "web"
+            ? "w-full h-[80vh] rounded-t-xl"
+            : "w-110 h-[80vh] rounded-xl m-2"
+        } " border "`}
         sandbox="allow-scripts allow-same-origin"
       />
-      <WebPageTools />
+      <WebPageTools
+        selectedSize={selectedSize}
+        setSelectedScreenSize={(v: string) => setSelectedSize(v)}
+        generatedCode={generatedCode}
+      />
     </div>
   );
 }
