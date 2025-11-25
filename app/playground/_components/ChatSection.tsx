@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Messages } from "../[projectId]/page";
 import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
@@ -13,6 +13,7 @@ type Props = {
 
 function ChatSection({ messages, onSend, loading }: Props) {
   const [input, setInput] = useState<string>("");
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   const handleSend = () => {
     if (!input?.trim()) return;
@@ -20,9 +21,17 @@ function ChatSection({ messages, onSend, loading }: Props) {
     setInput("");
   };
 
+  useEffect(() => {
+    if (!bottomRef.current) return;
+
+    // small delay so DOM/layout is ready
+    setTimeout(() => {
+      bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    }, 0);
+  }, [messages]);
 
   return (
-    <div className="flex flex-col w-96 shadow h-[91.25vh]  p-2">
+    <div className="flex flex-col w-120 shadow h-[91.25vh]  p-2">
       {/* Message Section */}
       <ScrollArea className="flex-1 flex flex-col overflow-y-auto rounded-md border bg-white">
         <div className="  p-4 space-y-4 ">
@@ -50,6 +59,7 @@ function ChatSection({ messages, onSend, loading }: Props) {
               </div>
             ))
           )}
+          <div ref={bottomRef} />
         </div>
       </ScrollArea>
 
@@ -60,9 +70,15 @@ function ChatSection({ messages, onSend, loading }: Props) {
           placeholder="Describe your page design"
           onChange={(e) => setInput(e.target.value)}
           value={input}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              handleSend();
+            }
+          }}
         />
         <Button className="m-2 absolute right-1 bottom-0" onClick={handleSend}>
-          {loading ? <Spinner/> :<ArrowUp />}
+          {loading ? <Spinner /> : <ArrowUp />}
         </Button>
       </div>
     </div>

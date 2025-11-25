@@ -6,6 +6,7 @@ import WebsiteDesign from "../_components/WebsiteDesign";
 import ElementSettingSection from "../_components/ElementSettingSection";
 import { useParams, useSearchParams } from "next/navigation";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 export type Frame = {
   id: String;
@@ -109,7 +110,7 @@ function page() {
 
     setFrameDetail(result?.data);
     setMessages(result?.data?.chatMessages);
-    setGeneratedCode(result?.data?.designCode)
+    setGeneratedCode(result?.data?.designCode);
     if (result.data?.chatMessages?.length == 1) {
       const userMessage = result.data?.chatMessages[0].chatMessage[0]?.content;
       SendMessage(userMessage);
@@ -128,17 +129,15 @@ function page() {
 
   const saveGeneratedCode = async () => {
     try {
-      console.log(
-        "final code:",
-        generatedCodeRef.current.replace(/html/g, "").replace(/```/g, "")
-      );
       await axios.put(`/api/frames/`, {
         frameId,
         designCode: generatedCodeRef.current
           .replace(/html/g, "")
           .replace(/```/g, ""),
       });
+      toast.success("Website is Ready!");
     } catch (error) {
+      toast.error("error while generating Website!");
       console.error("Failed to save message:", error);
     }
   };
@@ -311,7 +310,7 @@ function page() {
   };
 
   useEffect(() => {
-    console.log("generatedCode check  ");
+    console.log("generatedCode check : ", generatedCode);
   }, [generatedCode]);
 
   return (
