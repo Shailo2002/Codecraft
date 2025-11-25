@@ -22,7 +22,7 @@ function ChatSection({ messages, onSend, loading }: Props) {
 
 
   return (
-    <div className="flex flex-col w-96 shadow h-[90.25vh]  p-2">
+    <div className="flex flex-col w-96 shadow h-[91.25vh]  p-2">
       {/* Message Section */}
       <ScrollArea className="flex-1 flex flex-col overflow-y-auto rounded-md border bg-white">
         <div className="  p-4 space-y-4 ">

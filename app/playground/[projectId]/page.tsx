@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import PlayGroundHeader from "../_components/PlayGroundHeader";
 import ChatSection from "../_components/ChatSection";
 import WebsiteDesign from "../_components/WebsiteDesign";
@@ -96,6 +96,7 @@ function page() {
   const [loading, setLoading] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [generatedCode, setGeneratedCode] = useState<any>("");
+  const generatedCodeRef = useRef("");
 
   useEffect(() => {
     frameId && GetFrameDetails();
@@ -108,7 +109,7 @@ function page() {
 
     setFrameDetail(result?.data);
     setMessages(result?.data?.chatMessages);
-
+    setGeneratedCode(result?.data?.designCode)
     if (result.data?.chatMessages?.length == 1) {
       const userMessage = result.data?.chatMessages[0].chatMessage[0]?.content;
       SendMessage(userMessage);
@@ -127,12 +128,16 @@ function page() {
 
   const saveGeneratedCode = async () => {
     try {
-      console.log("saveGenerated Code : ", generatedCode);
-
-      // await axios.put(`/api/frames/`, {
-      //   frameId,
-      //   generatedCode,
-      // });
+      console.log(
+        "final code:",
+        generatedCodeRef.current.replace(/html/g, "").replace(/```/g, "")
+      );
+      await axios.put(`/api/frames/`, {
+        frameId,
+        designCode: generatedCodeRef.current
+          .replace(/html/g, "")
+          .replace(/```/g, ""),
+      });
     } catch (error) {
       console.error("Failed to save message:", error);
     }
@@ -208,11 +213,19 @@ function page() {
               inCode = true;
               codeBuffer = afterFence;
               aiResponse = "";
-              setGeneratedCode((prev: any) => prev + afterFence);
+              setGeneratedCode((prev: any) => {
+                const newVal = prev + afterFence;
+                generatedCodeRef.current = newVal;
+                return newVal;
+              });
             }
           } else {
             codeBuffer += delta;
-            setGeneratedCode((prev: any) => prev + delta);
+            setGeneratedCode((prev: any) => {
+              const newVal = prev + delta;
+              generatedCodeRef.current = newVal;
+              return newVal;
+            });
 
             const endIdx = codeBuffer.indexOf("```");
             if (endIdx !== -1) {
@@ -250,7 +263,11 @@ function page() {
             aiResponse += delta;
           } else {
             codeBuffer += delta;
-            setGeneratedCode((prev: any) => prev + delta);
+            setGeneratedCode((prev: any) => {
+              const newVal = prev + delta;
+              generatedCodeRef.current = newVal;
+              return newVal;
+            });
           }
         } catch (err) {
           console.error("Final JSON parse error:", err, line);
@@ -311,7 +328,7 @@ function page() {
 
         {/* websiteDesign */}
         <WebsiteDesign
-          generatedCode={generatedCode.replace(/html/g, "").replace(/'''/g, "")}
+          generatedCode={generatedCode.replace(/html/g, "").replace(/```/g, "")}
         />
 
         {/* Element seting section */}

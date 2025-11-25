@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
@@ -7,10 +7,12 @@ import React, { useContext } from "react";
 import { UserDetailContext } from "../context/UserDetailContext";
 
 const menuOptions = [
-    {name: "Pricing", path:"/pricing"},{
-        name:"Contact Us", path:"/contact-us"
-    }
-]
+  { name: "Pricing", path: "/pricing" },
+  {
+    name: "Contact Us",
+    path: "/contact-us",
+  },
+];
 
 function Header() {
   const user = useContext(UserDetailContext);
@@ -31,11 +33,11 @@ function Header() {
       {/* get started button */}
       {!user ? (
         <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
-          <Button>Get Started</Button>
+          <Button className="hover:cursor-pointer">Get Started</Button>
         </SignInButton>
       ) : (
         <Link href={"/workspace"}>
-          <Button>Get Started</Button>
+          <Button className="hover:cursor-pointer">Get Started</Button>
         </Link>
       )}
     </div>
