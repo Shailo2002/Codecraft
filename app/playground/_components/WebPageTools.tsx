@@ -5,10 +5,19 @@ import {
   Monitor,
   SquareArrowOutUpRight,
   TabletSmartphone,
+  View,
 } from "lucide-react";
+import { ViewCodeBlock } from "./ViewCodeBlock";
+import { useEffect, useState } from "react";
 
-function WebPageTools({ selectedSize, setSelectedScreenSize, generatedCode }: any) {
-  const ViewInNewTab = () => {
+function WebPageTools({
+  selectedSize,
+  setSelectedScreenSize,
+  generatedCode,
+}: any) {
+  const [finalCode, setFinalCode] = useState<string>("");
+
+  useEffect(() => {
     const cleanCode = ` <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -52,7 +61,12 @@ function WebPageTools({ selectedSize, setSelectedScreenSize, generatedCode }: an
       <body id="root">
       ${generatedCode}</body>
       </html>`;
-    const blob = new Blob([cleanCode], { type: "text/html" });
+    setFinalCode(cleanCode);
+  }, [generatedCode]);
+
+  const ViewInNewTab = () => {
+    if (!finalCode) return;
+    const blob = new Blob([finalCode], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     window.open(url, "_blank");
   };
@@ -80,10 +94,14 @@ function WebPageTools({ selectedSize, setSelectedScreenSize, generatedCode }: an
           View
           <SquareArrowOutUpRight />
         </Button>
-        <Button>
-          Code
-          <CodeXml />
-        </Button>
+
+        <ViewCodeBlock code={finalCode}>
+          <Button>
+            Code
+            <CodeXml />
+          </Button>
+        </ViewCodeBlock>
+
         <Button>
           Download
           <Download />

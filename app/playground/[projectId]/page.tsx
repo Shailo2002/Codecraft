@@ -331,7 +331,7 @@ function page() {
         />
 
         {/* Element seting section */}
-        <ElementSettingSection />
+        {/* <ElementSettingSection /> */}
       </div>
     </div>
   );
