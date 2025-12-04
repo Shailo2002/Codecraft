@@ -71,6 +71,16 @@ function WebPageTools({
     window.open(url, "_blank");
   };
 
+  const handleDownload = () => {
+    const blob = new Blob([finalCode],{type:"text/html"});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "index.html";
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <div className="p-3 w-full border shadow rounded-b-xl flex justify-between items-center ">
       <div className="flex items-center justify-center gap-2">
@@ -102,7 +112,7 @@ function WebPageTools({
           </Button>
         </ViewCodeBlock>
 
-        <Button>
+        <Button onClick={() => handleDownload()}>
           Download
           <Download />
         </Button>
