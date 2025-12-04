@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import WebPageTools from "./WebPageTools";
+import ElementSettingSection from "./ElementSettingSection";
 
 type Props = {
   generatedCode: string;
@@ -8,6 +9,7 @@ type Props = {
 function WebsiteDesign({ generatedCode }: Props) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [selectedSize, setSelectedSize] = useState("web");
+  const [selectedElement, setSelectedElement] = useState<HTMLElement | null>();
 
   // Initialize iframe shell once
   useEffect(() => {
@@ -75,6 +77,7 @@ function WebsiteDesign({ generatedCode }: Props) {
       }
 
       selectedEl = target;
+      setSelectedElement(selectedEl)
       selectedEl.style.outline = "2px solid red";
       selectedEl.setAttribute("contenteditable", "true");
       selectedEl.focus();
@@ -123,21 +126,32 @@ function WebsiteDesign({ generatedCode }: Props) {
   }, [generatedCode]);
 
   return (
-    <div className="flex flex-col items-center justify-center p-4 w-full border rounded-t-xl ">
-      <iframe
-        ref={iframeRef}
-        className={`${
-          selectedSize === "web"
-            ? "w-full h-[80vh] rounded-t-xl"
-            : "w-110 h-[80vh] rounded-xl m-2"
-        } " border "`}
-        sandbox="allow-scripts allow-same-origin"
-      />
-      <WebPageTools
-        selectedSize={selectedSize}
-        setSelectedScreenSize={(v: string) => setSelectedSize(v)}
-        generatedCode={generatedCode}
-      />
+    <div className="flex gap-2 w-full">
+      <div className="flex flex-col items-center justify-center p-4 w-full border ">
+        <iframe
+          ref={iframeRef}
+          className={`${
+            selectedSize === "web"
+              ? "w-full h-[80vh] rounded-t-xl"
+              : "w-110 h-[80vh] rounded-xl "
+          } " border "`}
+          sandbox="allow-scripts allow-same-origin"
+        />
+        <WebPageTools
+          selectedSize={selectedSize}
+          setSelectedScreenSize={(v: string) => setSelectedSize(v)}
+          generatedCode={generatedCode}
+        />
+      </div>
+
+      {/* Element seting section */}
+      {/* @ts-ignore */}
+      {selectedElement && (
+        <ElementSettingSection
+          selectedEl={selectedElement || null}
+          clearSelection={() => setSelectedElement(null)}
+        />
+      )}
     </div>
   );
 }

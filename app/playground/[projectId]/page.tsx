@@ -309,9 +309,9 @@ function page() {
     setLoading(false);
   };
 
-  useEffect(() => {
-    console.log("generatedCode check : ", generatedCode);
-  }, [generatedCode]);
+  // useEffect(() => {
+  //   console.log("generatedCode check : ", generatedCode);
+  // }, [generatedCode]);
 
   return (
     <div>
@@ -330,8 +330,6 @@ function page() {
           generatedCode={generatedCode.replace(/html/g, "").replace(/```/g, "")}
         />
 
-        {/* Element seting section */}
-        {/* <ElementSettingSection /> */}
       </div>
     </div>
   );

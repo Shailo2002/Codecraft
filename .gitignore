@@ -45,5 +45,6 @@ next-env.d.ts
 
 # rough file
 rough.tsx
+game.tsx
 # clerk configuration (can include secrets)
 /.clerk/

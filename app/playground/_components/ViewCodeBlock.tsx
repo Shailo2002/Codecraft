@@ -30,12 +30,12 @@ export function ViewCodeBlock({ children, code }: any) {
 
   return (
     <Dialog>
-      <DialogTrigger>{children}</DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent className="min-w-5xl max-h-[600px] overflow-auto">
         <DialogHeader>
           <DialogTitle className="flex justify-start items-center gap-2">
-            Source Code{" "}
-            <Button onClick={() => handleCopy()} variant={"secondary"}>
+            Source Code
+            <Button onClick={handleCopy} variant="secondary">
               <Copy size={16} />
             </Button>
           </DialogTitle>
