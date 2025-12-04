@@ -3,8 +3,9 @@ import {
   TextAlignCenter,
   TextAlignEnd,
   TextAlignStart,
+  X,
 } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -23,13 +24,33 @@ type Props = {
 };
 
 function ElementSettingSection({ selectedEl, clearSelection }: Props) {
-  console.log("selected Element : ", selectedEl);
+  const [classes, setClasses] = useState([...selectedEl.classList]);
+  const [newClass, setNewClass] = useState("");
+
 
   const handleChange = (property: string, value: string) => {
     if (selectedEl) {
       selectedEl.style[property as any] = value;
     }
   };
+
+  const handleRemoveCss = (styleText: string) => {
+    if (!styleText) return;
+
+    selectedEl.classList.remove(styleText);
+    setClasses((prev) => prev.filter((i) => i !== styleText));
+  };
+
+  const handleAddClass = (styleText: string) => {
+    if (!styleText) return;
+    selectedEl.classList.add(styleText);
+    setClasses((prev) => [...prev, styleText]);
+  };
+
+  useEffect(() => {
+    if (!selectedEl) return;
+    setClasses([...selectedEl.classList]);
+  }, [selectedEl]);
 
   return (
     <div className="w-96 shadow p-4">
@@ -73,7 +94,7 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
 
       <div className="mt-2">
         <label className="text-sm">Text Alignment</label>
-        <div className="bg-neutral-200 flex justify-around items-center p-1 mt-1 rounded">
+        <div className="bg-neutral-200 flex justify-around items-center p-0.5 mt-1 rounded">
           <Button
             variant={"ghost"}
             onClick={(e) => handleChange("text-align", "start")}
@@ -115,6 +136,50 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
             }
           />
         </div>
+      </div>
+
+      <div className="mt-2 flex flex-col gap-1">
+        <label className="text-sm">Padding</label>
+        <Input
+          placeholder="e.g. 8 px"
+          onChange={(e) => handleChange("padding", `${e.target.value}px`)}
+        />
+      </div>
+
+      <div className="mt-2 flex flex-col gap-1">
+        <label className="text-sm">Margin</label>
+        <Input
+          placeholder="e.g. 8 px"
+          onChange={(e) => handleChange("margin", `${e.target.value}px`)}
+        />
+      </div>
+
+      <div className="mt-2 flex flex-col gap-1">
+        <label className="text-sm">Classes</label>
+        <div className="flex flex-wrap gap-2">
+          {classes.map((value, key) => (
+            <div
+              key={key}
+              className="flex items-center gap-2 bg-slate-200 px-3 py-1 rounded-2xl border border-slate-300 leading-none"
+            >
+              <span className="leading-none">{value}</span>
+              <X
+                size={12}
+                className="text-red-500 leading-none"
+                onClick={() => handleRemoveCss(value)}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-4 flex justify-center items-center gap-1">
+        <Input
+          placeholder="Add class..."
+          value={newClass}
+          onChange={(e) => setNewClass(e.target.value)}
+        />
+        <Button onClick={() => handleAddClass(newClass)}>add</Button>
       </div>
     </div>
   );

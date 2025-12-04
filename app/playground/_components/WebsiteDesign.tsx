@@ -111,7 +111,7 @@ function WebsiteDesign({ generatedCode }: Props) {
       doc.body?.removeEventListener("click", handleClick);
       doc?.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [generatedCode]);
 
   // Update body only when code changes
   useEffect(() => {
