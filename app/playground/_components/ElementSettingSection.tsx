@@ -27,7 +27,6 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
   const [classes, setClasses] = useState([...selectedEl.classList]);
   const [newClass, setNewClass] = useState("");
 
-
   const handleChange = (property: string, value: string) => {
     if (selectedEl) {
       selectedEl.style[property as any] = value;

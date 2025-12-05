@@ -77,6 +77,15 @@ function ChatSection({ messages, onSend, loading }: Props) {
             }
           }}
         />
+
+        <div className="absolute right-14 bottom-1.5">
+          {" "}
+          <select name="model" id="model">
+            <option value="gpt-4o-mini">gpt-4o-mini</option>
+            <option value="gpt-4o-mini">gpt-4o-mini</option>
+          </select>
+        </div>
+
         <Button className="m-2 absolute right-1 bottom-0" onClick={handleSend}>
           {loading ? <Spinner /> : <ArrowUp />}
         </Button>

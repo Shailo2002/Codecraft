@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import WebPageTools from "./WebPageTools";
 import ElementSettingSection from "./ElementSettingSection";
+import ImageSettingSection from "./ImageSettingSection";
 
 type Props = {
   generatedCode: string;
@@ -77,7 +78,7 @@ function WebsiteDesign({ generatedCode }: Props) {
       }
 
       selectedEl = target;
-      setSelectedElement(selectedEl)
+      setSelectedElement(selectedEl);
       selectedEl.style.outline = "2px solid red";
       selectedEl.setAttribute("contenteditable", "true");
       selectedEl.focus();
@@ -145,13 +146,14 @@ function WebsiteDesign({ generatedCode }: Props) {
       </div>
 
       {/* Element seting section */}
-      {/* @ts-ignore */}
-      {selectedElement && (
+      {selectedElement?.tagName === "IMG" ? (
+        <ImageSettingSection selectedEl={selectedElement || null} />
+      ) : selectedElement ? (
         <ElementSettingSection
           selectedEl={selectedElement || null}
           clearSelection={() => setSelectedElement(null)}
         />
-      )}
+      ): null}
     </div>
   );
 }
