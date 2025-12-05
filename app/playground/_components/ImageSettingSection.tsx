@@ -89,22 +89,37 @@ function ImageSettingSection({ selectedEl }: Props) {
     }
   };
 
+  //   const handleGenerateImage = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const url = `https://ik.imagekit.io/jvcgawwif/ik-genimg-prompt-${altText}/${Date.now()}.jpg`;
+  //       console.log("generate image url : ", url);
+  //       const result = await axios.post("/api/imagekit/ai-upload", { url });
+  //       console.log("result : ", result);
+  //       setPreview(result?.data?.url);
+  //       selectedEl.setAttribute("src", result?.data?.url);
+  //     } catch (error) {
+  //       console.log("error : ", error);
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
   const handleGenerateImage = async () => {
     setLoading(true);
     try {
-      const url = `https://ik.imagekit.io/jvcgawwif/ik-genimg-prompt-${altText}/${Date.now()}.jpg`;
-      console.log("generate image url : ", url);
-      const result = await axios.post("/api/imagekit/ai-upload", { url });
-      console.log("result : ", result);
-      setPreview(result?.data?.url);
-      selectedEl.setAttribute("src", result?.data?.url);
+      const res = await axios.post("/api/imagekit/generate-image", {
+        prompt: altText,
+      });
+      console.log("result : ", res);
+      setPreview(res?.data?.url);
+      selectedEl.setAttribute("src", res?.data?.url);
     } catch (error) {
-      console.log("error : ", error);
+      console.error("Error generating image:", error);
     } finally {
       setLoading(false);
     }
   };
-
   const handleImageEdit = (toolType: string) => {
     setLoading(true);
     try {
