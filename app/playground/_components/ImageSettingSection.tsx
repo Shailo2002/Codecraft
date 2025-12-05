@@ -57,7 +57,7 @@ function ImageSettingSection({ selectedEl }: Props) {
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const imageUploadRef = useRef<HTMLInputElement | null>(null);
-  const [selectedTool, setSelectedTool] = useState([])
+  const [selectedTool, setSelectedTool] = useState([]);
 
   const openFileDialog = () => {
     imageUploadRef?.current?.click();
@@ -89,13 +89,15 @@ function ImageSettingSection({ selectedEl }: Props) {
     }
   };
 
-  const handleGenerateImage = () => {
+  const handleGenerateImage = async () => {
     setLoading(true);
     try {
       const url = `https://ik.imagekit.io/jvcgawwif/ik-genimg-prompt-${altText}/${Date.now()}.jpg`;
       console.log("generate image url : ", url);
-      setPreview(url);
-      selectedEl.setAttribute("src", url);
+      const result = await axios.post("/api/imagekit/ai-upload", { url });
+      console.log("result : ", result);
+      setPreview(result?.data?.url);
+      selectedEl.setAttribute("src", result?.data?.url);
     } catch (error) {
       console.log("error : ", error);
     } finally {
