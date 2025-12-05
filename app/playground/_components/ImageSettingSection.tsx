@@ -16,7 +16,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-
 const transformOptions = [
   {
     label: "Smart Crop",
@@ -58,6 +57,7 @@ function ImageSettingSection({ selectedEl }: Props) {
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const imageUploadRef = useRef<HTMLInputElement | null>(null);
+  const [selectedTool, setSelectedTool] = useState([])
 
   const openFileDialog = () => {
     imageUploadRef?.current?.click();
@@ -81,7 +81,7 @@ function ImageSettingSection({ selectedEl }: Props) {
       });
 
       setPreview(result?.data?.url);
-      selectedEl.src = result?.data?.url;
+      selectedEl.setAttribute("src", result?.data?.url);
     } catch (error) {
       console.log("error : ", error);
     } finally {
@@ -90,12 +90,12 @@ function ImageSettingSection({ selectedEl }: Props) {
   };
 
   const handleGenerateImage = () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const url = `https://ik.imagekit.io/jvcgawwif/ik-genimg-prompt-${altText}/${Date.now()}.jpg`;
-      console.log("url : ", url)
+      console.log("generate image url : ", url);
       setPreview(url);
-      selectedEl.src = url;
+      selectedEl.setAttribute("src", url);
     } catch (error) {
       console.log("error : ", error);
     } finally {
@@ -103,12 +103,25 @@ function ImageSettingSection({ selectedEl }: Props) {
     }
   };
 
+  const handleImageEdit = (toolType: string) => {
+    setLoading(true);
+    try {
+      if (!toolType && !preview) return;
+      const url = `${preview}?tr=${toolType},`;
+      console.log("image edit url : ", url);
+      setPreview(url);
+      selectedEl.setAttribute("src", url);
+    } catch (error) {
+      console.log("error : ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
   useEffect(() => {
     setAltText(selectedEl.alt);
     setPreview(selectedEl.src);
     setBorderRadius(selectedEl.style.borderRadius);
   }, [selectedEl]);
-
 
   return (
     <div className="w-96 shadow p-4 space-y-4">
@@ -119,12 +132,6 @@ function ImageSettingSection({ selectedEl }: Props) {
       {/* image upload section */}
       <div className="flex justify-center">
         <div className="relative max-h-40">
-          {loading && (
-            <div className="absolute inset-0 flex items-center justify-center bg-white/70">
-              <Spinner />
-            </div>
-          )}
-
           <img
             src={preview}
             alt={altText}
@@ -178,9 +185,14 @@ function ImageSettingSection({ selectedEl }: Props) {
         <label className="text-sm">AI Transform</label>
         <div className="flex justify-start items-center gap-2 mt-1">
           {transformOptions?.map((item, key) => (
-            <Tooltip>
+            <Tooltip key={key}>
               <TooltipTrigger asChild>
-                <Button variant={"outline"}>{item.icon}</Button>
+                <Button
+                  variant={"outline"}
+                  onClick={() => handleImageEdit(item?.transformation)}
+                >
+                  {item.icon}
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>{item.label}</p>
