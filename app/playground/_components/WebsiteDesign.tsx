@@ -147,10 +147,10 @@ function WebsiteDesign({ generatedCode }: Props) {
 
       {/* Element seting section */}
       {selectedElement?.tagName === "IMG" ? (
-        <ImageSettingSection selectedEl={selectedElement || null} />
+        <ImageSettingSection selectedEl={selectedElement} />
       ) : selectedElement ? (
         <ElementSettingSection
-          selectedEl={selectedElement || null}
+          selectedEl={selectedElement}
           clearSelection={() => setSelectedElement(null)}
         />
       ): null}

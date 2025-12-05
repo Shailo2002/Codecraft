@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
 import axios from "axios";
 import {
   Image as ImageIcon,
@@ -8,7 +9,40 @@ import {
   Image as ImageUpscale,
   ImageMinus,
 } from "lucide-react";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+
+const transformOptions = [
+  {
+    label: "Smart Crop",
+    value: "smartcrop",
+    icon: <Crop />,
+    transformation: "fo-auto",
+  },
+  {
+    label: "Resize",
+    value: "resize",
+    icon: <Expand />,
+    transformation: "e-dropshadow",
+  },
+  {
+    label: "Upscale",
+    value: "upscale",
+    icon: <ImageUpscale />,
+    transformation: "e-upscale",
+  },
+  {
+    label: "BG Remove",
+    value: "bgremove",
+    icon: <ImageMinus />,
+    transformation: "e-bgremove",
+  },
+];
 
 type Props = {
   selectedEl: HTMLImageElement;
@@ -22,6 +56,7 @@ function ImageSettingSection({ selectedEl }: Props) {
   );
   const [preview, setPreview] = useState(selectedEl.src || "");
   const [image, setImage] = useState<File | null>(null);
+  const [loading, setLoading] = useState(false);
   const imageUploadRef = useRef<HTMLInputElement | null>(null);
 
   const openFileDialog = () => {
@@ -29,6 +64,7 @@ function ImageSettingSection({ selectedEl }: Props) {
   };
 
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setLoading(true);
     try {
       const file = e.target.files[0];
       if (!file) {
@@ -46,11 +82,33 @@ function ImageSettingSection({ selectedEl }: Props) {
 
       setPreview(result?.data?.url);
       selectedEl.src = result?.data?.url;
-
     } catch (error) {
       console.log("error : ", error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleGenerateImage = () => {
+    setLoading(true)
+    try {
+      const url = `https://ik.imagekit.io/jvcgawwif/ik-genimg-prompt-${altText}/${Date.now()}.jpg`;
+      console.log("url : ", url)
+      setPreview(url);
+      selectedEl.src = url;
+    } catch (error) {
+      console.log("error : ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    setAltText(selectedEl.alt);
+    setPreview(selectedEl.src);
+    setBorderRadius(selectedEl.style.borderRadius);
+  }, [selectedEl]);
+
 
   return (
     <div className="w-96 shadow p-4 space-y-4">
@@ -60,12 +118,20 @@ function ImageSettingSection({ selectedEl }: Props) {
 
       {/* image upload section */}
       <div className="flex justify-center">
-        <img
-          src={preview}
-          alt={altText}
-          className="max-h-40 object-contain border rounded cursor-pointer hover:opacity-80"
-          onClick={() => openFileDialog()}
-        />
+        <div className="relative max-h-40">
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-white/70">
+              <Spinner />
+            </div>
+          )}
+
+          <img
+            src={preview}
+            alt={altText}
+            className="max-h-40 object-contain border rounded cursor-pointer hover:opacity-80"
+            onClick={() => openFileDialog()}
+          />
+        </div>
       </div>
       <div className="grid w-full max-w-sm items-center gap-3">
         <input
@@ -81,8 +147,9 @@ function ImageSettingSection({ selectedEl }: Props) {
           variant="outline"
           className="w-full"
           onClick={() => openFileDialog()}
+          disabled={loading}
         >
-          Upload Image
+          {loading ? <Spinner /> : "Upload Image"}
         </Button>
       </div>
 
@@ -98,24 +165,28 @@ function ImageSettingSection({ selectedEl }: Props) {
         />
       </div>
 
-      <Button className="w-full">Generate Ai Image</Button>
+      <Button
+        className="w-full"
+        onClick={() => handleGenerateImage()}
+        disabled={loading}
+      >
+        {loading ? <Spinner /> : "Generate Ai Image"}
+      </Button>
 
       {/* image tool area */}
       <div>
         <label className="text-sm">AI Transform</label>
         <div className="flex justify-start items-center gap-2 mt-1">
-          <Button variant={"outline"}>
-            <Crop />
-          </Button>
-          <Button variant={"outline"}>
-            <Expand />
-          </Button>
-          <Button variant={"outline"}>
-            <ImageIcon />
-          </Button>
-          <Button variant={"outline"}>
-            <ImageMinus />
-          </Button>
+          {transformOptions?.map((item, key) => (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant={"outline"}>{item.icon}</Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>{item.label}</p>
+              </TooltipContent>
+            </Tooltip>
+          ))}
         </div>
       </div>
 
