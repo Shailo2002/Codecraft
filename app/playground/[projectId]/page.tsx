@@ -100,11 +100,41 @@ function page() {
   const generatedCodeRef = useRef("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
 
-  const getIframeHTML = () => {
-    const doc = iframeRef.current?.contentDocument;
-    if (!doc) return "";
-    console.log("save : ", doc.body.innerHTML);
-    return doc.body.innerHTML;
+  const getIframeHTML = async () => {
+    try {
+      const doc = iframeRef.current?.contentDocument;
+      if (!doc) return "";
+
+      const clone = doc.body.cloneNode(true) as HTMLElement;
+
+      clone.querySelectorAll("*").forEach((el) => {
+        const element = el as HTMLElement;
+
+        // remove highlight
+        element.style.outline = "";
+
+        // remove empty style attribute
+        if (element.getAttribute("style") === "") {
+          element.removeAttribute("style");
+        }
+
+        // remove contenteditable
+        if (element.getAttribute("contenteditable")) {
+          element.removeAttribute("contenteditable");
+        }
+      });
+
+      if (!clone.innerHTML) return;
+
+      await axios.put(`/api/frames/`, {
+        frameId,
+        designCode: clone.innerHTML.replace(/html/g, "").replace(/```/g, ""),
+      });
+      toast.success("Code Saved!");
+    } catch (error) {
+      toast.error("error while saving code!");
+      console.error("Failed to save message:", error);
+    }
   };
 
   useEffect(() => {
