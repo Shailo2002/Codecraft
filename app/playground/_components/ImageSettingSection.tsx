@@ -15,7 +15,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
+import { Label } from "@/components/ui/label";
 const transformOptions = [
   {
     label: "Smart Crop",
@@ -27,7 +27,7 @@ const transformOptions = [
     label: "Resize",
     value: "resize",
     icon: <Expand />,
-    transformation: "e-dropshadow",
+    transformation: "resize-trigger",
   },
   {
     label: "Upscale",
@@ -53,11 +53,12 @@ function ImageSettingSection({ selectedEl }: Props) {
   const [borderRadius, setBorderRadius] = useState(
     selectedEl.style.borderRadius || "0px"
   );
+  const [baseUrl, setBaseUrl] = useState(selectedEl.src || "");
   const [preview, setPreview] = useState(selectedEl.src || "");
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const imageUploadRef = useRef<HTMLInputElement | null>(null);
-  const [selectedTool, setSelectedTool] = useState([]);
+  const [selectedTool, setSelectedTool] = useState<string[]>([]);
 
   const openFileDialog = () => {
     imageUploadRef?.current?.click();
@@ -66,6 +67,7 @@ function ImageSettingSection({ selectedEl }: Props) {
   const handleUploadImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     setLoading(true);
     try {
+      if (!e.target.files) return;
       const file = e.target.files[0];
       if (!file) {
         return;
@@ -81,29 +83,15 @@ function ImageSettingSection({ selectedEl }: Props) {
       });
 
       setPreview(result?.data?.url);
+      setBaseUrl(result?.data?.url);
       selectedEl.setAttribute("src", result?.data?.url);
+      console.log("upload image url : ", result?.data?.url);
     } catch (error) {
       console.log("error : ", error);
     } finally {
       setLoading(false);
     }
   };
-
-  //   const handleGenerateImage = async () => {
-  //     setLoading(true);
-  //     try {
-  //       const url = `https://ik.imagekit.io/jvcgawwif/ik-genimg-prompt-${altText}/${Date.now()}.jpg`;
-  //       console.log("generate image url : ", url);
-  //       const result = await axios.post("/api/imagekit/ai-upload", { url });
-  //       console.log("result : ", result);
-  //       setPreview(result?.data?.url);
-  //       selectedEl.setAttribute("src", result?.data?.url);
-  //     } catch (error) {
-  //       console.log("error : ", error);
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
 
   const handleGenerateImage = async () => {
     setLoading(true);
@@ -111,29 +99,95 @@ function ImageSettingSection({ selectedEl }: Props) {
       const res = await axios.post("/api/imagekit/generate-image", {
         prompt: altText,
       });
-      console.log("result : ", res);
       setPreview(res?.data?.url);
+      setBaseUrl(res?.data?.url);
       selectedEl.setAttribute("src", res?.data?.url);
+      console.log("generated image url : ", res?.data?.url);
     } catch (error) {
       console.error("Error generating image:", error);
     } finally {
       setLoading(false);
     }
   };
+
   const handleImageEdit = (toolType: string) => {
     setLoading(true);
     try {
       if (!toolType && !preview) return;
-      const url = `${preview}?tr=${toolType},`;
-      console.log("image edit url : ", url);
-      setPreview(url);
-      selectedEl.setAttribute("src", url);
+
+      if (selectedTool.includes(toolType)) {
+        const tempTool = selectedTool.filter((t) => t !== toolType);
+
+        setSelectedTool(tempTool);
+        editImageUrl({ baseUrl, selectedTool: tempTool });
+      } else {
+        selectedTool.push(toolType);
+        editImageUrl({
+          baseUrl,
+          selectedTool,
+        });
+      }
     } catch (error) {
       console.log("error : ", error);
     } finally {
       setLoading(false);
     }
   };
+
+  const editImageUrl = ({
+    baseUrl,
+    selectedTool,
+    h,
+    w,
+  }: {
+    baseUrl: string;
+    selectedTool: string[];
+    h?: number;
+    w?: number;
+  }) => {
+    const currentW = w || width;
+    const currentH = h || height;
+    let trParts = [];
+    console.log("selected tools :  ", selectedTool)
+
+    if (
+      selectedTool.includes("resize-trigger") ||
+      selectedTool.includes("fo-auto")
+    ) {
+      trParts.push(`w-${currentW}`);
+      trParts.push(`h-${currentH}`);
+    }
+
+    selectedTool?.map((t) => {
+      if (t !== "resize-trigger") {
+        trParts.push(t);
+      }
+    });
+
+    console.log("trParts : ", trParts);
+    const trString = trParts.length > 0 ? `?tr=${trParts.join(",")}` : "";
+    const finalUrl = baseUrl + trString;
+    setPreview(finalUrl);
+    selectedEl.setAttribute("src", finalUrl);
+    console.log("imageEdit Url : ", finalUrl);
+  };
+
+  const handleDimensionChange = ({
+    type,
+    value,
+  }: {
+    type: string;
+    value: number;
+  }) => {
+    if (type === "h") {
+      setHeight(value);
+      editImageUrl({ baseUrl, selectedTool, h: value });
+    } else if (type === "w") {
+      setWidth(value);
+      editImageUrl({ baseUrl, selectedTool, w: value });
+    }
+  };
+
   useEffect(() => {
     setAltText(selectedEl.alt);
     setPreview(selectedEl.src);
@@ -205,8 +259,12 @@ function ImageSettingSection({ selectedEl }: Props) {
             <Tooltip key={key}>
               <TooltipTrigger asChild>
                 <Button
-                  variant={"outline"}
-                  onClick={() => handleImageEdit(item?.transformation)}
+                  variant={
+                    selectedTool.includes(item.transformation)
+                      ? "default"
+                      : "outline"
+                  }
+                  onClick={() => handleImageEdit(item.transformation)}
                 >
                   {item.icon}
                 </Button>
@@ -217,6 +275,42 @@ function ImageSettingSection({ selectedEl }: Props) {
             </Tooltip>
           ))}
         </div>
+
+        {selectedTool.includes("resize-trigger") ||
+        selectedTool.includes("fo-auto") ? (
+          <div className="grid grid-cols-2 mt-3 p-2 gap-2 border rounded-lg">
+            <div>
+              <Label className="text-sm">Height</Label>
+              <Input
+                type="number"
+                id="height"
+                placeholder="Height"
+                value={height}
+                onChange={(e) =>
+                  handleDimensionChange({
+                    type: "h",
+                    value: Number(e.target.value),
+                  })
+                }
+              />
+            </div>
+            <div>
+              <Label className="text-sm">Width</Label>
+              <Input
+                type="number"
+                id="width"
+                placeholder="Width"
+                value={width}
+                onChange={(e) =>
+                  handleDimensionChange({
+                    type: "w",
+                    value: Number(e.target.value),
+                  })
+                }
+              />
+            </div>
+          </div>
+        ) : null}
       </div>
 
       <div>

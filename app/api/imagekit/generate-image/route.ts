@@ -10,6 +10,7 @@ export async function POST(req: Request) {
   try {
     const { prompt } = await req.json();
 
+    console.log("prompt check : ", prompt)
     if (!prompt) {
       return NextResponse.json(
         { error: "Prompt is required" },
@@ -26,6 +27,7 @@ export async function POST(req: Request) {
       response_format: "b64_json",
     });
 
+
     if (!response) {
       return NextResponse.json(
         { error: "Image Generation Failed" },
@@ -39,7 +41,7 @@ export async function POST(req: Request) {
     const uploadResponse = await imagekit.upload({
       file: imageJson,
       fileName: `generated-${Date.now()}.png`,
-      folder: "/ai-generated",
+      folder: "/Codecraft/ai-generated",
     });
 
     return NextResponse.json({

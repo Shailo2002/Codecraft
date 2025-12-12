@@ -98,6 +98,14 @@ function page() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [generatedCode, setGeneratedCode] = useState<any>("");
   const generatedCodeRef = useRef("");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+
+  const getIframeHTML = () => {
+    const doc = iframeRef.current?.contentDocument;
+    if (!doc) return "";
+    console.log("save : ", doc.body.innerHTML);
+    return doc.body.innerHTML;
+  };
 
   useEffect(() => {
     frameId && GetFrameDetails();
@@ -315,7 +323,7 @@ function page() {
 
   return (
     <div>
-      <PlayGroundHeader />
+      <PlayGroundHeader onSave={getIframeHTML} />
 
       <div className="flex">
         {/* chatSection */}
@@ -327,9 +335,9 @@ function page() {
 
         {/* websiteDesign */}
         <WebsiteDesign
+          iframeRef={iframeRef}
           generatedCode={generatedCode.replace(/html/g, "").replace(/```/g, "")}
         />
-
       </div>
     </div>
   );

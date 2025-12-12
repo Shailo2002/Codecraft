@@ -5,10 +5,10 @@ import ImageSettingSection from "./ImageSettingSection";
 
 type Props = {
   generatedCode: string;
+  iframeRef: HTMLIFrameElement;
 };
 
-function WebsiteDesign({ generatedCode }: Props) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+function WebsiteDesign({ generatedCode, iframeRef }: Props) {
   const [selectedSize, setSelectedSize] = useState("web");
   const [selectedElement, setSelectedElement] = useState<HTMLElement | null>();
 
@@ -153,7 +153,7 @@ function WebsiteDesign({ generatedCode }: Props) {
           selectedEl={selectedElement}
           clearSelection={() => setSelectedElement(null)}
         />
-      ): null}
+      ) : null}
     </div>
   );
 }
