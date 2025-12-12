@@ -99,8 +99,10 @@ function page() {
   const [generatedCode, setGeneratedCode] = useState<any>("");
   const generatedCodeRef = useRef("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [codeSaveLoading, setCodeSaveLoading] = useState<Boolean>(false);
 
   const getIframeHTML = async () => {
+    setCodeSaveLoading(true);
     try {
       const doc = iframeRef.current?.contentDocument;
       if (!doc) return "";
@@ -134,6 +136,8 @@ function page() {
     } catch (error) {
       toast.error("error while saving code!");
       console.error("Failed to save message:", error);
+    } finally {
+      setCodeSaveLoading(false);
     }
   };
 
@@ -347,13 +351,9 @@ function page() {
     setLoading(false);
   };
 
-  // useEffect(() => {
-  //   console.log("generatedCode check : ", generatedCode);
-  // }, [generatedCode]);
-
   return (
     <div>
-      <PlayGroundHeader onSave={getIframeHTML} />
+      <PlayGroundHeader onSave={getIframeHTML} loading={codeSaveLoading} />
 
       <div className="flex">
         {/* chatSection */}
@@ -366,7 +366,9 @@ function page() {
         {/* websiteDesign */}
         <WebsiteDesign
           iframeRef={iframeRef}
-          generatedCode={generatedCode.replace(/html/g, "").replace(/```/g, "")}
+          generatedCode={(generatedCode ?? "")
+            .replace(/html/g, "")
+            .replace(/```/g, "")}
         />
       </div>
     </div>

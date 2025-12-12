@@ -134,6 +134,12 @@ function ImageSettingSection({ selectedEl }: Props) {
     }
   };
 
+  const handleChange = (property: string, value: string) => {
+    if (selectedEl) {
+      selectedEl.style[property as any] = value;
+    }
+  };
+
   const editImageUrl = ({
     baseUrl,
     selectedTool,
@@ -148,7 +154,7 @@ function ImageSettingSection({ selectedEl }: Props) {
     const currentW = w || width;
     const currentH = h || height;
     let trParts = [];
-    console.log("selected tools :  ", selectedTool)
+    console.log("selected tools :  ", selectedTool);
 
     if (
       selectedTool.includes("resize-trigger") ||
@@ -319,6 +325,7 @@ function ImageSettingSection({ selectedEl }: Props) {
           placeholder="e.g. 8"
           onChange={(e) => {
             setBorderRadius(e.target.value);
+            handleChange("border-radius", `${e.target.value}px`);
           }}
           value={borderRadius}
         />
