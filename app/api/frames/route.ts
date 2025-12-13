@@ -24,7 +24,6 @@ export async function PUT(req: NextRequest) {
   try {
     const data = await req.json();
     const { frameId, designCode } = data;
-
     const result = await prisma.frame.update({
       where: { frameId: frameId ?? "" },
       data: {

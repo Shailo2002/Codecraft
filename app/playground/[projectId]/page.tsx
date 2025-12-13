@@ -169,13 +169,13 @@ function page() {
     }
   };
 
-  const saveGeneratedCode = async () => {
+  const saveGeneratedCode = async (code?: string) => {
+    const tempCode = code || generatedCodeRef.current;
     try {
+      console.log("saveGeneratedCode : ", generatedCodeRef.current);
       await axios.put(`/api/frames/`, {
         frameId,
-        designCode: generatedCodeRef.current
-          .replace(/html/g, "")
-          .replace(/```/g, ""),
+        designCode: tempCode.replace(/html/g, "").replace(/```/g, ""),
       });
       toast.success("Website is Ready!");
     } catch (error) {
@@ -185,7 +185,7 @@ function page() {
   };
 
   // chatgpt stream true code
-  const SendMessage = async (userInput: string) => {
+  const handleGpt = async (userInput: string, model: string) => {
     setLoading(true);
     setGeneratedCode("");
 
@@ -351,6 +351,55 @@ function page() {
     setLoading(false);
   };
 
+  const handleGemini = async (userInput: string, model: string) => {
+    if (!userInput) return;
+    setLoading(true);
+    setGeneratedCode("");
+
+    try {
+      const userMsgObj = { role: "user", content: userInput };
+
+      setMessages((prev: any) => [...prev, { chatMessage: [userMsgObj] }]);
+
+      saveMsgToDb(userMsgObj);
+
+      const res = await axios.post("/api/ai-model-gemini", {
+        prompt: userInput,
+      });
+
+      const data = res.data;
+      setMessages((prev: any) => [
+        ...prev,
+        {
+          chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
+        },
+      ]);
+      await saveMsgToDb({
+        role: "assistant",
+        content: "Your code is ready!",
+      });
+      if (data.output) {
+        // Simple check: If it looks like HTML, we can render it or display it
+        setGeneratedCode(data.output);
+        await saveGeneratedCode(data.output);
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const SendMessage = async (userInput: string, model: string) => {
+    console.log(userInput, model);
+    if (model === "gemini") {
+      await handleGemini(userInput, model);
+    } else {
+      await handleGpt(userInput, model);
+    }
+  };
+
   return (
     <div>
       <PlayGroundHeader onSave={getIframeHTML} loading={codeSaveLoading} />
@@ -359,7 +408,7 @@ function page() {
         {/* chatSection */}
         <ChatSection
           messages={messages ?? []}
-          onSend={(input: string) => SendMessage(input)}
+          onSend={(input: string, model: string) => SendMessage(input, model)}
           loading={loading}
         />
 
@@ -367,7 +416,6 @@ function page() {
         <WebsiteDesign
           iframeRef={iframeRef}
           generatedCode={(generatedCode ?? "")
-            .replace(/html/g, "")
             .replace(/```/g, "")}
         />
       </div>
