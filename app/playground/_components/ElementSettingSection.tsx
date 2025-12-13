@@ -153,9 +153,9 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
         />
       </div>
 
-      <div className="mt-2 flex flex-col gap-1">
+      <div className="mt-2 flex flex-col gap-1 border border-slate-200 rounded-lg p-2 ">
         <label className="text-sm">Classes</label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto border-t mt-2">
           {classes.map((value, key) => (
             <div
               key={key}

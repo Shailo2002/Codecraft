@@ -36,11 +36,11 @@ export function ViewCodeBlock({ children, code }: any) {
           <DialogTitle className="flex justify-start items-center gap-2">
             Source Code
             <Button onClick={handleCopy} variant="secondary">
-              <Copy size={16} />
+              <Copy size={12} />
             </Button>
           </DialogTitle>
           <DialogDescription>
-            <div>
+            <div className="pr-6 max-h-4xl max-w-[974px] overflow-auto">
               <SyntaxHighlighter>{code}</SyntaxHighlighter>
             </div>
           </DialogDescription>
