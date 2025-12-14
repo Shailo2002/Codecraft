@@ -7,6 +7,7 @@ import ElementSettingSection from "../_components/ElementSettingSection";
 import { useParams, useSearchParams } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { ModelName } from "@/lib/generated/prisma/internal/prismaNamespace";
 
 export type Frame = {
   id: String;
@@ -100,6 +101,7 @@ function page() {
   const generatedCodeRef = useRef("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [codeSaveLoading, setCodeSaveLoading] = useState<Boolean>(false);
+  const [model, setModel] = useState<string>("gpt-4o-mini");
 
   const getIframeHTML = async () => {
     setCodeSaveLoading(true);
@@ -153,9 +155,10 @@ function page() {
     setFrameDetail(result?.data);
     setMessages(result?.data?.chatMessages);
     setGeneratedCode(result?.data?.designCode);
+    console.log("chatMessage : ", result?.data?.chatMessages?.length);
     if (result.data?.chatMessages?.length == 1) {
       const userMessage = result.data?.chatMessages[0].chatMessage[0]?.content;
-      SendMessage(userMessage);
+      SendMessage(userMessage, model);
     }
   };
 
@@ -189,11 +192,13 @@ function page() {
     setLoading(true);
     setGeneratedCode("");
 
-    const userMsgObj = { role: "user", content: userInput };
+    if (messages.length !== 1) {
+      const userMsgObj = { role: "user", content: userInput };
 
-    setMessages((prev: any) => [...prev, { chatMessage: [userMsgObj] }]);
+      setMessages((prev: any) => [...prev, { chatMessage: [userMsgObj] }]);
 
-    saveMsgToDb(userMsgObj);
+      saveMsgToDb(userMsgObj);
+    }
 
     const res = await fetch("/api/ai-model-openai", {
       method: "POST",
@@ -201,6 +206,7 @@ function page() {
         messages: [
           { role: "user", content: Prompt.replace("{userInput}", userInput) },
         ],
+        modelName: model,
       }),
     });
 
@@ -233,7 +239,7 @@ function page() {
         try {
           const json = JSON.parse(line);
           const delta = json.choices?.[0]?.delta?.content || "";
-
+          console.log("delta : ", delta);
           if (!delta) continue;
 
           if (!inCode) {
@@ -351,40 +357,89 @@ function page() {
     setLoading(false);
   };
 
-  const handleGemini = async (userInput: string, model: string) => {
+  const handleStreamGemini = async (userInput: string, model: string) => {
     if (!userInput) return;
     setLoading(true);
     setGeneratedCode("");
 
+    const userMsgObj = { role: "user", content: userInput };
+    setMessages((prev: any) => [...prev, { chatMessage: [userMsgObj] }]);
+    saveMsgToDb(userMsgObj);
+
     try {
-      const userMsgObj = { role: "user", content: userInput };
+      // 1. Use fetch instead of axios to get the stream reader
 
-      setMessages((prev: any) => [...prev, { chatMessage: [userMsgObj] }]);
-
-      saveMsgToDb(userMsgObj);
-
-      const res = await axios.post("/api/ai-model-gemini", {
-        prompt: userInput,
+      const res = await fetch("/api/ai-model-gemini-stream", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: userInput, modelName: model }),
       });
 
-      const data = res.data;
-      setMessages((prev: any) => [
-        ...prev,
-        {
-          chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
-        },
-      ]);
+      if (!res.body) throw new Error("No response body");
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let aiResponse = "";
+
+      // Variable to track if we are currently "inside" a code block (if Gemini sends markdown)
+      // Note: In our system prompt, we told Gemini NOT to send markdown,
+      // but it's good safety to keep this logic if you change prompts later.
+      let inCode = false;
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+
+        if (value) {
+          // 2. Decode raw text (No JSON parsing needed!)
+          const chunkValue = decoder.decode(value, { stream: true });
+
+          // Logic to handle "Text" vs "Code" if Gemini mixes them
+          // (Simplified version of your GPT logic)
+          if (!inCode) {
+            // Check if this chunk starts a code block
+            if (chunkValue.includes("```")) {
+              inCode = true;
+              // If there was text before the ```, add it to chat
+              // (This is a basic check; robust parsing requires more buffer logic like your GPT code
+              // but for the specific "Code Only" prompt we set, this is usually sufficient)
+            } else {
+              // If it's just conversational text (like "Hello")
+              // For now, let's assume if it looks like HTML tags, it is code
+              if (chunkValue.trim().startsWith("<") || inCode) {
+                inCode = true;
+                setGeneratedCode((prev: any) => {
+                  const newVal = prev + chunkValue;
+                  generatedCodeRef.current = newVal;
+                  return newVal;
+                });
+              } else {
+                // Regular chat message
+                // Note: Handling streaming chat text updates requires a state update
+                // logic similar to your GPT 'aiResponse' buffer if you want the text to type out.
+              }
+            }
+          }
+
+          // If we are definitely in code mode (or simply appending raw output)
+          // Since our prompt strictly asked for HTML code only, we can mostly just do this:
+          setGeneratedCode((prev: any) => {
+            const newVal = prev + chunkValue;
+            generatedCodeRef.current = newVal;
+            return newVal;
+          });
+        }
+      }
+
+      // Final save
       await saveMsgToDb({
         role: "assistant",
         content: "Your code is ready!",
       });
-      if (data.output) {
-        // Simple check: If it looks like HTML, we can render it or display it
-        setGeneratedCode(data.output);
-        await saveGeneratedCode(data.output);
-      }
+      await saveGeneratedCode(generatedCodeRef.current);
     } catch (error) {
-      console.error(error);
+      console.error("Gemini Stream Error:", error);
       alert("Something went wrong");
     } finally {
       setLoading(false);
@@ -392,10 +447,12 @@ function page() {
   };
 
   const SendMessage = async (userInput: string, model: string) => {
-    console.log(userInput, model);
-    if (model === "gemini") {
-      await handleGemini(userInput, model);
+    if (model.includes("gemini")) {
+      console.log("gemini : ", model, userInput);
+      await handleStreamGemini(userInput, model);
     } else {
+      console.log("gpt : ", model, userInput);
+
       await handleGpt(userInput, model);
     }
   };
@@ -416,7 +473,8 @@ function page() {
         <WebsiteDesign
           iframeRef={iframeRef}
           generatedCode={(generatedCode ?? "")
-            .replace(/```/g, "")}
+            .replace(/```/g, "")
+            .replace(/(?<!<)html(?![>/])/g, "")}
         />
       </div>
     </div>

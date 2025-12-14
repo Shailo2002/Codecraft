@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const { prompt } = await req.json();
+    const { prompt,modelName } = await req.json();
     const apiKey = process.env.GEMINI_API_KEY;
     console.log("prompt : ", prompt);
     if (!apiKey) {
@@ -18,7 +18,7 @@ export async function POST(req: Request) {
 
     // Using gemini-1.5-pro for better code quality
     const model = genAI.getGenerativeModel({
-      model: "gemini-2.5-flash",
+      model:"gemini-2.5-flash",
       systemInstruction: `
         You are an AI website builder. Analyze the user input and follow these strict rules:
 

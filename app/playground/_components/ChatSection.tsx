@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import SelectModel from "@/app/_components/SelectModel";
 
 type Props = {
   messages: Messages[];
@@ -22,13 +23,19 @@ type Props = {
 
 function ChatSection({ messages, onSend, loading }: Props) {
   const [input, setInput] = useState<string>("");
-  const [model, setModel] = useState<string>("gpt-4o-mini");
+  const [model, setModel] = useState<string>(
+     "gpt-4o-mini"
+  );
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const handleSend = () => {
     if (!input?.trim()) return;
     onSend(input, model);
     setInput("");
+  };
+
+  const handleSetModel = (value: string) => {
+    setModel(value);
   };
 
   useEffect(() => {
@@ -89,24 +96,7 @@ function ChatSection({ messages, onSend, loading }: Props) {
         />
 
         <div className="absolute right-14 bottom-1.5">
-          {" "}
-          <Select value={model} onValueChange={(value) => setModel(value)}>
-            <SelectTrigger
-              className="w-[120px]  border-none shadow-none ring-0 outline-none
-    focus:border-none focus:shadow-none focus:ring-0 focus:outline-none
-    hover:border-none hover:shadow-none hover:ring-0 hover:outline-none
-    active:border-none active:shadow-none active:ring-0 active:outline-none"
-            >
-              <SelectValue placeholder="Select a model" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectLabel>model</SelectLabel>
-                <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
-                <SelectItem value="gemini">gemini</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+          <SelectModel model={model} handleSetModel={handleSetModel} />
         </div>
 
         <Button className="m-2 absolute right-1 bottom-0" onClick={handleSend}>

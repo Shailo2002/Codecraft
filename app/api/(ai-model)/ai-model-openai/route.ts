@@ -7,10 +7,11 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages } = await req.json();
+    const { messages, modelName } = await req.json();
+    console.log("gpt-stream route : ", messages, modelName);
 
     const completion = await openai.chat.completions.create({
-      model: "gpt-4o-mini", // or "gpt-4o"
+      model: modelName || "gpt-4o-mini",
       messages,
       stream: true,
     });

@@ -21,6 +21,7 @@ import { Home, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useContext, useEffect, useState } from "react";
+import { PaymentModel } from "./PaymentModel";
 
 export function AppSidebar() {
   const [projectList, setProjectList] = useState([]);
@@ -78,14 +79,14 @@ export function AppSidebar() {
             <SidebarGroupContent>
               <SidebarMenu>
                 {projectList?.map((item) => (
-                  <SidebarMenuItem key={item.id}>
+                  <SidebarMenuItem key={item?.id}>
                     <SidebarMenuButton asChild>
                       <Link
-                        href={`/playground/${item?.id}?frameId=${item?.frames[0].frameId}`}
+                        href={`/playground/${item?.id}?frameId=${item?.frames[0]?.frameId}`}
                       >
                         <span>
                           {
-                            item.frames[0].chatMessages[0].chatMessage[0]
+                            item?.frames[0]?.chatMessages[0]?.chatMessage[0]
                               .content
                           }
                         </span>
@@ -109,7 +110,10 @@ export function AppSidebar() {
               </span>
             </h2>
             <Progress value={33} />
-            <Button className="w-full">Upgrade for Unlimited</Button>
+            <PaymentModel>
+             
+              <Button className="w-full">Upgrade for Unlimited</Button>
+            </PaymentModel>
           </div>
 
           <div className="flex px-2 items-center">

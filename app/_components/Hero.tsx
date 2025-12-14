@@ -18,6 +18,7 @@ import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
+import SelectModel from "./SelectModel";
 
 const suggestion = [
   {
@@ -46,13 +47,16 @@ const suggestion = [
   },
 ];
 
-
-
 function Hero() {
   const { userDetail } = useContext(UserDetailContext);
   const [userInput, setUserInput] = useState<string>();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
+  const [model, setModel] = useState<string>("gpt-4o-mini");
+
+  const handleSetModel = (value: string) => {
+    setModel(value);
+  };
 
   const CreateNewProject = async () => {
     setLoading(true);
@@ -87,7 +91,7 @@ function Hero() {
       </div>
 
       {/* input */}
-      <div className="w-full max-w-2xl p-5 mt-5 border rounded-2xl">
+      <div className="relative w-full max-w-2xl p-5 mt-5 border rounded-2xl">
         <textarea
           placeholder="Describe your page design"
           className="w-full  h-24 focus:outline-none focus:ring-0 resize-none"
@@ -110,9 +114,13 @@ function Hero() {
               onClick={() => CreateNewProject()}
               disabled={!userInput || loading}
             >
-              {loading ? <Loader2Icon className="animate-spin" /> : <ArrowUp/>}
+              {loading ? <Loader2Icon className="animate-spin" /> : <ArrowUp />}
             </Button>
           )}
+        </div>
+
+        <div className="absolute right-14 bottom-4">
+          <SelectModel model={model} handleSetModel={handleSetModel} />
         </div>
       </div>
 
