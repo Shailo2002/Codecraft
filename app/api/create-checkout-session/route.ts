@@ -22,7 +22,7 @@ export async function POST(req: Request) {
             quantity: 1,
           },
         ],
-        success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/success`,
+        success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/workspace`,
         cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/cancel`,
       });
     }
@@ -37,7 +37,7 @@ export async function POST(req: Request) {
             quantity: 1,
           },
         ],
-        success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/success`,
+        success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/workspace`,
         cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/cancel`,
       });
     }
