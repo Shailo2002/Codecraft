@@ -24,7 +24,7 @@ import { useContext, useEffect, useState } from "react";
 import { PaymentModel } from "./PaymentModel";
 
 export function AppSidebar() {
-  const [projectList, setProjectList] = useState([]);
+  const [projectList, setProjectList] = useState<any[]>([]);
   const { userDetail, setUserDetail } = useContext(UserDetailContext);
   const [loading, setLoading] = useState(false);
 
@@ -32,7 +32,7 @@ export function AppSidebar() {
     setLoading(true);
     try {
       const response = await axios.get("/api/projects");
-      console.log("response : ", response?.data);
+      console.log("project list : ", response?.data);
       setProjectList(response?.data);
     } catch (error) {
       console.log("error : ", error);
@@ -109,9 +109,8 @@ export function AppSidebar() {
                 {userDetail?.credits}
               </span>
             </h2>
-            <Progress value={33} />
+            <Progress value={userDetail?.credits} />
             <PaymentModel>
-             
               <Button className="w-full">Upgrade for Unlimited</Button>
             </PaymentModel>
           </div>

@@ -60,19 +60,22 @@ function Hero() {
 
   const CreateNewProject = async () => {
     setLoading(true);
-    const projectId = await uuidv4();
-    const frameId = await crypto.randomUUID().slice(0, 8);
+
     try {
       const response = await axios.post("/api/projects", {
-        projectId,
-        frameId,
         chatMessage: [{ role: "user", content: userInput }],
       });
+      console.log("response : ", response);
+      const projectId = response?.data?.projectId;
+      const frameId = response?.data?.frameId;
       toast.success("Project created!");
       router.push(`/playground/${projectId}?frameId=${frameId}`);
     } catch (error) {
-      toast.error("Internal server error!");
-      console.log("error");
+      const axiosError = error as any;
+      toast.error(
+        axiosError?.response?.data?.error || "Internal server error!"
+      );
+      console.log("error : ", error);
     } finally {
       setLoading(false);
     }
