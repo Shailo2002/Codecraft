@@ -8,13 +8,24 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
+
 model User {
   id       String        @id @default(uuid())
   email    String        @unique
   name     String?
   credits  Int           @default(2)
+  stripeCustomerId String?
+  stripeSubscriptionId String?
+  plan Plan @default(FREE)
+  premiumExpiresAt DateTime?
   chats    ChatMessage[]
   projects Project[]
+  payments Payment[]
+}
+enum Plan {
+  FREE
+  PREMIUM
 }
 
 model Project {
@@ -44,3 +55,18 @@ model ChatMessage {
   frame       Frame    @relation(fields: [frameId], references: [id])
   user        User     @relation(fields: [userId], references: [id])
 }
+
+model Payment {
+  id              String   @id @default(uuid())
+  userId          String
+  stripeSessionId String   @unique
+  paymentIntentId String?
+  subscriptionId  String?
+  amount          Int
+  currency        String
+  status          String
+  type            String   
+  createdAt       DateTime @default(now())
+  user User @relation(fields: [userId], references: [id])
+}
+

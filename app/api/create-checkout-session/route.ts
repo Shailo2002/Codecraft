@@ -1,7 +1,8 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-
+import { prisma } from "@/lib/db";
+import { currentUser } from "@clerk/nextjs/server";
 
 export async function POST(req: Request) {
   try {
@@ -9,6 +10,20 @@ export async function POST(req: Request) {
 
     // body.type = "one_time" OR "subscription"
     const { type } = body;
+    const userDetail = await currentUser();
+
+    if (!userDetail?.primaryEmailAddress?.emailAddress) {
+      return NextResponse.json({ message: "Signin required" });
+    }
+
+    const checkUser = await prisma.user.findFirst({
+      where: { email: userDetail?.primaryEmailAddress?.emailAddress },
+    });
+
+    if (!checkUser) {
+      return NextResponse.json({ messag: "User not found" });
+    }
+    console.log("stripe url checkuser Id : ", checkUser.id);
 
     let session;
 
@@ -22,8 +37,12 @@ export async function POST(req: Request) {
             quantity: 1,
           },
         ],
-        success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/workspace`,
-        cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/cancel`,
+        success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/payment-success`,
+        cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/payment-cancel`,
+        metadata: {
+          userId: checkUser.id,
+          type,
+        },
       });
     }
 
@@ -37,9 +56,17 @@ export async function POST(req: Request) {
             quantity: 1,
           },
         ],
-        success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/workspace`,
-        cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/cancel`,
+        success_url: `${process.env.NEXT_PUBLIC_DOMAIN}/payment-success`,
+        cancel_url: `${process.env.NEXT_PUBLIC_DOMAIN}/payment-cancel`,
+        metadata: {
+          userId: checkUser.id,
+          type,
+        },
       });
+    }
+
+    if (!session) {
+      return NextResponse.json({ message: "Stripe Error" });
     }
 
     return NextResponse.json({ url: session.url });

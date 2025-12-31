@@ -9,8 +9,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Spinner } from "@/components/ui/spinner";
 import axios from "axios";
 import { Check, CircleCheckBig } from "lucide-react";
+import { useState } from "react";
 import toast from "react-hot-toast";
 
 const pricingPlans = [
@@ -78,7 +80,11 @@ const pricingPlans = [
 ];
 
 export function PaymentModel({ children }: any) {
-  const handlePayment = async (type: string) => {
+  const [loading, setLoading] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState("");
+  const handlePayment = async (type: string, name: string) => {
+    setLoading(true);
+    setSelectedPlan(name);
     try {
       const response = await axios.post("/api/create-checkout-session", {
         type,
@@ -89,6 +95,8 @@ export function PaymentModel({ children }: any) {
     } catch (error) {
       console.log("error : ", error);
       toast.error("payment failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -125,9 +133,10 @@ export function PaymentModel({ children }: any) {
                 ) : (
                   <Button
                     className="mb-6 w-full"
-                    onClick={() => handlePayment(plan.payment_type)}
+                    onClick={() => handlePayment(plan.payment_type, plan.name)}
+                    disabled={loading}
                   >
-                    {plan.cta}
+                    {selectedPlan === plan.name && <Spinner />} {plan.cta}
                   </Button>
                 )}
 
