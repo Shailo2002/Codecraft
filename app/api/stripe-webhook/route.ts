@@ -41,7 +41,7 @@ export async function POST(req: Request) {
         {
           error: "error occur while transaction happen",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -79,13 +79,9 @@ export async function POST(req: Request) {
         },
       });
     }
-  } 
-  
-  else if (event.type === "customer.subscription.created") {
+  } else if (event.type === "customer.subscription.created") {
     console.log("Payment success:", event.data.object.id);
-  } 
-  
-  else if (event.type === "invoice.payment_succeeded") {
+  } else if (event.type === "invoice.payment_succeeded") {
     const invoice = event.data.object as Stripe.Invoice;
     const subscriptionId = invoice.subscription as string;
 
@@ -93,7 +89,11 @@ export async function POST(req: Request) {
       where: { stripeSubscriptionId: subscriptionId },
     });
 
-    if (!user) return;
+    if (!user) {
+      console.warn("User not found for subscription:", subscription.id);
+      return NextResponse.json({ received: true });
+    }
+
 
     await prisma.user.update({
       where: { id: user.id },
@@ -102,16 +102,20 @@ export async function POST(req: Request) {
         plan: "PREMIUM",
       },
     });
-  } 
-  
-  else if (event.type === "customer.subscription.deleted") {
+  } else if (event.type === "customer.subscription.deleted") {
     const subscription = event.data.object as Stripe.Subscription;
 
     const user = await prisma.user.findFirst({
       where: { stripeSubscriptionId: subscription.id },
     });
 
-    if (!user) return;
+   if (!user) {
+     console.warn("User not found for subscription:", subscription.id);
+     return NextResponse.json({ received: true });
+   }
+
+
+    console.log("user in stripe webhook : ", user);
 
     await prisma.user.update({
       where: { id: user.id },
