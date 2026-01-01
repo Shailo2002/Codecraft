@@ -1,5 +1,4 @@
 "use client";
-import { UserDetailContext } from "@/app/context/UserDetailContext";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import {
@@ -16,35 +15,19 @@ import {
 } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { UserButton } from "@clerk/nextjs";
-import axios from "axios";
-import { Home, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useContext, useEffect, useState } from "react";
 import { PaymentModel } from "./PaymentModel";
+import { Project, UserType } from "@/types";
 
-export function AppSidebar() {
-  const [projectList, setProjectList] = useState<any[]>([]);
-  const { userDetail, setUserDetail } = useContext(UserDetailContext);
-  const [loading, setLoading] = useState(false);
-
-  const handleGetProjects = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get("/api/projects");
-      console.log("project list : ", response?.data);
-      setProjectList(response?.data);
-    } catch (error) {
-      console.log("error : ", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    handleGetProjects();
-  }, []);
-
+export function AppSidebar({
+  projects,
+  user,
+}: {
+  projects: Project[];
+  user: UserType;
+}) {
   return (
     <Sidebar>
       <SidebarHeader>
@@ -66,19 +49,12 @@ export function AppSidebar() {
       <SidebarContent>
         <SidebarGroup className="p-2">
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
-          {loading ? (
-            <div className="space-y-2 mx-2">
-              {" "}
-              {Array.from({ length: 5 }).map((item) => (
-                <Skeleton className="h-7 w-full bg-slate-200" />
-              ))}
-            </div>
-          ) : projectList.length == 0 ? (
+          {projects.length == 0 ? (
             <h2 className="px-2 text-sm text-gray-500">No Project Found</h2>
           ) : (
             <SidebarGroupContent>
               <SidebarMenu>
-                {projectList?.map((item) => (
+                {projects?.map((item) => (
                   <SidebarMenuItem key={item?.id}>
                     <SidebarMenuButton asChild>
                       <Link
@@ -105,18 +81,30 @@ export function AppSidebar() {
           <div className="p-3 border rounded-xl space-y-4 bg-secondary">
             <h2 className="flex justify-between items-center">
               Remaining Credits{" "}
-              <span className="font-semibold text-lg">
-                {userDetail?.credits}
-              </span>
+              <span className="font-semibold text-lg">{user?.credits}</span>
             </h2>
-            <Progress value={userDetail?.credits} />
+            <Progress value={user?.credits} />
             <PaymentModel>
               <Button className="w-full">Upgrade for Unlimited</Button>
             </PaymentModel>
           </div>
 
           <div className="flex px-2 items-center">
-            <UserButton />
+            {user?.plan === "PREMIUM" ? (
+              <div
+                className="relative flex justify-center items-center size-10 rounded-full 
+                bg-gradient-to-br from-neutral-700 to-neutral-900
+                ring-2 ring-amber-400 shadow-md"
+              >
+                <UserButton />
+                <span className="absolute -bottom-1 -right-1 rounded-2xl px-1  bg-amber-400/90 border-2 border-neutral-900 text-[10px]">
+                  pro
+                </span>
+              </div>
+            ) : (
+              <UserButton />
+            )}
+
             <Button variant={"ghost"}>Settings</Button>
           </div>
         </div>

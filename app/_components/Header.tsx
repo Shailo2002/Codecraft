@@ -3,8 +3,8 @@ import { Button } from "@/components/ui/button";
 import { SignInButton } from "@clerk/nextjs";
 import Link from "next/link";
 import Image from "next/image";
-import React, { useContext } from "react";
-import { UserDetailContext } from "../context/UserDetailContext";
+import { useContext } from "react";
+import { UserType } from "@/types";
 
 const menuOptions = [
   { name: "Pricing", path: "/pricing" },
@@ -14,8 +14,7 @@ const menuOptions = [
   },
 ];
 
-function Header() {
-  const user = useContext(UserDetailContext);
+function Header({user}: {user: UserType}) {
   return (
     <div className="flex justify-between items-center p-4 shadow-lg">
       {/* logo  */}

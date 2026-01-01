@@ -11,14 +11,17 @@ import {
   Loader2Icon,
   User,
 } from "lucide-react";
-import Link from "next/link";
 import { useContext, useState } from "react";
-import { UserDetailContext } from "../context/UserDetailContext";
-import { v4 as uuidv4 } from "uuid";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import SelectModel from "./SelectModel";
+import { useUserOptional } from "../context/user-context";
+import { UserType } from "@/types";
+
+type HeroProps = {
+  user?: UserType;
+};
 
 const suggestion = [
   {
@@ -47,8 +50,10 @@ const suggestion = [
   },
 ];
 
-function Hero() {
-  const { userDetail } = useContext(UserDetailContext);
+function Hero({ user }: HeroProps) {
+  const contextUser = useUserOptional();
+  const resolvedUser = user ?? contextUser;
+ 
   const [userInput, setUserInput] = useState<string>();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
@@ -106,7 +111,7 @@ function Hero() {
             <ImagePlus />
           </Button>
 
-          {!userDetail ? (
+          {!user ? (
             <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
               <Button size={"icon"} disabled={!userInput || loading}>
                 <ArrowUp />
