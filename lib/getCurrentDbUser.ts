@@ -1,7 +1,8 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/db";
+import { cache } from "react";
 
-export async function getCurrentDbUser() {
+export const getCurrentDbUser = cache(async () => {
   try {
     const clerkUser = await currentUser();
     const email = clerkUser?.primaryEmailAddress?.emailAddress;
@@ -30,7 +31,7 @@ export async function getCurrentDbUser() {
     };
   } catch (error) {
     console.error("getOrCreateCurrentUser failed:", error);
-    throw error; 
+    throw error;
   }
-}
+});
 

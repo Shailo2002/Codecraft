@@ -1,7 +1,8 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { prisma } from "./db";
+import { cache } from "react";
 
-export default async function getProjects() {
+export const getProjects = cache(async  () => {
   try {
     console.log("project get endpoint check");
     const userDetail = await currentUser();
@@ -21,7 +22,7 @@ export default async function getProjects() {
       },
     });
 
-    console.log("projects : ", projects)
+    console.log("projects : ", projects);
 
     return projects;
   } catch (error) {
@@ -29,3 +30,4 @@ export default async function getProjects() {
     throw error;
   }
 }
+)
