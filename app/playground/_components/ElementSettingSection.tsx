@@ -5,7 +5,7 @@ import {
   TextAlignStart,
   X,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
@@ -44,6 +44,7 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
     if (!styleText) return;
     selectedEl.classList.add(styleText);
     setClasses((prev) => [...prev, styleText]);
+    setNewClass("")
   };
 
   useEffect(() => {

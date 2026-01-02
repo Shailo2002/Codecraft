@@ -13,7 +13,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { Skeleton } from "@/components/ui/skeleton";
 import { UserButton } from "@clerk/nextjs";
 import { Plus } from "lucide-react";
 import Image from "next/image";
@@ -39,10 +38,11 @@ export function AppSidebar({
             height={140}
             className="m-1"
           />
+          {projects.length === 0 ? 
           <Button className="w-full">
             <Plus />
             New Project
-          </Button>
+          </Button> : null}
         </div>
       </SidebarHeader>
 
@@ -54,22 +54,23 @@ export function AppSidebar({
           ) : (
             <SidebarGroupContent>
               <SidebarMenu>
-                {projects?.map((item) => (
-                  <SidebarMenuItem key={item?.id}>
-                    <SidebarMenuButton asChild>
-                      <Link
-                        href={`/playground/${item?.id}?frameId=${item?.frames[0]?.frameId}`}
-                      >
-                        <span>
-                          {
-                            item?.frames[0]?.chatMessages[0]?.chatMessage[0]
-                              .content
-                          }
-                        </span>
-                      </Link>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
+                {projects &&
+                  projects?.map((item) => (
+                    <SidebarMenuItem key={item?.id}>
+                      <SidebarMenuButton asChild>
+                        <Link
+                          href={`/playground/${item?.id}?frameId=${item?.frames[0]?.frameId}`}
+                        >
+                          <span>
+                            {
+                              item?.frames[0]?.chatMessages[0]?.chatMessage[0]
+                                .content
+                            }
+                          </span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
               </SidebarMenu>
             </SidebarGroupContent>
           )}
@@ -84,9 +85,11 @@ export function AppSidebar({
               <span className="font-semibold text-lg">{user?.credits}</span>
             </h2>
             <Progress value={user?.credits} />
-            <PaymentModel>
-              <Button className="w-full">Upgrade for Unlimited</Button>
-            </PaymentModel>
+            {user?.plan === "FREE" ? (
+              <PaymentModel>
+                <Button className="w-full">Upgrade for Unlimited</Button>
+              </PaymentModel>
+            ) : null}
           </div>
 
           <div className="flex px-2 items-center">

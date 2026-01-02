@@ -1,59 +1,17 @@
 "use client";
-
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@clerk/nextjs";
-import {
-  ArrowUp,
-  HomeIcon,
-  ImagePlus,
-  Key,
-  LayoutDashboard,
-  Loader2Icon,
-  User,
-} from "lucide-react";
-import { useContext, useState } from "react";
+import { ArrowUp, ImagePlus, Loader2Icon } from "lucide-react";
+import { useState } from "react";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import SelectModel from "./SelectModel";
-import { useUserOptional } from "../context/user-context";
 import { UserType } from "@/types";
+import { suggestion } from "../constants/suggestion";
+import createProject from "../actions/createProject";
 
-type HeroProps = {
-  user?: UserType;
-};
-
-const suggestion = [
-  {
-    label: "Dashboard",
-    prompt:
-      "Create an analytics dashboard to track customers and revenue data for a SaaS",
-    icon: LayoutDashboard,
-  },
-  {
-    label: "SignUp Form",
-    prompt:
-      "Create a modern sign up form with email/password fields, Google and Github login options, and terms checkbox",
-    icon: Key,
-  },
-  {
-    label: "Hero",
-    prompt:
-      "Create a modern header and centered hero section for a productivity SaaS. Include a badge for feature announcement, a title with a subtle gradient effect, subtitle, CTA, small social proof and an image.",
-    icon: HomeIcon,
-  },
-  {
-    label: "User Profile Card",
-    prompt:
-      "Create a modern user profile card component for a social media website",
-    icon: User,
-  },
-];
-
-function Hero({ user }: HeroProps) {
-  const contextUser = useUserOptional();
-  const resolvedUser = user ?? contextUser;
- 
+function Hero({ user }: { user: UserType }) {
   const [userInput, setUserInput] = useState<string>();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
@@ -65,14 +23,13 @@ function Hero({ user }: HeroProps) {
 
   const CreateNewProject = async () => {
     setLoading(true);
-
     try {
-      const response = await axios.post("/api/projects", {
+      const response = await createProject({
         chatMessage: [{ role: "user", content: userInput }],
       });
       console.log("response : ", response);
-      const projectId = response?.data?.projectId;
-      const frameId = response?.data?.frameId;
+      const projectId = response?.projectId;
+      const frameId = response?.frameId;
       toast.success("Project created!");
       router.push(`/playground/${projectId}?frameId=${frameId}`);
     } catch (error) {

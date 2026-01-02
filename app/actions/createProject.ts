@@ -1,18 +1,16 @@
+
+"use server";
 import { prisma } from "@/lib/db";
+import { Prisma } from "@/lib/generated/prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-export async function POST(req: NextRequest) {
+
+async function createProject({ chatMessage }: { chatMessage: Prisma.JsonArray }) {
   try {
     const userDetail = await currentUser();
     if (!userDetail) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return null;
     }
-    const {
-      chatMessage,
-    }: { projectId: string; frameId: string; chatMessage: string } =
-      await req.json();
-
     const projectId = await uuidv4();
     const frameId = await crypto.randomUUID().slice(0, 8);
 
@@ -62,58 +60,19 @@ export async function POST(req: NextRequest) {
         data: { credits: { decrement: 1 } },
       });
 
-      return { projectId, frameId, newProject, newFrame, newChat };
+      return { projectId, frameId};
     });
 
-    return NextResponse.json(result, { status: 201 });
+    return result;
   } catch (error: any) {
     if (error.message === "CREDITS_EXHAUSTED") {
-      return NextResponse.json(
-        { error: "No credits remaining" },
-        { status: 402 }
-      );
+      throw new Error("No credits remaining");
     }
-
     if (error.message === "USER_NOT_FOUND") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      throw new Error("Unauthorized");
     }
-
-    console.error("POST /api error:", error);
-
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    throw new Error(error.message || "INTERNAL_ERROR");
   }
 }
 
-export async function GET(req: NextRequest) {
-  try {
-    console.log("project get endpoint check");
-    const userDetail = await currentUser();
-
-    const dbUser = await prisma.user.findUnique({
-      where: { email: userDetail?.primaryEmailAddress?.emailAddress },
-    });
-
-    if (!dbUser) {
-      return NextResponse.json(
-        {
-          error: "user not exist",
-        },
-        { status: 404 }
-      );
-    }
-
-    const projects = await prisma.project.findMany({
-      where: { userId: dbUser.id },
-      include: {
-        frames: { include: { chatMessages: true } },
-      },
-    });
-
-    return NextResponse.json(projects, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ error: "internal error" }, { status: 500 });
-  }
-}
+export default createProject;
