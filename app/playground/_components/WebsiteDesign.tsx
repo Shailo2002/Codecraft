@@ -15,14 +15,14 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
     HTMLElement | HTMLImageElement | null
   >();
 
-useEffect(() => {
-  if (!iframeRef.current) return;
+  useEffect(() => {
+    if (!iframeRef.current) return;
 
-  const doc = iframeRef.current.contentDocument;
-  if (!doc || doc.getElementById("root")) return;
+    const doc = iframeRef.current.contentDocument;
+    if (!doc || doc.getElementById("root")) return;
 
-  doc.open();
-  doc.write(`
+    doc.open();
+    doc.write(`
       <!DOCTYPE html>
       <html lang="en">
       <head>
@@ -46,8 +46,9 @@ useEffect(() => {
       </head>
       <body id="root"></body>
       </html>
-    `);  doc.close();
-}, []);
+    `);
+    doc.close();
+  }, []);
 
   // Initialize iframe shell once
   useEffect(() => {
@@ -166,23 +167,36 @@ useEffect(() => {
   return (
     <div className="flex gap-2 w-full h-[87vh]">
       <div className="flex flex-col items-center justify-center w-full border-t border-x rounded-lg">
-        <div className="flex w-full overflow-hidden">
-          {/* Iframe section */}
-          <div className="flex-1 min-w-0 flex justify-center items-center">
+        <div className="flex flex-col md:flex-row w-full h-full overflow-hidden">
+          <div
+            className="flex justify-center items-center
+      h-1/2 md:h-auto
+      flex-1 md:flex-1
+      min-h-0 min-w-0
+      border-b md:border-b-0 md:border-r"
+          >
             <iframe
               ref={iframeRef}
               className={`${
                 selectedSize === "web"
-                  ? "w-full h-[80vh] rounded-tl-lg"
-                  : "w-full max-w-[360px] h-[76vh] rounded-lg"
+                  ? "w-full h-full md:h-[80vh] rounded-tl-lg"
+                  : "w-full max-w-[360px] h-full md:h-[76vh] rounded-lg"
               } ${!selectedElement && "rounded-tr-lg"} border bg-white`}
               sandbox="allow-scripts allow-same-origin"
             />
           </div>
 
-          {/* Element setting section (FIXED WIDTH) */}
           {selectedElement && (
-            <div className="w-72 shrink-0 border-l">
+            <div
+              className="
+        h-1/2 md:h-auto
+        w-full md:w-72
+        shrink-0
+        min-h-0
+        overflow-y-auto
+        border-t md:border-t-0 md:border-l
+      "
+            >
               {selectedElement.tagName === "IMG" ? (
                 <ImageSettingSection
                   selectedEl={selectedElement}

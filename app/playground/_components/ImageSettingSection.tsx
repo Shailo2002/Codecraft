@@ -203,7 +203,7 @@ function ImageSettingSection({ selectedEl, clearSelection }: Props) {
   }, [selectedEl]);
 
   return (
-    <div className="w-72 shadow p-4 space-y-4 rounded-tr-lg h-[80vh] overflow-y-auto">
+    <div className="w-full md:w-72 shadow p-4 space-y-4 rounded-tr-lg h-[80vh] overflow-y-auto">
       <div className="flex justify-between items-start">
         <h2 className="flex gap-2 items-center font-bold">
           <ImageIcon /> Image Settings
