@@ -6,7 +6,7 @@ import ImageSettingSection from "./ImageSettingSection";
 type Props = {
   generatedCode: string;
   iframeRef: HTMLIFrameElement;
-  handleIsChat: (value:Boolean) => void
+  handleIsChat: (value: Boolean) => void;
 };
 
 function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
@@ -14,6 +14,40 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
   const [selectedElement, setSelectedElement] = useState<
     HTMLElement | HTMLImageElement | null
   >();
+
+useEffect(() => {
+  if (!iframeRef.current) return;
+
+  const doc = iframeRef.current.contentDocument;
+  if (!doc || doc.getElementById("root")) return;
+
+  doc.open();
+  doc.write(`
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="AI Website Builder - Modern TailWindCSS + Flowbite Template">
+        <title>AI Website Builder</title>
+
+        <!-- Tailwind CSS -->
+        <script src="https://cdn.tailwindcss.com"></script>
+
+        <!-- Flowbite CSS & JS -->
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+
+        <!-- Font Awesome / Lucide -->
+        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+      </head>
+      <body id="root"></body>
+      </html>
+    `);  doc.close();
+}, []);
 
   // Initialize iframe shell once
   useEffect(() => {

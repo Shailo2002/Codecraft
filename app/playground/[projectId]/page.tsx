@@ -7,6 +7,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { Prompt } from "@/app/constants/prompt";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export type Frame = {
   id: String;
@@ -41,6 +42,7 @@ function page() {
   const [codeSaveLoading, setCodeSaveLoading] = useState<Boolean>(false);
   const [model, setModel] = useState<string>("gpt-4o-mini");
   const [isChat, setIsChat] = useState<Boolean>(false);
+  const isMobile = useIsMobile();
 
   const getIframeHTML = async () => {
     setCodeSaveLoading(true);
@@ -411,43 +413,28 @@ function page() {
         projectName={projectId}
       />
 
-      <div className="hidden md:flex justify-center bg-zinc-50 p-4 gap-4">
+      <div className="flex justify-center bg-zinc-50 p-4 gap-4">
         {/* chatSection */}
 
-        <ChatSection
-          messages={messages ?? []}
-          onSend={(input: string, model: string) => SendMessage(input, model)}
-          loading={loading}
-          handleIsChat={handleIsChat}
-        />
-
-        {/* websiteDesign */}
-        <WebsiteDesign
-          iframeRef={iframeRef}
-          generatedCode={(generatedCode ?? "")
-            .replace(/```/g, "")
-            .replace(/(?<!<)html(?![>/])/g, "")}
-          handleIsChat={handleIsChat}
-        />
-      </div>
-
-      <div className="flex justify-center bg-zinc-50 p-4 gap-4 md:hidden">
-        {isChat === true ? (
+        {(isChat || !isMobile) && (
           <ChatSection
             messages={messages ?? []}
             onSend={(input: string, model: string) => SendMessage(input, model)}
             loading={loading}
             handleIsChat={handleIsChat}
           />
-        ) : (
-          <WebsiteDesign
-            iframeRef={iframeRef}
-            generatedCode={(generatedCode ?? "")
-              .replace(/```/g, "")
-              .replace(/(?<!<)html(?![>/])/g, "")}
-            handleIsChat={handleIsChat}
-          />
         )}
+
+        {/* websiteDesign */}
+         {(!isChat || !isMobile) && (
+        <WebsiteDesign
+          key="desktop-iframe"
+          iframeRef={iframeRef}
+          generatedCode={(generatedCode ?? "")
+            .replace(/```/g, "")
+            .replace(/(?<!<)html(?![>/])/g, "")}
+          handleIsChat={handleIsChat}
+        />)}
       </div>
     </div>
   );
