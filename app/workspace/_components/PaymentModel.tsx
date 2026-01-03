@@ -16,8 +16,6 @@ import { Check, CircleCheckBig } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
-
-
 export function PaymentModel({ children }: any) {
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("");
@@ -43,7 +41,7 @@ export function PaymentModel({ children }: any) {
     <Dialog>
       <form>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="min-w-[916px]">
+        <DialogContent className="max-h-[90vh] overflow-y-auto md:max-h-none md:overflow-visible md:min-w-[916px]">
           <DialogHeader>
             <DialogTitle>Edit profile</DialogTitle>
             <DialogDescription>
@@ -51,7 +49,7 @@ export function PaymentModel({ children }: any) {
               done.
             </DialogDescription>
           </DialogHeader>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="flex flex-wrap justify-center items-center gap-4">
             {pricingPlans.map((plan) => (
               <div className="border rounded-lg shadow w-70 p-4">
                 <div className="font-semibold text-lg">{plan.name}</div>
