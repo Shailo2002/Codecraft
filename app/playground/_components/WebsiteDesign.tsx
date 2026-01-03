@@ -6,11 +6,14 @@ import ImageSettingSection from "./ImageSettingSection";
 type Props = {
   generatedCode: string;
   iframeRef: HTMLIFrameElement;
+  handleIsChat: (value:Boolean) => void
 };
 
-function WebsiteDesign({ generatedCode, iframeRef }: Props) {
+function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
   const [selectedSize, setSelectedSize] = useState("web");
-  const [selectedElement, setSelectedElement] = useState<HTMLElement | null>();
+  const [selectedElement, setSelectedElement] = useState<
+    HTMLElement | HTMLImageElement | null
+  >();
 
   // Initialize iframe shell once
   useEffect(() => {
@@ -127,33 +130,47 @@ function WebsiteDesign({ generatedCode, iframeRef }: Props) {
   }, [generatedCode]);
 
   return (
-    <div className="flex gap-2 w-full">
-      <div className="flex flex-col items-center justify-center p-4 w-full border ">
-        <iframe
-          ref={iframeRef}
-          className={`${
-            selectedSize === "web"
-              ? "w-full h-[80vh] rounded-t-xl"
-              : "w-110 h-[80vh] rounded-xl "
-          } " border "`}
-          sandbox="allow-scripts allow-same-origin"
-        />
+    <div className="flex gap-2 w-full h-[87vh]">
+      <div className="flex flex-col items-center justify-center w-full border-t border-x rounded-lg">
+        <div className="flex w-full overflow-hidden">
+          {/* Iframe section */}
+          <div className="flex-1 min-w-0 flex justify-center items-center">
+            <iframe
+              ref={iframeRef}
+              className={`${
+                selectedSize === "web"
+                  ? "w-full h-[80vh] rounded-tl-lg"
+                  : "w-full max-w-[360px] h-[76vh] rounded-lg"
+              } ${!selectedElement && "rounded-tr-lg"} border bg-white`}
+              sandbox="allow-scripts allow-same-origin"
+            />
+          </div>
+
+          {/* Element setting section (FIXED WIDTH) */}
+          {selectedElement && (
+            <div className="w-72 shrink-0 border-l">
+              {selectedElement.tagName === "IMG" ? (
+                <ImageSettingSection
+                  selectedEl={selectedElement}
+                  clearSelection={() => setSelectedElement(null)}
+                />
+              ) : (
+                <ElementSettingSection
+                  selectedEl={selectedElement}
+                  clearSelection={() => setSelectedElement(null)}
+                />
+              )}
+            </div>
+          )}
+        </div>
+
         <WebPageTools
           selectedSize={selectedSize}
           setSelectedScreenSize={(v: string) => setSelectedSize(v)}
           generatedCode={generatedCode}
+          handleIsChat={handleIsChat}
         />
       </div>
-
-      {/* Element seting section */}
-      {selectedElement?.tagName === "IMG" ? (
-        <ImageSettingSection selectedEl={selectedElement} />
-      ) : selectedElement ? (
-        <ElementSettingSection
-          selectedEl={selectedElement}
-          clearSelection={() => setSelectedElement(null)}
-        />
-      ) : null}
     </div>
   );
 }

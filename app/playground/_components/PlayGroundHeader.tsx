@@ -1,11 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
-import axios from "axios";
-import { ExternalLink, X } from "lucide-react"; // Optional icons if you use lucide-react
+import axios, { AxiosError } from "axios";
+import { ExternalLink, Globe, X } from "lucide-react"; // Optional icons if you use lucide-react
 import Image from "next/image";
 import Link from "next/link";
 import React, { useState } from "react";
+import toast from "react-hot-toast";
 
 function PlayGroundHeader({
   onSave,
@@ -23,6 +24,7 @@ function PlayGroundHeader({
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
 
   const handleDeploy = async () => {
+    console.log("project deployment initiated");
     // Basic validation
     if (!code) {
       alert("Please generate some code first!");
@@ -55,13 +57,11 @@ function PlayGroundHeader({
       ${code}</body>
       </html>
     `;
-    console.log("final code : ", finalCode)
 
     setDeploying(true);
-    setDeployedUrl(null); // Reset previous deployment
+    setDeployedUrl(null);
 
     try {
-      // Ensure project name is unique-ish to prevent Vercel 409 errors
       const uniqueName = `${projectName}-${Date.now()}`
         .toLowerCase()
         .replace(/\s+/g, "-");
@@ -77,15 +77,19 @@ function PlayGroundHeader({
         setDeployedUrl(response.data.url);
       }
     } catch (error: any) {
-      console.log("error : ", error);
-      alert(error.response?.data?.error || "Deployment failed. Check console.");
+      const deployError = error as AxiosError;
+      console.log("error : ", deployError);
+      toast.error(
+        (deployError?.response?.data as any)?.message ||
+          "Deployment failed. Check console."
+      );
     } finally {
       setDeploying(false);
     }
   };
 
   return (
-    <div className="relative flex justify-between items-center p-4 shadow">
+    <div className="relative flex justify-between items-center p-4 shadow h-[8.75vh]">
       <Link href={"/workspace"}>
         <Image src={"/logo.svg"} alt="logo" width={140} height={140} />
       </Link>
@@ -101,7 +105,9 @@ function PlayGroundHeader({
               <Spinner className="mr-2 h-4 w-4" /> Deploying...
             </>
           ) : (
-            "Deploy"
+            <>
+              <Globe /> Deploy
+            </>
           )}
         </Button>
 

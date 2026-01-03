@@ -27,39 +27,41 @@ function Hero({ user }: { user: UserType }) {
       const response = await createProject({
         chatMessage: [{ role: "user", content: userInput }],
       });
+
       console.log("response : ", response);
-      const projectId = response?.projectId;
-      const frameId = response?.frameId;
+      if (!response?.ok) {
+        toast.error(response?.error);
+        return;
+      }
+
       toast.success("Project created!");
-      router.push(`/playground/${projectId}?frameId=${frameId}`);
-    } catch (error) {
-      const axiosError = error as any;
-      toast.error(
-        axiosError?.response?.data?.error || "Internal server error!"
+      router.push(
+        `/playground/${response?.projectId}?frameId=${response?.frameId}`
       );
-      console.log("error : ", error);
+    } catch {
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col justify-center items-center h-[80vh]">
+    <div className="p-4 flex flex-col justify-center items-center w-full h-[90vh] md:h-[80vh] ">
       {/* description */}
       <div className="flex flex-col justify-center items-center">
-        <h1 className="text-center text-6xl font-extrabold tracking-tight text-balance">
+        <h1 className="text-5xl text-center md:text-6xl font-extrabold tracking-tight text-balance">
           What should we design?
         </h1>
-        <h4 className="text-gray-500 mt-2 text-xl tracking-tight">
+        <h4 className="text-lg text-center text-gray-500 mt-2 md:text-xl tracking-tight">
           Generate, Edit and Explore design with AI. Export to code.
         </h4>
       </div>
 
       {/* input */}
-      <div className="relative w-full max-w-2xl p-5 mt-5 border rounded-2xl">
+      <div className="not-only-of-type:relative w-full max-w-2xl p-4 mt-5 border rounded-2xl">
         <textarea
           placeholder="Describe your page design"
-          className="w-full  h-24 focus:outline-none focus:ring-0 resize-none"
+          className="w-full h-24 focus:outline-none focus:ring-0 resize-none"
           onChange={(e) => setUserInput(e.target.value)}
           value={userInput}
         />
@@ -90,7 +92,7 @@ function Hero({ user }: { user: UserType }) {
       </div>
 
       {/* options */}
-      <div className="flex gap-3 mt-4">
+      <div className="flex flex-wrap md:flex-row justify-center items-center gap-3 mt-4">
         {suggestion.map((value, index) => (
           <Button
             variant={"outline"}

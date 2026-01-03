@@ -44,7 +44,7 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
     if (!styleText) return;
     selectedEl.classList.add(styleText);
     setClasses((prev) => [...prev, styleText]);
-    setNewClass("")
+    setNewClass("");
   };
 
   useEffect(() => {
@@ -53,11 +53,19 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
   }, [selectedEl]);
 
   return (
-    <div className="w-96 shadow p-4">
-      <h2 className="flex gap-1 font-semibold m-2">
-        <SwatchBook />
-        Settings
-      </h2>
+    <div className="relative w-72 shadow p-4 space-y-4 rounded-tr-lg h-[80vh] overflow-y-auto ">
+      <div className="flex justify-between items-start">
+        <h2 className="flex gap-2 items-center font-bold">
+          <SwatchBook />
+          Settings
+        </h2>
+        <div
+          className="bg-slate-200 rounded p-1 hover:bg-slate-300"
+          onClick={() => clearSelection()}
+        >
+          <X size={16} />
+        </div>
+      </div>
 
       <div className="flex gap-6 items-start mt-4">
         <div className="flex flex-col gap-1">

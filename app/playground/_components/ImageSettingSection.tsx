@@ -8,6 +8,7 @@ import {
   Expand,
   Image as ImageUpscale,
   ImageMinus,
+  X,
 } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import {
@@ -45,8 +46,9 @@ const transformOptions = [
 
 type Props = {
   selectedEl: HTMLImageElement;
+  clearSelection: () => void;
 };
-function ImageSettingSection({ selectedEl }: Props) {
+function ImageSettingSection({ selectedEl, clearSelection }: Props) {
   const [altText, setAltText] = useState(selectedEl.alt || "");
   const [width, setWidth] = useState<number>(selectedEl.width || 300);
   const [height, setHeight] = useState<number>(selectedEl.height || 200);
@@ -201,10 +203,18 @@ function ImageSettingSection({ selectedEl }: Props) {
   }, [selectedEl]);
 
   return (
-    <div className="w-96 shadow p-4 space-y-4">
-      <h2 className="flex gap-2 items-center font-bold">
-        <ImageIcon /> Image Settings
-      </h2>
+    <div className="w-72 shadow p-4 space-y-4 rounded-tr-lg h-[80vh] overflow-y-auto">
+      <div className="flex justify-between items-start">
+        <h2 className="flex gap-2 items-center font-bold">
+          <ImageIcon /> Image Settings
+        </h2>
+        <div
+          className="bg-slate-200 rounded p-1 hover:bg-slate-300"
+          onClick={() => clearSelection()}
+        >
+          <X size={16} />
+        </div>
+      </div>
 
       {/* image upload section */}
       <div className="flex justify-center">

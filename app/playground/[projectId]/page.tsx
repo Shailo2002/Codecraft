@@ -28,7 +28,6 @@ export type Message = {
   content: String;
 };
 
-
 function page() {
   const { projectId } = useParams();
   const params = useSearchParams();
@@ -41,6 +40,7 @@ function page() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [codeSaveLoading, setCodeSaveLoading] = useState<Boolean>(false);
   const [model, setModel] = useState<string>("gpt-4o-mini");
+  const [isChat, setIsChat] = useState<Boolean>(false);
 
   const getIframeHTML = async () => {
     setCodeSaveLoading(true);
@@ -396,6 +396,10 @@ function page() {
     }
   };
 
+  const handleIsChat = (value: Boolean) => {
+    setIsChat(value);
+  };
+
   return (
     <div>
       <PlayGroundHeader
@@ -407,12 +411,14 @@ function page() {
         projectName={projectId}
       />
 
-      <div className="flex">
+      <div className="hidden md:flex justify-center bg-zinc-50 p-4 gap-4">
         {/* chatSection */}
+
         <ChatSection
           messages={messages ?? []}
           onSend={(input: string, model: string) => SendMessage(input, model)}
           loading={loading}
+          handleIsChat={handleIsChat}
         />
 
         {/* websiteDesign */}
@@ -421,7 +427,27 @@ function page() {
           generatedCode={(generatedCode ?? "")
             .replace(/```/g, "")
             .replace(/(?<!<)html(?![>/])/g, "")}
+          handleIsChat={handleIsChat}
         />
+      </div>
+
+      <div className="flex justify-center bg-zinc-50 p-4 gap-4 md:hidden">
+        {isChat === true ? (
+          <ChatSection
+            messages={messages ?? []}
+            onSend={(input: string, model: string) => SendMessage(input, model)}
+            loading={loading}
+            handleIsChat={handleIsChat}
+          />
+        ) : (
+          <WebsiteDesign
+            iframeRef={iframeRef}
+            generatedCode={(generatedCode ?? "")
+              .replace(/```/g, "")
+              .replace(/(?<!<)html(?![>/])/g, "")}
+            handleIsChat={handleIsChat}
+          />
+        )}
       </div>
     </div>
   );

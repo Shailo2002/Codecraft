@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import {
   CodeXml,
   Download,
+  MessageCircleMore,
   Monitor,
   SquareArrowOutUpRight,
   TabletSmartphone,
@@ -14,6 +15,7 @@ function WebPageTools({
   selectedSize,
   setSelectedScreenSize,
   generatedCode,
+  handleIsChat,
 }: any) {
   const [finalCode, setFinalCode] = useState<string>("");
 
@@ -72,18 +74,20 @@ function WebPageTools({
   };
 
   const handleDownload = () => {
-    const blob = new Blob([finalCode],{type:"text/html"});
+    const blob = new Blob([finalCode], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = "index.html";
     a.click();
     URL.revokeObjectURL(url);
-  }
+  };
 
   return (
-    <div className="p-3 w-full border shadow rounded-b-xl flex justify-between items-center ">
-      <div className="flex items-center justify-center gap-2">
+    <div
+      className={`p-3 w-full border shadow rounded-b-lg flex justify-between items-center h-[7vh] bg-white`}
+    >
+      <div className="hidden md:flex items-center justify-center gap-2">
         <Button
           variant={"outline"}
           className={`${selectedSize == "web" ? "border-primary" : null}`}
@@ -99,21 +103,28 @@ function WebPageTools({
           <TabletSmartphone />
         </Button>
       </div>
+
+      <div className="flex items-center justify-center gap-2 md:hidden">
+        <Button onClick={() => handleIsChat(true)}>
+          <MessageCircleMore /> Chat
+        </Button>
+      </div>
+
       <div className="flex items-center justify-center gap-2">
         <Button variant={"outline"} onClick={() => ViewInNewTab()}>
-          View
+          <span className="hidden md:inline">View</span>
           <SquareArrowOutUpRight />
         </Button>
 
         <ViewCodeBlock code={finalCode}>
           <Button>
-            Code
+            <span className="hidden md:inline">Code</span>
             <CodeXml />
           </Button>
         </ViewCodeBlock>
 
         <Button onClick={() => handleDownload()}>
-          Download
+          <span className="hidden md:inline">Download</span>
           <Download />
         </Button>
       </div>

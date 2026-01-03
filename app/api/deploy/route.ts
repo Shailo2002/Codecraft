@@ -1,8 +1,46 @@
+import { prisma } from "@/lib/db";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
     const { htmlCode, projectName } = await req.json();
+
+    //check is user have premium plan
+    const userDetail = await currentUser();
+
+    if (!userDetail) {
+      return NextResponse.json(
+        {
+          message: "Authentication required",
+        },
+        { status: 401 }
+      );
+    }
+
+    const dbUser = await prisma.user.findUnique({
+      where: {
+        email: userDetail.primaryEmailAddress?.emailAddress,
+      },
+    });
+
+    if (!dbUser) {
+      return NextResponse.json(
+        {
+          message: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    if (dbUser.plan !== "PREMIUM") {
+      return NextResponse.json(
+        {
+          message: "Premium plan required to deploy project",
+        },
+        { status: 403 }
+      );
+    }
 
     // 1. Force lowercase and remove spaces for URL safety
     const shortId = projectName.slice(-16);
@@ -38,13 +76,7 @@ export async function POST(req: Request) {
       );
     }
 
-    // --- THE FIX IS HERE ---
-    // data.url is the PRIVATE deployment hash (e.g., project-d83838...vercel.app)
-    // We want the PUBLIC production alias (e.g., project.vercel.app)
-
-    // We construct it manually because Vercel reserves this name for you immediately:
     const publicUrl = `https://${data.name}.vercel.app`;
-
     return NextResponse.json({
       url: publicUrl,
       dashboardUrl: data.inspectorUrl,

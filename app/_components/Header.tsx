@@ -16,12 +16,12 @@ const menuOptions = [
 
 function Header({user}: {user: UserType}) {
   return (
-    <div className="flex justify-between items-center p-4 shadow-lg">
+    <div className="flex justify-between items-center p-4 shadow-lg h-[10vh] ">
       {/* logo  */}
       <Image src={"/logo.svg"} alt="logo" width={140} height={140} />
 
       {/* menu options */}
-      <div className="flex gap-2">
+      <div className="hidden md:block flex gap-2">
         {menuOptions.map((menu, key) => (
           <Button variant={"ghost"} key={key}>
             {menu?.name}

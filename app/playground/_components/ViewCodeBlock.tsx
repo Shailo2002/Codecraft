@@ -31,7 +31,7 @@ export function ViewCodeBlock({ children, code }: any) {
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent className="min-w-5xl max-h-[600px] overflow-auto">
+      <DialogContent className="min-w-[90vw] max-h-[70vh] lg:min-w-4xl lg:max-w-5xl overflow-auto">
         <DialogHeader>
           <DialogTitle className="flex justify-start items-center gap-2">
             Source Code
@@ -40,7 +40,7 @@ export function ViewCodeBlock({ children, code }: any) {
             </Button>
           </DialogTitle>
           <DialogDescription>
-            <div className="pr-6 max-h-4xl max-w-[974px] overflow-auto">
+            <div className="max-w-[86vw] pr-6 lg:max-w-[1000px] overflow-auto rounded-lg">
               <SyntaxHighlighter>{code}</SyntaxHighlighter>
             </div>
           </DialogDescription>

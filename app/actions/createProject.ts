@@ -1,78 +1,66 @@
-
 "use server";
 import { prisma } from "@/lib/db";
 import { Prisma } from "@/lib/generated/prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
 import { v4 as uuidv4 } from "uuid";
 
-async function createProject({ chatMessage }: { chatMessage: Prisma.JsonArray }) {
-  try {
-    const userDetail = await currentUser();
-    if (!userDetail) {
-      return null;
-    }
-    const projectId = await uuidv4();
-    const frameId = await crypto.randomUUID().slice(0, 8);
+export default async function createProject({
+  chatMessage,
+}: {
+  chatMessage: Prisma.JsonArray;
+}) {
+  const userDetail = await currentUser();
+  if (!userDetail) {
+    return { ok: false, error: "Unauthorized" };
+  }
 
+  try {
     const result = await prisma.$transaction(async (tx) => {
       const dbUser = await tx.user.findUnique({
-        where: { email: userDetail?.primaryEmailAddress?.emailAddress },
+        where: { email: userDetail.primaryEmailAddress?.emailAddress },
       });
 
       if (!dbUser) {
-        throw new Error("USER_NOT_FOUND");
+        return { ok: false, error: "Unauthorized" };
       }
 
       if (dbUser.credits <= 0) {
-        throw new Error("CREDITS_EXHAUSTED");
+        return { ok: false, error: "No credits remaining" };
       }
-      const userId = dbUser?.id;
-      //create Project table
-      const newProject = await tx.project.create({
-        data: {
-          projectId,
-          userId,
-        },
-      });
-      const newProjectId = newProject?.id;
 
-      //create frame
+      const projectId = uuidv4();
+      const frameId = crypto.randomUUID().slice(0, 8);
+
+      const newProject = await tx.project.create({
+        data: { projectId, userId: dbUser.id },
+      });
+
       const newFrame = await tx.frame.create({
         data: {
           frameId,
-          projectId: newProjectId,
+          projectId: newProject.id,
           designCode: "<div> test code </div>",
         },
       });
-      const newFrameId = newFrame?.id;
 
-      //create chatMessage
-      const newChat = await tx.chatMessage.create({
+      await tx.chatMessage.create({
         data: {
           chatMessage,
-          userId,
-          frameId: newFrameId,
+          userId: dbUser.id,
+          frameId: newFrame.id,
         },
       });
 
       await tx.user.update({
-        where: { id: userId },
+        where: { id: dbUser.id },
         data: { credits: { decrement: 1 } },
       });
 
-      return { projectId, frameId};
+      return { ok: true, projectId, frameId };
     });
 
     return result;
-  } catch (error: any) {
-    if (error.message === "CREDITS_EXHAUSTED") {
-      throw new Error("No credits remaining");
-    }
-    if (error.message === "USER_NOT_FOUND") {
-      throw new Error("Unauthorized");
-    }
-    throw new Error(error.message || "INTERNAL_ERROR");
+  } catch {
+    return { ok: false, error: "Internal server error" };
   }
 }
-
-export default createProject;
