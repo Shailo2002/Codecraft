@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import WebPageTools from "./WebPageTools";
 import ElementSettingSection from "./ElementSettingSection";
 import ImageSettingSection from "./ImageSettingSection";
+import Image from "next/image";
 
 type Props = {
   generatedCode: string;
@@ -169,7 +170,7 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
       <div className="flex flex-col items-center justify-center w-full border-t border-x rounded-lg">
         <div className="flex flex-col md:flex-row w-full h-full overflow-hidden">
           <div
-            className="flex justify-center items-center
+            className="relative flex justify-center items-center
       h-1/2 md:h-auto
       flex-1 md:flex-1
       min-h-0 min-w-0
@@ -184,6 +185,15 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
               } ${!selectedElement && "rounded-tr-lg"} border bg-white`}
               sandbox="allow-scripts allow-same-origin"
             />
+            <div className="absolute flex justify-center items-center gap-1 bottom-4 right-4 border border-slate-100 bg-white shadow text-sm px-2 py-1 rounded">
+              Made in{" "}
+              <Image
+                src={"/logosymbol.svg"}
+                alt="codeCraft"
+                width={20}
+                height={20}
+              />
+            </div>
           </div>
 
           {selectedElement && (
