@@ -38,11 +38,12 @@ export function AppSidebar({
             height={140}
             className="m-1"
           />
-          {projects.length === 0 ? 
-          <Button className="w-full">
-            <Plus />
-            New Project
-          </Button> : null}
+          {projects.length === 0 ? (
+            <Button className="w-full">
+              <Plus />
+              New Project
+            </Button>
+          ) : null}
         </div>
       </SidebarHeader>
 
@@ -93,7 +94,7 @@ export function AppSidebar({
           </div>
 
           <div className="flex px-2 items-center">
-            {user?.plan === "PREMIUM" ? (
+            {/* {user?.plan === "PREMIUM" ? (
               <div
                 className="relative flex justify-center items-center size-10 rounded-full 
                 bg-gradient-to-br from-neutral-700 to-neutral-900
@@ -106,7 +107,27 @@ export function AppSidebar({
               </div>
             ) : (
               <UserButton />
-            )}
+            )} */}
+
+            <div
+              className={`relative flex justify-center items-center size-10 rounded-full 
+                ${
+                  user?.plan === "PREMIUM"
+                    ? "bg-gradient-to-br from-neutral-700 to-neutral-900 ring-2 ring-amber-400 shadow-md"
+                    : ""
+                }`}
+            >
+              {/* WRAPPER DIV: Keeps the DOM structure stable */}
+              <div className="flex items-center justify-center h-full w-full ">
+                <UserButton />
+              </div>
+
+              {user?.plan === "PREMIUM" && (
+                <span className="absolute -bottom-1 -right-1 rounded-2xl px-1 bg-amber-400/90 border-2 border-neutral-900 text-[10px] pointer-events-none">
+                  pro
+                </span>
+              )}
+            </div>
 
             <Button variant={"ghost"}>Settings</Button>
           </div>

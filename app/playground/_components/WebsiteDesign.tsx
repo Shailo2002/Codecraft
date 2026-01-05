@@ -15,41 +15,24 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
   const [selectedElement, setSelectedElement] = useState<
     HTMLElement | HTMLImageElement | null
   >();
+  const [isIframeLoaded, setIsIframeLoaded] = useState(false);
+
+  console.log("iframe code : ", generatedCode);
 
   useEffect(() => {
-    if (!iframeRef.current) return;
+    if (!isIframeLoaded || !iframeRef.current) return;
 
     const doc = iframeRef.current.contentDocument;
-    if (!doc || doc.getElementById("root")) return;
+    const root = doc?.getElementById("root");
 
-    doc.open();
-    doc.write(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="AI Website Builder - Modern TailWindCSS + Flowbite Template">
-        <title>AI Website Builder</title>
+    // Inject the code
+    if (root) {
+      root.innerHTML = generatedCode;
 
-        <!-- Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
-
-        <!-- Flowbite CSS & JS -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-
-        <!-- Font Awesome / Lucide -->
-        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
-        <!-- Chart.js -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      </head>
-      <body id="root"></body>
-      </html>
-    `);
-    doc.close();
-  }, []);
+      // Re-attach listeners whenever the innerHTML changes
+      // attachEventListeners(doc);
+    }
+  }, [generatedCode, isIframeLoaded]);
 
   // Initialize iframe shell once
   useEffect(() => {
@@ -57,33 +40,33 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
     const doc = iframeRef.current.contentDocument;
     if (!doc) return;
 
-    doc.open();
-    doc.write(`
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="AI Website Builder - Modern TailWindCSS + Flowbite Template">
-        <title>AI Website Builder</title>
+    // doc.open();
+    // doc.write(`
+    //   <!DOCTYPE html>
+    //   <html lang="en">
+    //   <head>
+    //     <meta charset="UTF-8" />
+    //     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    //     <meta name="description" content="AI Website Builder - Modern TailWindCSS + Flowbite Template">
+    //     <title>AI Website Builder</title>
 
-        <!-- Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
+    //     <!-- Tailwind CSS -->
+    //     <script src="https://cdn.tailwindcss.com"></script>
 
-        <!-- Flowbite CSS & JS -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+    //     <!-- Flowbite CSS & JS -->
+    //     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
+    //     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
 
-        <!-- Font Awesome / Lucide -->
-        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    //     <!-- Font Awesome / Lucide -->
+    //     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-        <!-- Chart.js -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      </head>
-      <body id="root"></body>
-      </html>
-    `);
-    doc.close();
+    //     <!-- Chart.js -->
+    //     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    //   </head>
+    //   <body id="root"></body>
+    //   </html>
+    // `);
+    // doc.close();
 
     let hoverEl: HTMLElement | null = null;
     let selectedEl: HTMLElement | null = null;
@@ -155,14 +138,9 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
 
   // Update body only when code changes
   useEffect(() => {
-    if (!iframeRef.current) return;
-    const doc = iframeRef.current.contentDocument;
-    if (!doc) return;
-
-    const root = doc.getElementById("root");
-    if (root) {
-      root.innerHTML = generatedCode;
-    }
+    const doc = iframeRef.current?.contentDocument;
+    const root = doc?.getElementById("root");
+    if (root) root.innerHTML = generatedCode;
   }, [generatedCode]);
 
   return (
@@ -178,13 +156,30 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
           >
             <iframe
               ref={iframeRef}
+              // 3. Add onLoad handler here
+              onLoad={() => setIsIframeLoaded(true)}
               className={`${
                 selectedSize === "web"
                   ? "w-full h-full md:h-[80vh] rounded-tl-lg"
                   : "w-full max-w-[360px] h-full md:h-[76vh] rounded-lg"
               } ${!selectedElement && "rounded-tr-lg"} border bg-white`}
               sandbox="allow-scripts allow-same-origin"
+              srcDoc={`<!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                          <meta charset="UTF-8" />
+                          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                          <title>AI Website Builder</title>
+                          <script src="https://cdn.tailwindcss.com"></script>
+                          <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
+                          <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+                          <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+                          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                        </head>
+                        <body id="root"></body>
+                        </html>`}
             />
+
             <div className="absolute flex justify-center items-center gap-1 bottom-4 right-4 border border-slate-100 bg-white shadow text-sm px-2 py-1 rounded">
               Made in{" "}
               <Image

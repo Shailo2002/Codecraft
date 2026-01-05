@@ -41,15 +41,15 @@ export function PaymentModel({ children }: any) {
     <Dialog>
       <form>
         <DialogTrigger asChild>{children}</DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto md:max-h-none md:overflow-visible md:min-w-[916px]">
+        <DialogContent className="max-h-[90vh] overflow-y-auto md:overflow-none md:min-w-[650px] lg:min-w-[916px]">
           <DialogHeader>
-            <DialogTitle>Edit profile</DialogTitle>
+            <DialogTitle>Upgrade Your Plan</DialogTitle>
             <DialogDescription>
-              Make changes to your profile here. Click save when you&apos;re
-              done.
+              Get full access by choosing a subscription plan that fits your
+              needs.
             </DialogDescription>
           </DialogHeader>
-          <div className="flex flex-wrap justify-center items-center gap-4">
+          <div className="flex flex-wrap md:grid md:grid-cols-2 lg:grid-cols-3 justify-center items-center gap-4">
             {pricingPlans.map((plan) => (
               <div className="border rounded-lg shadow w-70 p-4">
                 <div className="font-semibold text-lg">{plan.name}</div>
