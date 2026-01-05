@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import ClientPlayground from "./ClientPlayground";
 import { redirect } from "next/navigation";
+import { Frame } from "@/types";
 
 type PageProps = {
   params: Promise<{ projectId: string }>;
@@ -25,9 +26,6 @@ export default async function Page({ params, searchParams }: PageProps) {
     },
   });
 
-
-  console.log("frame : ", frame);
-
   if (!frame) {
     redirect("/workspace");
   }
@@ -36,7 +34,7 @@ export default async function Page({ params, searchParams }: PageProps) {
     <ClientPlayground
       projectId={projectId}
       frameId={frameId}
-      initialFrame={frame}
+      initialFrame={frame as unknown as Frame}
     />
   );
 }

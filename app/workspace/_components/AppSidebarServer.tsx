@@ -1,11 +1,15 @@
 import { getCurrentDbUser } from "@/lib/getCurrentDbUser";
 import { AppSidebar } from "./AppSidebar";
 import { getProjects } from "@/lib/getProjects";
+import { Project } from "@/types";
 
 async function AppSidebarServer() {
 const [user, projects] = await Promise.all([getCurrentDbUser(), getProjects()]);
   return (
-      <AppSidebar user={user} projects={projects} />
+    <AppSidebar
+      user={user}
+      projects={(projects || []) as unknown as Project[]}
+    />
   );
 }
 

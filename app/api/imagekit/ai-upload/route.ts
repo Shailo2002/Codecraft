@@ -5,7 +5,6 @@ export async function POST(req: NextRequest) {
   try {
     console.log("check ai-upload route");
     const { url } = await req.json();
-    console.log("url :", url);
 
     const response = await imagekit.upload({
       file: url,
@@ -13,7 +12,6 @@ export async function POST(req: NextRequest) {
       tags: ["ai-generated"],
       folder: "/Codecraft/images",
     });
-    console.log("response : ", response);
     return NextResponse.json({
       url: response.url,
       thumbnail: response.thumbnailUrl,

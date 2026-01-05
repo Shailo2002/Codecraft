@@ -1,4 +1,4 @@
-import { ChatMessage } from "./chatMessage";
+import {  ChatMessage } from "./chatMessage";
 
 export type Frame = {
   id: string;

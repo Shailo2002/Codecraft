@@ -1,24 +1,19 @@
 import { useEffect, useRef, useState } from "react";
-import { Messages } from "../[projectId]/page";
 import { Button } from "@/components/ui/button";
 import { ArrowUp, Eye } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import SelectModel from "@/app/_components/SelectModel";
+import { ChatMessage } from "@/types";
 
 type Props = {
-  messages: Messages[];
+  messages: ChatMessage[];
   onSend: any;
   loading: boolean;
   handleIsChat: (value: Boolean) => void;
 };
 
-function ChatSection({
-  messages,
-  onSend,
-  loading,
-  handleIsChat,
-}: Props) {
+function ChatSection({ messages, onSend, loading, handleIsChat }: Props) {
   const [input, setInput] = useState<string>("");
   const [model, setModel] = useState<string>("gpt-4o-mini");
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -42,6 +37,7 @@ function ChatSection({
     }, 0);
   }, [messages]);
 
+
   return (
     <div className="flex flex-col w-120 h-[87vh]">
       {/* Message Section */}
@@ -50,7 +46,7 @@ function ChatSection({
           {messages?.length === 0 ? (
             <p className="text-gray-400 text-center">No Messages Yet</p>
           ) : (
-            messages?.map((msg, index) => (
+            messages?.map((msg : ChatMessage, index) => (
               <div
                 className={`flex ${
                   msg?.chatMessage[0]?.role == "user"

@@ -10,7 +10,6 @@ export async function POST(req: Request) {
   try {
     const { prompt } = await req.json();
 
-    console.log("prompt check : ", prompt)
     if (!prompt) {
       return NextResponse.json(
         { error: "Prompt is required" },
@@ -28,7 +27,7 @@ export async function POST(req: Request) {
     });
 
 
-    if (!response) {
+    if (!response || !response.data) {
       return NextResponse.json(
         { error: "Image Generation Failed" },
         { status: 400 }

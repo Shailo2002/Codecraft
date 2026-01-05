@@ -22,7 +22,6 @@ export const getProjects = cache(async  () => {
       },
     });
 
-    console.log("projects : ", projects);
 
     return projects;
   } catch (error) {

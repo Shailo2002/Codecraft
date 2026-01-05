@@ -7,7 +7,3 @@ export type Project = {
   createdAt: Date;
   frames: Frame[];
 };
-
-
-
-

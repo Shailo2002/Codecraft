@@ -11,7 +11,7 @@ import { UserType } from "@/types";
 import { suggestion } from "../constants/suggestion";
 import createProject from "../actions/createProject";
 
-function Hero({ user }: { user: UserType }) {
+function Hero({ user }: { user?: UserType }) {
   const [userInput, setUserInput] = useState<string>();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
@@ -28,16 +28,15 @@ function Hero({ user }: { user: UserType }) {
         chatMessage: [{ role: "user", content: userInput }],
       });
 
-      console.log("response : ", response);
       if (!response?.ok) {
-        toast.error(response?.error);
+        toast.error(response?.error || "Failed to create project");
         return;
       }
 
+      const data = response as { projectId: string; frameId: string };
+
       toast.success("Project created!");
-      router.push(
-        `/playground/${response?.projectId}?frameId=${response?.frameId}`
-      );
+      router.push(`/playground/${data.projectId}?frameId=${data.frameId}`);
     } catch {
       toast.error("Something went wrong. Please try again.");
     } finally {

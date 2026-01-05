@@ -45,7 +45,7 @@ const transformOptions = [
 ];
 
 type Props = {
-  selectedEl: HTMLImageElement;
+  selectedEl:  HTMLImageElement ;
   clearSelection: () => void;
 };
 function ImageSettingSection({ selectedEl, clearSelection }: Props) {
@@ -87,7 +87,6 @@ function ImageSettingSection({ selectedEl, clearSelection }: Props) {
       setPreview(result?.data?.url);
       setBaseUrl(result?.data?.url);
       selectedEl.setAttribute("src", result?.data?.url);
-      console.log("upload image url : ", result?.data?.url);
     } catch (error) {
       console.log("error : ", error);
     } finally {
@@ -104,7 +103,6 @@ function ImageSettingSection({ selectedEl, clearSelection }: Props) {
       setPreview(res?.data?.url);
       setBaseUrl(res?.data?.url);
       selectedEl.setAttribute("src", res?.data?.url);
-      console.log("generated image url : ", res?.data?.url);
     } catch (error) {
       console.error("Error generating image:", error);
     } finally {
@@ -156,7 +154,6 @@ function ImageSettingSection({ selectedEl, clearSelection }: Props) {
     const currentW = w || width;
     const currentH = h || height;
     let trParts = [];
-    console.log("selected tools :  ", selectedTool);
 
     if (
       selectedTool.includes("resize-trigger") ||
@@ -172,12 +169,10 @@ function ImageSettingSection({ selectedEl, clearSelection }: Props) {
       }
     });
 
-    console.log("trParts : ", trParts);
     const trString = trParts.length > 0 ? `?tr=${trParts.join(",")}` : "";
     const finalUrl = baseUrl + trString;
     setPreview(finalUrl);
     selectedEl.setAttribute("src", finalUrl);
-    console.log("imageEdit Url : ", finalUrl);
   };
 
   const handleDimensionChange = ({

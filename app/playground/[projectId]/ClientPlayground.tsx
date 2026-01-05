@@ -8,26 +8,9 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { Prompt } from "@/app/constants/prompt";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Frame, Message } from "@/types";
 
-export type Frame = {
-  id: String;
-  projectId: String;
-  frameId: String;
-  designCode: String;
-  chatMessages: Messages[];
-};
-export type Messages = {
-  id: String;
-  chatMessage: Message[];
-  userId: String;
-  createdAt: Date;
-  frameId: String;
-};
 
-export type Message = {
-  role: string;
-  content: string;
-};
 
 function ClientPlayground({
   projectId,
@@ -45,7 +28,7 @@ function ClientPlayground({
   const [loading, setLoading] = useState<boolean>(false);
   const generatedCodeRef = useRef("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [codeSaveLoading, setCodeSaveLoading] = useState<Boolean>(false);
+  const [codeSaveLoading, setCodeSaveLoading] = useState<boolean>(false);
   const [model, setModel] = useState<string>("gpt-4o-mini");
   const [isChat, setIsChat] = useState<Boolean>(false);
   const isMobile = useIsMobile();
@@ -103,7 +86,6 @@ function ClientPlayground({
   const saveGeneratedCode = async (code?: string) => {
     const tempCode = code || generatedCodeRef.current;
     try {
-      console.log("saveGeneratedCode : ", generatedCodeRef.current);
       await axios.put(`/api/frames/`, {
         frameId,
         designCode: tempCode.replace(/html/g, "").replace(/```/g, ""),
@@ -167,7 +149,6 @@ function ClientPlayground({
         try {
           const json = JSON.parse(line);
           const delta = json.choices?.[0]?.delta?.content || "";
-          console.log("delta : ", delta);
           if (!delta) continue;
 
           if (!inCode) {
@@ -376,10 +357,8 @@ function ClientPlayground({
 
   const SendMessage = async (userInput: string, model: string) => {
     if (model.includes("gemini")) {
-      console.log("gemini : ", model, userInput);
       await handleStreamGemini(userInput, model);
     } else {
-      console.log("gpt : ", model, userInput);
 
       await handleGpt(userInput, model);
     }
@@ -393,17 +372,12 @@ function ClientPlayground({
     if (!frameId) return;
 
     if (frameDetail?.chatMessages?.length == 1) {
+      //@ts-ignore
         const userMessage = frameDetail?.chatMessages[0].chatMessage[0]?.content;
-              console.log("frame detail : ", frameDetail?.chatMessages?.length);
-
         SendMessage(userMessage, model);
     }
   }, [frameId]);
 
-  //   if (frameDetail?.chatMessages?.length == 1) {
-  //     const userMessage = frameDetail?.chatMessages[0].chatMessage[0]?.content;
-  //     SendMessage(userMessage, model);
-  //   }
 
   return (
     <div>

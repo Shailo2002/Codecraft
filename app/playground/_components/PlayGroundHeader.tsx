@@ -71,8 +71,6 @@ function PlayGroundHeader({
         projectName: uniqueName,
       });
 
-      console.log("deployment response url : ", response);
-
       if (response.data && response.data.url) {
         setDeployedUrl(response.data.url);
       }

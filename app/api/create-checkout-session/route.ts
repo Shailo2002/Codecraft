@@ -23,7 +23,6 @@ export async function POST(req: Request) {
     if (!checkUser) {
       return NextResponse.json({ messag: "User not found" });
     }
-    console.log("stripe url checkuser Id : ", checkUser.id);
 
     let session;
 

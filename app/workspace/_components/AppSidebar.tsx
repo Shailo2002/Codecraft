@@ -25,7 +25,7 @@ export function AppSidebar({
   user,
 }: {
   projects: Project[];
-  user: UserType;
+  user: UserType | null;
 }) {
   return (
     <Sidebar>

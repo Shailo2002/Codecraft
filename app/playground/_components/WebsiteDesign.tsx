@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { RefObject, useEffect, useRef, useState } from "react";
 import WebPageTools from "./WebPageTools";
 import ElementSettingSection from "./ElementSettingSection";
 import ImageSettingSection from "./ImageSettingSection";
@@ -6,7 +6,7 @@ import Image from "next/image";
 
 type Props = {
   generatedCode: string;
-  iframeRef: HTMLIFrameElement;
+  iframeRef: RefObject<HTMLIFrameElement | null>;
   handleIsChat: (value: Boolean) => void;
 };
 
@@ -17,7 +17,6 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
   >();
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
 
-  console.log("iframe code : ", generatedCode);
 
   useEffect(() => {
     if (!isIframeLoaded || !iframeRef.current) return;
@@ -39,34 +38,6 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
     if (!iframeRef.current) return;
     const doc = iframeRef.current.contentDocument;
     if (!doc) return;
-
-    // doc.open();
-    // doc.write(`
-    //   <!DOCTYPE html>
-    //   <html lang="en">
-    //   <head>
-    //     <meta charset="UTF-8" />
-    //     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    //     <meta name="description" content="AI Website Builder - Modern TailWindCSS + Flowbite Template">
-    //     <title>AI Website Builder</title>
-
-    //     <!-- Tailwind CSS -->
-    //     <script src="https://cdn.tailwindcss.com"></script>
-
-    //     <!-- Flowbite CSS & JS -->
-    //     <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
-    //     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-
-    //     <!-- Font Awesome / Lucide -->
-    //     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-
-    //     <!-- Chart.js -->
-    //     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    //   </head>
-    //   <body id="root"></body>
-    //   </html>
-    // `);
-    // doc.close();
 
     let hoverEl: HTMLElement | null = null;
     let selectedEl: HTMLElement | null = null;
@@ -104,7 +75,6 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
       selectedEl.style.outline = "2px solid red";
       selectedEl.setAttribute("contenteditable", "true");
       selectedEl.focus();
-      console.log("Selected element:", selectedEl);
     };
 
     const handleBlur = () => {
@@ -204,7 +174,7 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
             >
               {selectedElement.tagName === "IMG" ? (
                 <ImageSettingSection
-                  selectedEl={selectedElement}
+                  selectedEl={selectedElement as HTMLImageElement}
                   clearSelection={() => setSelectedElement(null)}
                 />
               ) : (

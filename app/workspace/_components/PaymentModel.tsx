@@ -26,7 +26,6 @@ export function PaymentModel({ children }: any) {
       const response = await axios.post("/api/create-checkout-session", {
         type,
       });
-      console.log("response : ", response);
       const data = response.data;
       window.location.href = data.url;
     } catch (error) {
