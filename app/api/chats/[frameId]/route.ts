@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { frameId: string } }
+  { params }: { params: Promise<{ frameId: string }> }
 ) {
   try {
     const { frameId } = await params;
