@@ -49,6 +49,7 @@ Rough2.tsx
 game.tsx
 trash/
 backup/
+prisma.config.ts
 # clerk configuration (can include secrets)
 /.clerk/
 
