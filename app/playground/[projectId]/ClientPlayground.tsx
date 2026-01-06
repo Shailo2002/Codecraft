@@ -10,8 +10,6 @@ import { Prompt } from "@/app/constants/prompt";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Frame, Message } from "@/types";
 
-
-
 function ClientPlayground({
   projectId,
   frameId,
@@ -359,7 +357,6 @@ function ClientPlayground({
     if (model.includes("gemini")) {
       await handleStreamGemini(userInput, model);
     } else {
-
       await handleGpt(userInput, model);
     }
   };
@@ -373,11 +370,14 @@ function ClientPlayground({
 
     if (frameDetail?.chatMessages?.length == 1) {
       //@ts-ignore
-        const userMessage = frameDetail?.chatMessages[0].chatMessage[0]?.content;
-        SendMessage(userMessage, model);
+      const userMessage = frameDetail?.chatMessages[0].chatMessage[0]?.content;
+      console.log(
+        "sending ai response for initial chat : ",
+        frameDetail?.chatMessages
+      );
+      SendMessage(userMessage, model);
     }
   }, [frameId]);
-
 
   return (
     <div>
