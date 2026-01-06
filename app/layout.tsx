@@ -3,8 +3,6 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
-import { prisma } from "@/lib/db";
-import { currentUser } from "@clerk/nextjs/server";
 
 const outfit = Outfit({
   subsets: ["latin"],

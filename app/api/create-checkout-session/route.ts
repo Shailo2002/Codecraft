@@ -1,8 +1,8 @@
 import Stripe from "stripe";
 import { NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
-import { prisma } from "@/lib/db";
 import { currentUser } from "@clerk/nextjs/server";
+import prisma from "@/lib/db";
 
 export async function POST(req: Request) {
   try {

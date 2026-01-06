@@ -1,6 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/db";
 import { cache } from "react";
+import prisma from "./db";
 
 export const getCurrentDbUser = cache(async () => {
   try {

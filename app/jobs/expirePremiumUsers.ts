@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/db";
+import prisma from "@/lib/db";
 
 export async function expirePremiumUsers() {
   const expiredUsers = await prisma.user.findMany({

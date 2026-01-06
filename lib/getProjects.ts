@@ -1,6 +1,6 @@
 import { currentUser } from "@clerk/nextjs/server";
-import { prisma } from "./db";
 import { cache } from "react";
+import prisma from "./db";
 
 export const getProjects = cache(async  () => {
   try {

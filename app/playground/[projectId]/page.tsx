@@ -1,7 +1,7 @@
-import { prisma } from "@/lib/db";
 import ClientPlayground from "./ClientPlayground";
 import { redirect } from "next/navigation";
 import { Frame } from "@/types";
+import prisma from "@/lib/db";
 
 type PageProps = {
   params: Promise<{ projectId: string }>;
