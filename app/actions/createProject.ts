@@ -1,13 +1,12 @@
 "use server";
 import prisma from "@/lib/db";
-import { Prisma } from "@/lib/generated/prisma/client";
 import { currentUser } from "@clerk/nextjs/server";
 import { v4 as uuidv4 } from "uuid";
 
 export default async function createProject({
   chatMessage,
 }: {
-  chatMessage: Prisma.JsonArray;
+  chatMessage: any;
 }) {
   const userDetail = await currentUser();
   if (!userDetail) {
