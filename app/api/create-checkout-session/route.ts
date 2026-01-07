@@ -9,6 +9,7 @@ export async function POST(req: Request) {
     const body = await req.json();
 
     // body.type = "one_time" OR "subscription"
+    console.log("request body stripe : ", body);
     const { type } = body;
     const userDetail = await currentUser();
 

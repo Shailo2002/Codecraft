@@ -17,7 +17,6 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
   >();
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
 
-
   useEffect(() => {
     if (!isIframeLoaded || !iframeRef.current) return;
 
@@ -32,6 +31,13 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
       // attachEventListeners(doc);
     }
   }, [generatedCode, isIframeLoaded]);
+
+  // Update body only when code changes
+  useEffect(() => {
+    const doc = iframeRef.current?.contentDocument;
+    const root = doc?.getElementById("root");
+    if (root) root.innerHTML = generatedCode;
+  }, [generatedCode]);
 
   // Initialize iframe shell once
   useEffect(() => {
@@ -104,13 +110,6 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
       doc.body?.removeEventListener("click", handleClick);
       doc?.removeEventListener("keydown", handleKeyDown);
     };
-  }, [generatedCode]);
-
-  // Update body only when code changes
-  useEffect(() => {
-    const doc = iframeRef.current?.contentDocument;
-    const root = doc?.getElementById("root");
-    if (root) root.innerHTML = generatedCode;
   }, [generatedCode]);
 
   return (

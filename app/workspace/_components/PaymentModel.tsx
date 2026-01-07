@@ -27,6 +27,7 @@ export function PaymentModel({ children }: any) {
         type,
       });
       const data = response.data;
+      console.log("stripe frontend data : ", data)
       window.location.href = data.url;
     } catch (error) {
       console.log("error : ", error);
