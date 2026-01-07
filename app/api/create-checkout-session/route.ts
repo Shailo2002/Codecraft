@@ -65,6 +65,8 @@ export async function POST(req: Request) {
       });
     }
 
+    console.log("session : ", session);
+
     if (!session) {
       return NextResponse.json({ message: "Stripe Error" });
     }
