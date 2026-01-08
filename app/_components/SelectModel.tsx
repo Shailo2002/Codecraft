@@ -17,10 +17,7 @@ function SelectModel({ model, handleSetModel }: Props) {
   return (
     <Select value={model} onValueChange={(value) => handleSetModel(value)}>
       <SelectTrigger
-        className="w-[120px]  border-none shadow-none ring-0 outline-none
-    focus:border-none focus:shadow-none focus:ring-0 focus:outline-none
-    hover:border-none hover:shadow-none hover:ring-0 hover:outline-none
-    active:border-none active:shadow-none active:ring-0 active:outline-none"
+        className="w-[130px] border-none shadow-none ring-0 outline-none"
       >
         <SelectValue placeholder="Select a model" />
       </SelectTrigger>
