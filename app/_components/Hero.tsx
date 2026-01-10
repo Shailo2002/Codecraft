@@ -3,19 +3,20 @@ import { Button } from "@/components/ui/button";
 import { SignInButton } from "@clerk/nextjs";
 import { ArrowUp, ImagePlus, Loader2Icon } from "lucide-react";
 import { useState } from "react";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import SelectModel from "./SelectModel";
 import { UserType } from "@/types";
 import { suggestion } from "../constants/suggestion";
 import createProject from "../actions/createProject";
+import { useClerk } from "@clerk/nextjs";
 
 function Hero({ user }: { user?: UserType }) {
   const [userInput, setUserInput] = useState<string>();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
   const [model, setModel] = useState<string>("gpt-4o-mini");
+  const { openSignIn } = useClerk();
 
   const handleSetModel = (value: string) => {
     setModel(value);
@@ -63,6 +64,18 @@ function Hero({ user }: { user?: UserType }) {
           className="w-full h-24 focus:outline-none focus:ring-0 resize-none"
           onChange={(e) => setUserInput(e.target.value)}
           value={userInput}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              if (!user) {
+                openSignIn({
+                  redirectUrl: "/workspace",
+                });
+                return;
+              }
+
+              CreateNewProject();
+            }
+          }}
         />
         <div className="flex justify-between items-center">
           <Button variant={"ghost"}>

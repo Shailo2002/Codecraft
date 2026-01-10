@@ -3,10 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import PlayGroundHeader from "../_components/PlayGroundHeader";
 import ChatSection from "../_components/ChatSection";
 import WebsiteDesign from "../_components/WebsiteDesign";
-import { useParams, useSearchParams } from "next/navigation";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Prompt } from "@/app/constants/prompt";
+import { Prompt, tempPrompt } from "@/app/constants/prompt";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Frame, Message } from "@/types";
 
@@ -22,7 +21,6 @@ function ClientPlayground({
   const [frameDetail, setFrameDetail] = useState(initialFrame);
   const [messages, setMessages] = useState(initialFrame.chatMessages);
   const [generatedCode, setGeneratedCode] = useState(initialFrame.designCode);
-  const params = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
   const generatedCodeRef = useRef("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -95,7 +93,6 @@ function ClientPlayground({
     }
   };
 
-  // chatgpt stream true code
   const handleGpt = async (userInput: string, model: string) => {
     setLoading(true);
     setGeneratedCode("");
@@ -108,11 +105,14 @@ function ClientPlayground({
       saveMsgToDb(userMsgObj);
     }
 
-    const res = await fetch("/api/ai-model-openai", {
+    const res = await fetch("/api/ai-model-testing", {
       method: "POST",
       body: JSON.stringify({
         messages: [
-          { role: "user", content: Prompt?.replace("{userInput}", userInput) },
+          {
+            role: "user",
+            content: tempPrompt?.replace("{userInput}", userInput),
+          },
         ],
         modelName: model,
       }),
@@ -276,7 +276,7 @@ function ClientPlayground({
     try {
       // 1. Use fetch instead of axios to get the stream reader
 
-      const res = await fetch("/api/ai-model-gemini-stream", {
+      const res = await fetch("/api/ai-model-testing-gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: userInput, modelName: model }),
@@ -353,14 +353,199 @@ function ClientPlayground({
     }
   };
 
+  const tempModel = async (userInput: string, model: string) => {
+    setLoading(true);
+    setGeneratedCode("");
+
+    if (messages.length !== 1) {
+      const userMsgObj = { role: "user", content: userInput };
+
+      setMessages((prev: any) => [...prev, { chatMessage: [userMsgObj] }]);
+
+      saveMsgToDb(userMsgObj);
+    }
+
+    const res = await fetch("/api/ai-model-testing-gpt", {
+      method: "POST",
+      body: JSON.stringify({
+        messages: [
+          {
+            role: "user",
+            content: tempPrompt?.replace("{userInput}", userInput),
+          },
+        ],
+        modelName: model,
+      }),
+    });
+
+    const reader = res.body?.getReader();
+    const decoder = new TextDecoder();
+
+    let buffer = "";
+    let aiResponse = "";
+    let codeBuffer = "";
+    let inCode = false;
+
+    while (true) {
+      // @ts-ignore
+      const { done, value } = await reader?.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+
+      const lines = buffer.split("\n");
+      for (let i = 0; i < lines.length - 1; i++) {
+        let line = lines[i].trim();
+        if (!line) continue;
+
+        if (line.startsWith("data:")) {
+          line = line.replace(/^data:\s*/, "");
+        }
+
+        if (line === "[DONE]") continue;
+
+        try {
+          const json = JSON.parse(line);
+          const delta = json.choices?.[0]?.delta?.content || "";
+          if (!delta) continue;
+
+          if (!inCode) {
+            aiResponse += delta;
+
+            const startIdx = aiResponse.indexOf("```");
+            if (startIdx !== -1) {
+              const afterFence = aiResponse.slice(startIdx + 3);
+              const textBefore = aiResponse.slice(0, startIdx);
+
+              if (textBefore.trim()) {
+                setMessages((prev: any) => [
+                  ...prev,
+                  { chatMessage: [{ role: "assistant", content: textBefore }] },
+                ]);
+              }
+
+              inCode = true;
+              codeBuffer = afterFence;
+              aiResponse = "";
+              setGeneratedCode((prev: any) => {
+                const newVal = prev + afterFence;
+                generatedCodeRef.current = newVal;
+                return newVal;
+              });
+            }
+          } else {
+            codeBuffer += delta;
+            const cleanCode = (rawCode: string) => {
+              return rawCode
+                .replace(/<!DOCTYPE html>/gi, "")
+                .replace(/<html[^>]*>/gi, "")
+                .replace(/<\/html>/gi, "")
+                .replace(/<head>[\s\S]*?<\/head>/gi, "") // Removes the entire head section
+                .replace(/<body[^>]*>/gi, "")
+                .replace(/<\/body>/gi, "")
+                .trim();
+            };
+
+            setGeneratedCode((prev: any) => {
+              const rawVal = prev + delta;
+              // Apply cleaning before setting state
+              const cleanVal = cleanCode(rawVal);
+              generatedCodeRef.current = cleanVal;
+              return cleanVal;
+            });
+
+            const endIdx = codeBuffer.indexOf("```");
+            if (endIdx !== -1) {
+              const codePart = codeBuffer.slice(0, endIdx);
+              const afterFence = codeBuffer.slice(endIdx + 3);
+
+              inCode = false;
+              codeBuffer = "";
+
+              if (afterFence.trim()) {
+                setMessages((prev: any) => [
+                  ...prev,
+                  { chatMessage: [{ role: "assistant", content: afterFence }] },
+                ]);
+              } else {
+              }
+            }
+          }
+        } catch (err) {
+          console.error("JSON parse error:", err, line);
+        }
+      }
+
+      buffer = lines[lines.length - 1];
+    }
+
+    if (buffer.trim()) {
+      let line = buffer.trim();
+      if (line.startsWith("data:")) line = line.replace(/^data:\s*/, "");
+      if (line !== "[DONE]") {
+        try {
+          const json = JSON.parse(line);
+          const delta = json.choices?.[0]?.delta?.content || "";
+          if (!inCode) {
+            aiResponse += delta;
+          } else {
+            codeBuffer += delta;
+            setGeneratedCode((prev: any) => {
+              const newVal = prev + delta;
+              generatedCodeRef.current = newVal;
+              return newVal;
+            });
+          }
+        } catch (err) {
+          console.error("Final JSON parse error:", err, line);
+        }
+      }
+    }
+
+    if (!inCode && aiResponse.trim()) {
+      setMessages((prev: any) => [
+        ...prev,
+        { chatMessage: [{ role: "assistant", content: aiResponse.trim() }] },
+      ]);
+
+      await saveMsgToDb({ role: "assistant", content: aiResponse.trim() });
+    } else if (inCode) {
+      setMessages((prev: any) => [
+        ...prev,
+        {
+          chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
+        },
+      ]);
+      await saveMsgToDb({
+        role: "assistant",
+        content: "Your code is ready!",
+      });
+    } else {
+      setMessages((prev: any) => [
+        ...prev,
+        {
+          chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
+        },
+      ]);
+      await saveMsgToDb({
+        role: "assistant",
+        content: "Your code is ready!",
+      });
+    }
+
+    await saveGeneratedCode();
+    setLoading(false);
+  };
+
   const SendMessage = async (userInput: string, model: string) => {
     if (model.includes("gemini")) {
       await handleStreamGemini(userInput, model);
     } else {
-      await handleGpt(userInput, model);
+      await tempModel(userInput, model);
     }
   };
 
+  //use to make responsive ui
   const handleIsChat = (value: Boolean) => {
     setIsChat(value);
   };

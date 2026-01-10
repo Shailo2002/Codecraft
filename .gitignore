@@ -50,6 +50,8 @@ game.tsx
 trash/
 backup/
 prisma.config.ts
+app/api/(ai-model)/ai-model-testing-gemini/
+app/api/(ai-model)/ai-model-testing-gpt/
 # clerk configuration (can include secrets)
 /.clerk/
 

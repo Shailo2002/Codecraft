@@ -139,11 +139,18 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
                           <meta charset="UTF-8" />
                           <meta name="viewport" content="width=device-width, initial-scale=1.0" />
                           <title>AI Website Builder</title>
-                          <script src="https://cdn.tailwindcss.com"></script>
-                          <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
-                          <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-                          <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-                          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                         <script src="https://cdn.tailwindcss.com"></script>
+                        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
+                        
+                        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+                        
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+                        
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+                        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+                        <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
                         </head>
                         <body id="root"></body>
                         </html>`}
