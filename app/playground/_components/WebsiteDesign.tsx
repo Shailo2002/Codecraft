@@ -151,6 +151,13 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
                         <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
                         <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
                         <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+                        <link
+                          rel="stylesheet"
+                          href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"
+                        />
+                        <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
+
                         </head>
                         <body id="root"></body>
                         </html>`}

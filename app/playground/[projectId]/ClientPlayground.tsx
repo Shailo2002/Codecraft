@@ -5,7 +5,6 @@ import ChatSection from "../_components/ChatSection";
 import WebsiteDesign from "../_components/WebsiteDesign";
 import axios from "axios";
 import toast from "react-hot-toast";
-import { Prompt, tempPrompt } from "@/app/constants/prompt";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Frame, Message } from "@/types";
 
@@ -105,13 +104,13 @@ function ClientPlayground({
       saveMsgToDb(userMsgObj);
     }
 
-    const res = await fetch("/api/ai-model-testing", {
+    const res = await fetch("/api/ai-model-testing-gpt", {
       method: "POST",
       body: JSON.stringify({
         messages: [
           {
             role: "user",
-            content: tempPrompt?.replace("{userInput}", userInput),
+            content: userInput,
           },
         ],
         modelName: model,
@@ -132,7 +131,6 @@ function ClientPlayground({
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-
       const lines = buffer.split("\n");
       for (let i = 0; i < lines.length - 1; i++) {
         let line = lines[i].trim();
@@ -148,25 +146,19 @@ function ClientPlayground({
           const json = JSON.parse(line);
           const delta = json.choices?.[0]?.delta?.content || "";
           if (!delta) continue;
-
           if (!inCode) {
             aiResponse += delta;
 
-            const startIdx = aiResponse.indexOf("```");
+            const startIdx = aiResponse.indexOf("AICODE :");
             if (startIdx !== -1) {
-              const afterFence = aiResponse.slice(startIdx + 3);
-              const textBefore = aiResponse.slice(0, startIdx);
-
-              if (textBefore.trim()) {
-                setMessages((prev: any) => [
-                  ...prev,
-                  { chatMessage: [{ role: "assistant", content: textBefore }] },
-                ]);
-              }
+              const afterFence = aiResponse.slice(startIdx + 9);
+              const textBefore = aiResponse
+                .slice(0, startIdx)
+                .replace(/^AI\s*:\s*/i, "");
 
               inCode = true;
               codeBuffer = afterFence;
-              aiResponse = "";
+              aiResponse = textBefore.trim();
               setGeneratedCode((prev: any) => {
                 const newVal = prev + afterFence;
                 generatedCodeRef.current = newVal;
@@ -175,28 +167,12 @@ function ClientPlayground({
             }
           } else {
             codeBuffer += delta;
+
             setGeneratedCode((prev: any) => {
               const newVal = prev + delta;
               generatedCodeRef.current = newVal;
               return newVal;
             });
-
-            const endIdx = codeBuffer.indexOf("```");
-            if (endIdx !== -1) {
-              const codePart = codeBuffer.slice(0, endIdx);
-              const afterFence = codeBuffer.slice(endIdx + 3);
-
-              inCode = false;
-              codeBuffer = "";
-
-              if (afterFence.trim()) {
-                setMessages((prev: any) => [
-                  ...prev,
-                  { chatMessage: [{ role: "assistant", content: afterFence }] },
-                ]);
-              } else {
-              }
-            }
           }
         } catch (err) {
           console.error("JSON parse error:", err, line);
@@ -206,47 +182,14 @@ function ClientPlayground({
       buffer = lines[lines.length - 1];
     }
 
-    if (buffer.trim()) {
-      let line = buffer.trim();
-      if (line.startsWith("data:")) line = line.replace(/^data:\s*/, "");
-      if (line !== "[DONE]") {
-        try {
-          const json = JSON.parse(line);
-          const delta = json.choices?.[0]?.delta?.content || "";
-          if (!inCode) {
-            aiResponse += delta;
-          } else {
-            codeBuffer += delta;
-            setGeneratedCode((prev: any) => {
-              const newVal = prev + delta;
-              generatedCodeRef.current = newVal;
-              return newVal;
-            });
-          }
-        } catch (err) {
-          console.error("Final JSON parse error:", err, line);
-        }
-      }
-    }
-
-    if (!inCode && aiResponse.trim()) {
-      setMessages((prev: any) => [
-        ...prev,
-        { chatMessage: [{ role: "assistant", content: aiResponse.trim() }] },
-      ]);
-
-      await saveMsgToDb({ role: "assistant", content: aiResponse.trim() });
-    } else if (inCode) {
+    if (aiResponse.trim()) {
       setMessages((prev: any) => [
         ...prev,
         {
-          chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
+          chatMessage: [{ role: "assistant", content: aiResponse.trim() }],
         },
       ]);
-      await saveMsgToDb({
-        role: "assistant",
-        content: "Your code is ready!",
-      });
+      await saveMsgToDb({ role: "assistant", content: aiResponse.trim() });
     } else {
       setMessages((prev: any) => [
         ...prev,
@@ -371,7 +314,7 @@ function ClientPlayground({
         messages: [
           {
             role: "user",
-            content: tempPrompt?.replace("{userInput}", userInput),
+            content: userInput,
           },
         ],
         modelName: model,
@@ -392,7 +335,6 @@ function ClientPlayground({
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-
       const lines = buffer.split("\n");
       for (let i = 0; i < lines.length - 1; i++) {
         let line = lines[i].trim();
@@ -408,25 +350,19 @@ function ClientPlayground({
           const json = JSON.parse(line);
           const delta = json.choices?.[0]?.delta?.content || "";
           if (!delta) continue;
-
           if (!inCode) {
             aiResponse += delta;
 
-            const startIdx = aiResponse.indexOf("```");
+            const startIdx = aiResponse.indexOf("AICODE :");
             if (startIdx !== -1) {
-              const afterFence = aiResponse.slice(startIdx + 3);
-              const textBefore = aiResponse.slice(0, startIdx);
-
-              if (textBefore.trim()) {
-                setMessages((prev: any) => [
-                  ...prev,
-                  { chatMessage: [{ role: "assistant", content: textBefore }] },
-                ]);
-              }
+              const afterFence = aiResponse.slice(startIdx + 9);
+              const textBefore = aiResponse
+                .slice(0, startIdx)
+                .replace(/^AI\s*:\s*/i, "");
 
               inCode = true;
               codeBuffer = afterFence;
-              aiResponse = "";
+              aiResponse = textBefore.trim();
               setGeneratedCode((prev: any) => {
                 const newVal = prev + afterFence;
                 generatedCodeRef.current = newVal;
@@ -435,41 +371,12 @@ function ClientPlayground({
             }
           } else {
             codeBuffer += delta;
-            const cleanCode = (rawCode: string) => {
-              return rawCode
-                .replace(/<!DOCTYPE html>/gi, "")
-                .replace(/<html[^>]*>/gi, "")
-                .replace(/<\/html>/gi, "")
-                .replace(/<head>[\s\S]*?<\/head>/gi, "") // Removes the entire head section
-                .replace(/<body[^>]*>/gi, "")
-                .replace(/<\/body>/gi, "")
-                .trim();
-            };
 
             setGeneratedCode((prev: any) => {
-              const rawVal = prev + delta;
-              // Apply cleaning before setting state
-              const cleanVal = cleanCode(rawVal);
-              generatedCodeRef.current = cleanVal;
-              return cleanVal;
+              const newVal = prev + delta;
+              generatedCodeRef.current = newVal;
+              return newVal;
             });
-
-            const endIdx = codeBuffer.indexOf("```");
-            if (endIdx !== -1) {
-              const codePart = codeBuffer.slice(0, endIdx);
-              const afterFence = codeBuffer.slice(endIdx + 3);
-
-              inCode = false;
-              codeBuffer = "";
-
-              if (afterFence.trim()) {
-                setMessages((prev: any) => [
-                  ...prev,
-                  { chatMessage: [{ role: "assistant", content: afterFence }] },
-                ]);
-              } else {
-              }
-            }
           }
         } catch (err) {
           console.error("JSON parse error:", err, line);
@@ -479,47 +386,15 @@ function ClientPlayground({
       buffer = lines[lines.length - 1];
     }
 
-    if (buffer.trim()) {
-      let line = buffer.trim();
-      if (line.startsWith("data:")) line = line.replace(/^data:\s*/, "");
-      if (line !== "[DONE]") {
-        try {
-          const json = JSON.parse(line);
-          const delta = json.choices?.[0]?.delta?.content || "";
-          if (!inCode) {
-            aiResponse += delta;
-          } else {
-            codeBuffer += delta;
-            setGeneratedCode((prev: any) => {
-              const newVal = prev + delta;
-              generatedCodeRef.current = newVal;
-              return newVal;
-            });
-          }
-        } catch (err) {
-          console.error("Final JSON parse error:", err, line);
-        }
-      }
-    }
 
-    if (!inCode && aiResponse.trim()) {
-      setMessages((prev: any) => [
-        ...prev,
-        { chatMessage: [{ role: "assistant", content: aiResponse.trim() }] },
-      ]);
-
-      await saveMsgToDb({ role: "assistant", content: aiResponse.trim() });
-    } else if (inCode) {
+    if (aiResponse.trim()) {
       setMessages((prev: any) => [
         ...prev,
         {
-          chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
+          chatMessage: [{ role: "assistant", content: aiResponse.trim() }],
         },
       ]);
-      await saveMsgToDb({
-        role: "assistant",
-        content: "Your code is ready!",
-      });
+      await saveMsgToDb({ role: "assistant", content: aiResponse.trim() });
     } else {
       setMessages((prev: any) => [
         ...prev,

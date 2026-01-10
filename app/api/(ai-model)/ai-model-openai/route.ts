@@ -1,3 +1,4 @@
+import { gptPrompt } from "@/app/constants/prompt";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
@@ -8,14 +9,15 @@ const openai = new OpenAI({
 export async function POST(req: NextRequest) {
   try {
     const { messages, modelName } = await req.json();
+    console.log("openai testing route : ", messages, modelName);
 
     const completion = await openai.chat.completions.create({
       model: modelName || "gpt-4o-mini",
-      messages,
+      messages: [{ role: "system", content: gptPrompt }, ...messages],
       stream: true,
     });
 
-    const stream = completion.toReadableStream();
+    const stream = completion?.toReadableStream();
 
     return new NextResponse(stream, {
       headers: {
