@@ -14,11 +14,22 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { UserButton } from "@clerk/nextjs";
-import { Plus } from "lucide-react";
+import { EllipsisVertical, Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { PaymentModel } from "./PaymentModel";
 import { Project, UserType } from "@/types";
+import { useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ProjectDialog } from "./ProjectDialog";
 
 export function AppSidebar({
   projects,
@@ -27,6 +38,10 @@ export function AppSidebar({
   projects: Project[];
   user: UserType | null;
 }) {
+  const [currentHoverProject, setCurrentHoverProject] = useState<string | null>(
+    null
+  );
+  const [position, setPosition] = useState("bottom");
   return (
     <Sidebar>
       <SidebarHeader>
@@ -57,20 +72,43 @@ export function AppSidebar({
               <SidebarMenu>
                 {projects &&
                   projects?.map((item) => (
-                    <SidebarMenuItem key={item?.id}>
-                      <SidebarMenuButton asChild>
-                        <Link
-                          href={`/playground/${item?.id}?frameId=${item?.frames[0]?.frameId}`}
-                        >
-                          <span>
-                            {
-                              item?.frames[0]?.chatMessages[0]?.chatMessage[0]
-                                .content
-                            }
-                          </span>
-                        </Link>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                    <div
+                      key={item?.id}
+                      onMouseEnter={() => setCurrentHoverProject(item?.id)}
+                      onMouseLeave={() => setCurrentHoverProject(null)}
+                      className="relative"
+                    >
+                      <SidebarMenuItem>
+                        <SidebarMenuButton asChild>
+                          <Link
+                            href={`/playground/${item?.id}?frameId=${item?.frames[0]?.frameId}`}
+                          >
+                            <div className="flex items-center justify-between w-full">
+                              {/* Project name */}
+                              <span className="truncate max-w-[90%]">
+                                {
+                                  item.frames[0]?.chatMessages[0]
+                                    ?.chatMessage[0]?.content
+                                }
+                              </span>
+
+                              {/* Actions (right side) */}
+                              <div
+                                className="shrink-0 flex justify-end"
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                }}
+                              >
+                                {item.id === currentHoverProject && (
+                                  <ProjectDialog />
+                                )}
+                              </div>
+                            </div>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </div>
                   ))}
               </SidebarMenu>
             </SidebarGroupContent>
@@ -94,26 +132,11 @@ export function AppSidebar({
           </div>
 
           <div className="flex px-2 items-center">
-            {/* {user?.plan === "PREMIUM" ? (
-              <div
-                className="relative flex justify-center items-center size-10 rounded-full 
-                bg-gradient-to-br from-neutral-700 to-neutral-900
-                ring-2 ring-amber-400 shadow-md"
-              >
-                <UserButton />
-                <span className="absolute -bottom-1 -right-1 rounded-2xl px-1  bg-amber-400/90 border-2 border-neutral-900 text-[10px]">
-                  pro
-                </span>
-              </div>
-            ) : (
-              <UserButton />
-            )} */}
-
             <div
               className={`relative flex justify-center items-center size-10 rounded-full 
                 ${
                   user?.plan === "PREMIUM"
-                    ? "bg-gradient-to-br from-neutral-700 to-neutral-900 ring-2 ring-amber-400 shadow-md"
+                    ? "bg-linear-to-br from-neutral-700 to-neutral-900 ring-2 ring-amber-400 shadow-md"
                     : ""
                 }`}
             >

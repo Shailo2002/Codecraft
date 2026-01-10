@@ -104,7 +104,7 @@ function ClientPlayground({
       saveMsgToDb(userMsgObj);
     }
 
-    const res = await fetch("/api/ai-model-testing-gpt", {
+    const res = await fetch("/api/ai-model-openai", {
       method: "POST",
       body: JSON.stringify({
         messages: [
@@ -145,6 +145,7 @@ function ClientPlayground({
         try {
           const json = JSON.parse(line);
           const delta = json.choices?.[0]?.delta?.content || "";
+          console.log("delta :  ", delta);
           if (!delta) continue;
           if (!inCode) {
             aiResponse += delta;
@@ -297,126 +298,99 @@ function ClientPlayground({
   };
 
   const tempModel = async (userInput: string, model: string) => {
+    if (!userInput) return;
     setLoading(true);
     setGeneratedCode("");
 
-    if (messages.length !== 1) {
-      const userMsgObj = { role: "user", content: userInput };
+    const userMsgObj = { role: "user", content: userInput };
+    setMessages((prev: any) => [...prev, { chatMessage: [userMsgObj] }]);
+    saveMsgToDb(userMsgObj);
 
-      setMessages((prev: any) => [...prev, { chatMessage: [userMsgObj] }]);
+    try {
+      // 1. Use fetch instead of axios to get the stream reader
 
-      saveMsgToDb(userMsgObj);
-    }
+      const res = await fetch("/api/ai-model-testing-gemini", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: userInput, modelName: model }),
+      });
 
-    const res = await fetch("/api/ai-model-testing-gpt", {
-      method: "POST",
-      body: JSON.stringify({
-        messages: [
-          {
-            role: "user",
-            content: userInput,
-          },
-        ],
-        modelName: model,
-      }),
-    });
+      if (!res.body) throw new Error("No response body");
 
-    const reader = res.body?.getReader();
-    const decoder = new TextDecoder();
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let done = false;
+      let aiResponse = "";
 
-    let buffer = "";
-    let aiResponse = "";
-    let codeBuffer = "";
-    let inCode = false;
+      // Variable to track if we are currently "inside" a code block (if Gemini sends markdown)
+      // Note: In our system prompt, we told Gemini NOT to send markdown,
+      // but it's good safety to keep this logic if you change prompts later.
+      let inCode = false;
 
-    while (true) {
-      // @ts-ignore
-      const { done, value } = await reader?.read();
-      if (done) break;
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
 
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      for (let i = 0; i < lines.length - 1; i++) {
-        let line = lines[i].trim();
-        if (!line) continue;
+        if (value) {
+          // 2. Decode raw text (No JSON parsing needed!)
+          const chunkValue = decoder.decode(value, { stream: true });
 
-        if (line.startsWith("data:")) {
-          line = line.replace(/^data:\s*/, "");
-        }
-
-        if (line === "[DONE]") continue;
-
-        try {
-          const json = JSON.parse(line);
-          const delta = json.choices?.[0]?.delta?.content || "";
-          if (!delta) continue;
+          // Logic to handle "Text" vs "Code" if Gemini mixes them
+          // (Simplified version of your GPT logic)
           if (!inCode) {
-            aiResponse += delta;
-
-            const startIdx = aiResponse.indexOf("AICODE :");
-            if (startIdx !== -1) {
-              const afterFence = aiResponse.slice(startIdx + 9);
-              const textBefore = aiResponse
-                .slice(0, startIdx)
-                .replace(/^AI\s*:\s*/i, "");
-
+            // Check if this chunk starts a code block
+            if (chunkValue.includes("```")) {
               inCode = true;
-              codeBuffer = afterFence;
-              aiResponse = textBefore.trim();
-              setGeneratedCode((prev: any) => {
-                const newVal = prev + afterFence;
-                generatedCodeRef.current = newVal;
-                return newVal;
-              });
+              // If there was text before the ```, add it to chat
+              // (This is a basic check; robust parsing requires more buffer logic like your GPT code
+              // but for the specific "Code Only" prompt we set, this is usually sufficient)
+            } else {
+              // If it's just conversational text (like "Hello")
+              // For now, let's assume if it looks like HTML tags, it is code
+              if (chunkValue.trim().startsWith("<") || inCode) {
+                inCode = true;
+                setGeneratedCode((prev: any) => {
+                  const newVal = prev + chunkValue;
+                  generatedCodeRef.current = newVal;
+                  return newVal;
+                });
+              } else {
+                // Regular chat message
+                // Note: Handling streaming chat text updates requires a state update
+                // logic similar to your GPT 'aiResponse' buffer if you want the text to type out.
+              }
             }
-          } else {
-            codeBuffer += delta;
-
-            setGeneratedCode((prev: any) => {
-              const newVal = prev + delta;
-              generatedCodeRef.current = newVal;
-              return newVal;
-            });
           }
-        } catch (err) {
-          console.error("JSON parse error:", err, line);
+
+          // If we are definitely in code mode (or simply appending raw output)
+          // Since our prompt strictly asked for HTML code only, we can mostly just do this:
+          setGeneratedCode((prev: any) => {
+            const newVal = prev + chunkValue;
+            generatedCodeRef.current = newVal;
+            return newVal;
+          });
         }
       }
 
-      buffer = lines[lines.length - 1];
-    }
-
-
-    if (aiResponse.trim()) {
-      setMessages((prev: any) => [
-        ...prev,
-        {
-          chatMessage: [{ role: "assistant", content: aiResponse.trim() }],
-        },
-      ]);
-      await saveMsgToDb({ role: "assistant", content: aiResponse.trim() });
-    } else {
-      setMessages((prev: any) => [
-        ...prev,
-        {
-          chatMessage: [{ role: "assistant", content: "Your code is ready!" }],
-        },
-      ]);
+      // Final save
       await saveMsgToDb({
         role: "assistant",
         content: "Your code is ready!",
       });
+      await saveGeneratedCode(generatedCodeRef.current);
+    } catch (error) {
+      console.error("Gemini Stream Error:", error);
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
     }
-
-    await saveGeneratedCode();
-    setLoading(false);
   };
 
   const SendMessage = async (userInput: string, model: string) => {
     if (model.includes("gemini")) {
-      await handleStreamGemini(userInput, model);
-    } else {
       await tempModel(userInput, model);
+    } else {
+      await handleGpt(userInput, model);
     }
   };
 

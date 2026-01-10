@@ -16,9 +16,7 @@ type Props = {
 function SelectModel({ model, handleSetModel }: Props) {
   return (
     <Select value={model} onValueChange={(value) => handleSetModel(value)}>
-      <SelectTrigger
-        className="w-[130px] border-none shadow-none ring-0 outline-none"
-      >
+      <SelectTrigger className="w-[130px] border-none shadow-none ring-0 outline-none">
         <SelectValue placeholder="Select a model" />
       </SelectTrigger>
       <SelectContent>
@@ -26,7 +24,7 @@ function SelectModel({ model, handleSetModel }: Props) {
           <SelectLabel>model</SelectLabel>
           <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
           <SelectItem value="gemini-2.5-flash">gemini-2.5-flash</SelectItem>
-          <SelectItem value="gpt-5.2">gpt-5.2</SelectItem>
+          <SelectItem value="gpt-5-mini">gpt-5-mini</SelectItem>
           <SelectItem value="gemini-3-pro-preview">
             gemini-3-pro-preview
           </SelectItem>
