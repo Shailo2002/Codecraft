@@ -1,3 +1,4 @@
+import { geminiPrompt } from "@/app/constants/prompt";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Force Next.js to not cache this route (essential for streaming)
@@ -6,6 +7,8 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
     const { prompt, modelName } = await req.json();
+    console.log("gemini stream : ", modelName, prompt);
+
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       return new Response("API Key not found", { status: 500 });
@@ -14,16 +17,7 @@ export async function POST(req: Request) {
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
       model: modelName || "gemini-2.5-flash",
-      systemInstruction: `
-         You are an AI website builder.
-        1. If the user asks for code/design:
-           - Return ONLY raw HTML code with Tailwind classes.
-           - Do NOT wrap in markdown \`\`\` code blocks.
-           - Do NOT add explanations.
-           - Do NOT add <head> or <html> tags, just the body content.
-        2. If the user says "Hi" or general chat:
-           - Reply with simple text.
-      `,
+      systemInstruction: geminiPrompt,
     });
 
     // 4. Start the Stream

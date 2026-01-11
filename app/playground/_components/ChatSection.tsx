@@ -46,7 +46,7 @@ function ChatSection({ messages, onSend, loading, handleIsChat }: Props) {
           {messages?.length === 0 ? (
             <p className="text-gray-400 text-center">No Messages Yet</p>
           ) : (
-            messages?.map((msg : ChatMessage, index) => (
+            messages?.map((msg: ChatMessage, index) => (
               <div
                 className={`flex ${
                   msg?.chatMessage[0]?.role == "user"
@@ -56,10 +56,10 @@ function ChatSection({ messages, onSend, loading, handleIsChat }: Props) {
                 key={index}
               >
                 <div
-                  className={`p-2 rounded-lg max-w-[80%] ${
+                  className={`p-2 rounded-lg max-w-[80%] overflow-hidden whitespace-pre-wrap  ${
                     msg?.chatMessage[0]?.role == "user"
                       ? "bg-gray-100 text-black"
-                      : "bg-gray-300 text-black"
+                      : "bg-gray-300 text-black break-words break-all"
                   }`}
                 >
                   {msg?.chatMessage[0]?.content}

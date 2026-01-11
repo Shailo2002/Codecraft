@@ -25,8 +25,8 @@ function SelectModel({ model, handleSetModel }: Props) {
           <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
           <SelectItem value="gemini-2.5-flash">gemini-2.5-flash</SelectItem>
           <SelectItem value="gpt-5-mini">gpt-5-mini</SelectItem>
-          <SelectItem value="gemini-3-pro-preview">
-            gemini-3-pro-preview
+          <SelectItem value="gemini-3-flash-preview">
+            gemini-3-flash-preview
           </SelectItem>
         </SelectGroup>
       </SelectContent>
