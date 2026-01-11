@@ -3,8 +3,9 @@ import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
+  console.log("deployement api check");
   try {
-    const { htmlCode, projectName } = await req.json();
+    const { htmlCode, projectName, projectId } = await req.json();
 
     //check is user have premium plan
     const userDetail = await currentUser();
@@ -77,6 +78,12 @@ export async function POST(req: Request) {
     }
 
     const publicUrl = `https://${data.name}.vercel.app`;
+
+    await prisma.project.update({
+      where: { id: projectId },
+      data: { deploymentUrl: publicUrl },
+    });
+
     return NextResponse.json({
       url: publicUrl,
       dashboardUrl: data.inspectorUrl,

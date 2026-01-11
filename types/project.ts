@@ -6,4 +6,6 @@ export type Project = {
   userId: string;
   createdAt: Date;
   frames: Frame[];
+  projectName?: string;
+  deploymentUrl?: string;
 };

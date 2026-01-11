@@ -1,6 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
+import { getDeploymentUrl } from "@/app/actions/getDeploymentUrl";
 import axios, { AxiosError } from "axios";
 import { ExternalLink, Globe, X } from "lucide-react"; // Optional icons if you use lucide-react
 import Image from "next/image";
@@ -13,11 +14,13 @@ function PlayGroundHeader({
   loading,
   code,
   projectName,
+  projectId,
 }: {
   onSave: () => void;
   loading: boolean;
   code: string;
   projectName: string;
+  projectId: string;
 }) {
   // New state for deployment
   const [deploying, setDeploying] = useState(false);
@@ -31,58 +34,71 @@ function PlayGroundHeader({
       return;
     }
 
-    const finalCode = `
-      <!DOCTYPE html>
-      <html lang="en">
-      <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="AI Website Builder - Modern TailWindCSS + Flowbite Template">
-        <title>AI Website Builder</title>
+    const url = await getDeploymentUrl(projectId);
 
-        <!-- Tailwind CSS -->
-        <script src="https://cdn.tailwindcss.com"></script>
+    if (url) {
+      console.log("inside url if : ", url);
+      setDeployedUrl(url);
+    } else {
+      const finalCode = `
+                        <!DOCTYPE html>
+                        <html lang="en">
+                        <head>
+                          <meta charset="UTF-8" />
+                          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                          <title>AI Website Builder</title>
+                         <script src="https://cdn.tailwindcss.com"></script>
+                        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
+                        
+                        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
+                        
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
+                        
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+                        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+                        <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+                        <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+                        <link
+                          rel="stylesheet"
+                          href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"
+                        />
+                        <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
 
-        <!-- Flowbite CSS & JS -->
-        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+                        </head>
+                        <body id="root">
+                        ${code}</body>
+                        </html>
+                      `;
 
-        <!-- Font Awesome / Lucide -->
-        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+      setDeploying(true);
+      setDeployedUrl(null);
 
-        <!-- Chart.js -->
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-      </head>
-      <body id="root">
-      ${code}</body>
-      </html>
-    `;
+      try {
+        const uniqueName = `${projectName}-${Date.now()}`
+          .toLowerCase()
+          .replace(/\s+/g, "-");
 
-    setDeploying(true);
-    setDeployedUrl(null);
+        const response = await axios.post("/api/deploy", {
+          htmlCode: finalCode,
+          projectName: uniqueName,
+          projectId,
+        });
 
-    try {
-      const uniqueName = `${projectName}-${Date.now()}`
-        .toLowerCase()
-        .replace(/\s+/g, "-");
-
-      const response = await axios.post("/api/deploy", {
-        htmlCode: finalCode,
-        projectName: uniqueName,
-      });
-
-      if (response.data && response.data.url) {
-        setDeployedUrl(response.data.url);
+        if (response.data && response.data.url) {
+          setDeployedUrl(response.data.url);
+        }
+      } catch (error: any) {
+        const deployError = error as AxiosError;
+        console.log("error : ", deployError);
+        toast.error(
+          (deployError?.response?.data as any)?.message ||
+            "Deployment failed. Check console."
+        );
+      } finally {
+        setDeploying(false);
       }
-    } catch (error: any) {
-      const deployError = error as AxiosError;
-      console.log("error : ", deployError);
-      toast.error(
-        (deployError?.response?.data as any)?.message ||
-          "Deployment failed. Check console."
-      );
-    } finally {
-      setDeploying(false);
     }
   };
 

@@ -29,6 +29,8 @@ enum Plan {
 model Project {
   id        String   @id @default(uuid())
   projectId String   @unique
+  projectName String?
+  deploymentUrl  String?
   userId    String
   createdAt DateTime @default(now())
   frames    Frame[]

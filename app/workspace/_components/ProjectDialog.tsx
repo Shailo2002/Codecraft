@@ -24,20 +24,33 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import deleteProject from "@/app/actions/deleteProject";
 
-export function ProjectDialog() {
+export function ProjectDialog({
+  projectId,
+  projectName,
+  deploymentUrl,
+}: {
+  projectId: string;
+  projectName?: string;
+  deploymentUrl?: string;
+}) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
-  const [projectName, setProjectName] = useState("project 1");
-  const [shareUrl, setShareUrl] = useState("https://lucide.dev/icons/share");
+  const [newProjectName, setnewProjectName] = useState(
+    projectName || "project 1"
+  );
+  const [shareUrl, setShareUrl] = useState(deploymentUrl || undefined);
+
+  const handleDeleteProject = async (id: string) => {
+    const response = await deleteProject(id);
+  };
 
   return (
     <>
@@ -47,17 +60,24 @@ export function ProjectDialog() {
             <EllipsisVertical />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-30" align="center">
+        <DropdownMenuContent className="w-30" align="center" side="right">
           <DropdownMenuGroup>
-            <DropdownMenuItem onSelect={() => setShowDeleteDialog(true)}>
-              <Trash2 /> Delete
-            </DropdownMenuItem>
             <DropdownMenuItem onSelect={() => setShowRenameDialog(true)}>
               <Pencil />
               Rename
             </DropdownMenuItem>
-            <DropdownMenuItem onSelect={() => setShowShareDialog(true)}>
+            <DropdownMenuItem
+              onSelect={() => setShowShareDialog(true)}
+              disabled
+            >
               <Share /> Share
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onSelect={() => setShowDeleteDialog(true)}
+              className="text-red-500"
+            >
+              <Trash2 className="text-red-500" /> Delete
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
@@ -77,7 +97,10 @@ export function ProjectDialog() {
               <Button variant="outline">Cancel</Button>
             </DialogClose>
 
-            <Button variant="destructive" onClick={() => console.log("delete")}>
+            <Button
+              variant="destructive"
+              onClick={() => handleDeleteProject(projectId)}
+            >
               Delete
             </Button>
           </DialogFooter>
@@ -98,8 +121,8 @@ export function ProjectDialog() {
               <FieldLabel htmlFor="project-name">Project name</FieldLabel>
               <Input
                 id="project-name"
-                value={projectName}
-                onChange={(e) => setProjectName(e.target.value)}
+                value={newProjectName}
+                onChange={(e) => setnewProjectName(e.target.value)}
                 placeholder="My project"
                 autoFocus
               />
@@ -113,7 +136,7 @@ export function ProjectDialog() {
 
             <Button
               onClick={() => console.log("handle rename")}
-              disabled={!projectName.trim()}
+              disabled={!projectName?.trim()}
             >
               Save
             </Button>
@@ -121,6 +144,7 @@ export function ProjectDialog() {
         </DialogContent>
       </Dialog>
 
+      {/* share project dialog */}
       <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -134,7 +158,15 @@ export function ProjectDialog() {
             <Field>
               <FieldLabel htmlFor="share-link">Project link</FieldLabel>
               <div className="flex gap-2">
-                <Input id="share-link" value={shareUrl} readOnly />
+                <Input
+                  id="share-link"
+                  value={
+                    shareUrl === undefined
+                      ? "Project not deployed yet"
+                      : shareUrl
+                  }
+                  readOnly
+                />
                 <Button
                   variant="outline"
                   onClick={() => console.log("handle copy link")}

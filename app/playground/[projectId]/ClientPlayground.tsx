@@ -354,6 +354,7 @@ function ClientPlayground({
           .replace(/```/g, "")
           .replace(/(?<!<)html(?![>/])/g, "")}
         projectName={projectId}
+        projectId={projectId}
       />
 
       <div className="flex justify-center bg-zinc-50 p-4 gap-4">

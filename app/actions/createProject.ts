@@ -31,9 +31,13 @@ export default async function createProject({
 
         const projectId = uuidv4();
         const frameId = crypto.randomUUID().slice(0, 8);
+        const projectName =
+          chatMessage.length > 50
+            ? chatMessage.slice(0, 47) + "..."
+            : chatMessage;
 
         const newProject = await tx.project.create({
-          data: { projectId, userId: dbUser.id },
+          data: { projectId, userId: dbUser.id, projectName },
         });
 
         const newFrame = await tx.frame.create({

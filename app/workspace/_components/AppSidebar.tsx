@@ -14,22 +14,14 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { UserButton } from "@clerk/nextjs";
-import { EllipsisVertical, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { PaymentModel } from "./PaymentModel";
 import { Project, UserType } from "@/types";
 import { useState } from "react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { ProjectDialog } from "./ProjectDialog";
+import { UserButtonClient } from "@/app/_components/UserButtonClient";
 
 export function AppSidebar({
   projects,
@@ -86,10 +78,10 @@ export function AppSidebar({
                             <div className="flex items-center justify-between w-full">
                               {/* Project name */}
                               <span className="truncate max-w-[90%]">
-                                {
-                                  item.frames[0]?.chatMessages[0]
-                                    ?.chatMessage[0]?.content
-                                }
+                                {item?.projectName
+                                  ? item?.projectName
+                                  : item.frames[0]?.chatMessages[0]
+                                      ?.chatMessage[0]?.content}
                               </span>
 
                               {/* Actions (right side) */}
@@ -101,7 +93,11 @@ export function AppSidebar({
                                 }}
                               >
                                 {item.id === currentHoverProject && (
-                                  <ProjectDialog />
+                                  <ProjectDialog
+                                    projectId={item?.id}
+                                    projectName={item?.projectName}
+                                    deploymentUrl={item?.deploymentUrl}
+                                  />
                                 )}
                               </div>
                             </div>
@@ -142,7 +138,7 @@ export function AppSidebar({
             >
               {/* WRAPPER DIV: Keeps the DOM structure stable */}
               <div className="flex items-center justify-center h-full w-full ">
-                <UserButton />
+                <UserButtonClient />
               </div>
 
               {user?.plan === "PREMIUM" && (
