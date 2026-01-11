@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Frame, UserType } from "@/types";
 import prisma from "@/lib/db";
 import { getCurrentDbUser } from "@/lib/getCurrentDbUser";
+import { getFrameData } from "@/lib/getFrameData";
 
 type PageProps = {
   params: Promise<{ projectId: string }>;
@@ -25,12 +26,7 @@ export default async function Page({ params, searchParams }: PageProps) {
     redirect("/workspace");
   }
 
-  const frame = await prisma.frame.findUnique({
-    where: { frameId: frameId ?? "" },
-    include: {
-      chatMessages: true,
-    },
-  });
+  const frame = await getFrameData({ frameId: frameId });
 
   if (!frame) {
     redirect("/workspace");
@@ -40,7 +36,7 @@ export default async function Page({ params, searchParams }: PageProps) {
     <ClientPlayground
       projectId={projectId}
       frameId={frameId}
-      initialFrame={frame as unknown as Frame}
+      initialFrame={frame?.data as unknown as Frame}
       user={user}
     />
   );

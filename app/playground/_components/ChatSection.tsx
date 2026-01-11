@@ -16,8 +16,21 @@ type Props = {
 
 function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
   const [input, setInput] = useState<string>("");
-  const [model, setModel] = useState<string>("gpt-4o-mini");
+  const [model, setModel] = useState<string>("gemini-2.5-flash");
   const bottomRef = useRef<HTMLDivElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const MAX_HEIGHT = 200; // px (adjust as needed)
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const el = e.target;
+    setInput(el.value);
+    el.style.height = "auto";
+
+    const newHeight = Math.min(el.scrollHeight, MAX_HEIGHT);
+    el.style.height = `${newHeight}px`;
+    el.style.overflowY = el.scrollHeight > MAX_HEIGHT ? "auto" : "hidden";
+  };
+
 
   const handleSend = () => {
     if (!input?.trim()) return;
@@ -74,16 +87,18 @@ function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
       {/* Footer Section */}
       <div className="relative flex border rounded-lg items-end mt-2 bg-white">
         <textarea
-          className="w-full h-32 p-2 resize-none overflow-y-auto focus:outline-none"
+          ref={textareaRef}
+          className="w-full min-h-24 p-2 mb-12 resize-none focus:outline-none overflow-y-hidden"
           placeholder="Describe your page design"
-          onChange={(e) => setInput(e.target.value)}
           value={input}
+          onChange={handleInputChange}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
               e.preventDefault();
               handleSend();
             }
           }}
+          style={{ maxHeight: `${MAX_HEIGHT}px` }}
         />
 
         <div
@@ -94,15 +109,18 @@ function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
           Preview
         </div>
 
-        <div className="absolute right-14 bottom-1.5">
+        <div className="absolute left-4 bottom-1.5 bg-slate-100 rounded-full">
           <SelectModel
             model={model}
             handleSetModel={handleSetModel}
             userSubscription={user?.plan}
+            className="bg-background rounded-full hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50"
           />
         </div>
-
-        <Button className="m-2 absolute right-1 bottom-0" onClick={handleSend}>
+        <Button
+          className="m-2 absolute right-1 -bottom-0.5"
+          onClick={handleSend}
+        >
           {loading ? <Spinner /> : <ArrowUp />}
         </Button>
       </div>

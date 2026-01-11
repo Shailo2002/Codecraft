@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { SignInButton } from "@clerk/nextjs";
 import { ArrowUp, ImagePlus, Loader2Icon } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import toast from "react-hot-toast";
 import { useRouter } from "next/navigation";
 import SelectModel from "./SelectModel";
@@ -15,7 +15,9 @@ function Hero({ user }: { user?: UserType }) {
   const [userInput, setUserInput] = useState<string>();
   const router = useRouter();
   const [loading, setLoading] = useState<boolean>(false);
-  const [model, setModel] = useState<string>("gpt-4o-mini");
+  const [model, setModel] = useState<string>("gemini-2.5-flash");
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const MAX_HEIGHT = 200;
   const { openSignIn } = useClerk();
 
   const handleSetModel = (value: string) => {
@@ -25,6 +27,10 @@ function Hero({ user }: { user?: UserType }) {
   const CreateNewProject = async () => {
     setLoading(true);
     try {
+      console.log("project create handle : ", {
+        role: "user",
+        content: userInput,
+      });
       const response = await createProject({
         chatMessage: [{ role: "user", content: userInput }],
       });
@@ -45,6 +51,16 @@ function Hero({ user }: { user?: UserType }) {
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const el = e.target;
+    setUserInput(el.value);
+    el.style.height = "auto";
+
+    const newHeight = Math.min(el.scrollHeight, MAX_HEIGHT);
+    el.style.height = `${newHeight}px`;
+    el.style.overflowY = el.scrollHeight > MAX_HEIGHT ? "auto" : "hidden";
+  };
+
   return (
     <div className="p-4 flex flex-col justify-center items-center w-full h-[90vh] md:h-[80vh] ">
       {/* description */}
@@ -60,9 +76,10 @@ function Hero({ user }: { user?: UserType }) {
       {/* input */}
       <div className="not-only-of-type:relative w-full max-w-2xl p-4 mt-5 border rounded-2xl">
         <textarea
+          ref={textareaRef}
           placeholder="Describe your page design"
           className="w-full h-24 focus:outline-none focus:ring-0 resize-none"
-          onChange={(e) => setUserInput(e.target.value)}
+          onChange={(e) => handleInputChange(e)}
           value={userInput}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {

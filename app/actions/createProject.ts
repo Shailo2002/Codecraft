@@ -3,23 +3,27 @@ import prisma from "@/lib/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { v4 as uuidv4 } from "uuid";
 import { Prisma } from "@prisma/client";
+import { templateHtml } from "../constants/templateHtml";
 
 export default async function createProject({
   chatMessage,
 }: {
   chatMessage: any;
 }) {
+  console.log("create project in action : ", chatMessage);
   const userDetail = await currentUser();
   if (!userDetail) {
     return { ok: false, error: "Unauthorized" };
   }
 
   try {
+    console.log("check1");
     const result = await prisma.$transaction(
       async (tx: Prisma.TransactionClient) => {
         const dbUser = await tx.user.findUnique({
           where: { email: userDetail.primaryEmailAddress?.emailAddress },
         });
+        console.log("check2");
 
         if (!dbUser) {
           return { ok: false, error: "Unauthorized" };
@@ -28,25 +32,30 @@ export default async function createProject({
         if (dbUser.credits <= 0) {
           return { ok: false, error: "No credits remaining" };
         }
+        console.log("check3");
 
         const projectId = uuidv4();
         const frameId = crypto.randomUUID().slice(0, 8);
         const projectName =
-          chatMessage.length > 50
-            ? chatMessage.slice(0, 47) + "..."
-            : chatMessage;
+          chatMessage[0]?.content?.length > 50
+            ? chatMessage[0]?.content?.slice(0, 47) + "..."
+            : chatMessage[0]?.content;
+
+        console.log("check4a : ", projectName);
 
         const newProject = await tx.project.create({
           data: { projectId, userId: dbUser.id, projectName },
         });
+        console.log("check4b");
 
         const newFrame = await tx.frame.create({
           data: {
             frameId,
             projectId: newProject.id,
-            designCode: "<div> test code </div>",
+            designCode: templateHtml,
           },
         });
+        console.log("check5");
 
         await tx.chatMessage.create({
           data: {
@@ -55,11 +64,13 @@ export default async function createProject({
             frameId: newFrame.id,
           },
         });
+        console.log("check6");
 
         await tx.user.update({
           where: { id: dbUser.id },
           data: { credits: { decrement: 1 } },
         });
+        console.log("check7");
 
         return { ok: true, projectId, frameId };
       }

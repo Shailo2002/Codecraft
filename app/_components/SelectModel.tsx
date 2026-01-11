@@ -14,13 +14,22 @@ type Props = {
   model: string;
   handleSetModel: (value: string) => void;
   userSubscription: string | undefined;
+  width?: string | "130px";
+  className?:string;
 };
 
-function SelectModel({ model, handleSetModel, userSubscription }: Props) {
-
+function SelectModel({
+  model,
+  handleSetModel,
+  userSubscription,
+  width,
+  className,
+}: Props) {
   return (
     <Select value={model} onValueChange={(value) => handleSetModel(value)}>
-      <SelectTrigger className="w-[130px] border-none shadow-none ring-0 outline-none">
+      <SelectTrigger
+        className={`w-[${width}] border-none shadow-none ring-0 outline-none ${className}`}
+      >
         <SelectValue placeholder="Select a model" />
       </SelectTrigger>
       <SelectContent>

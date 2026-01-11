@@ -7,6 +7,8 @@ import axios from "axios";
 import toast from "react-hot-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Frame, Message, UserType } from "@/types";
+import saveFrameCode from "@/app/actions/saveFrameCode";
+import { createChatMessage } from "@/app/actions/createChatMessage";
 
 function ClientPlayground({
   projectId,
@@ -17,7 +19,7 @@ function ClientPlayground({
   projectId: string;
   frameId: string;
   initialFrame: Frame;
-  user: UserType
+  user: UserType;
 }) {
   const [frameDetail, setFrameDetail] = useState(initialFrame);
   const [messages, setMessages] = useState(initialFrame.chatMessages);
@@ -55,9 +57,16 @@ function ClientPlayground({
         }
       });
 
-      if (!clone.innerHTML) return;
+      if (!clone.innerHTML) {
+        console.log("cloen innerhtml if");
+        return;
+      }
 
-      await axios.put(`/api/frames/`, {
+      if (!clone?.innerHTML || clone?.innerHTML?.trim().length === 0) {
+        toast("Text only — no code present.", { icon: "⚠️" });
+        return;
+      }
+      await saveFrameCode({
         frameId,
         designCode: clone.innerHTML.replace(/html/g, "").replace(/```/g, ""),
       });
@@ -72,21 +81,25 @@ function ClientPlayground({
 
   const saveMsgToDb = async (msg: Message) => {
     try {
-      await axios.post(`/api/chats/${frameId}`, {
-        chatMessage: [msg],
-      });
+      const response = await createChatMessage({ frameId, chatMessage: [msg] });
     } catch (error) {
       console.error("Failed to save message:", error);
+      toast.error("error while saving chat message");
     }
   };
 
   const saveGeneratedCode = async (code?: string) => {
     const tempCode = code || generatedCodeRef.current;
     try {
-      await axios.put(`/api/frames/`, {
+      if (!tempCode || tempCode.trim().length === 0) {
+        toast("Text only — no code generated.", { icon: "⚠️" });
+        return;
+      }
+      await saveFrameCode({
         frameId,
         designCode: tempCode.replace(/html/g, "").replace(/```/g, ""),
       });
+
       toast.success("Website is Ready!");
     } catch (error) {
       toast.error("error while generating Website!");
@@ -339,10 +352,6 @@ function ClientPlayground({
     if (frameDetail?.chatMessages?.length == 1) {
       //@ts-ignore
       const userMessage = frameDetail?.chatMessages[0].chatMessage[0]?.content;
-      console.log(
-        "sending ai response for initial chat : ",
-        frameDetail?.chatMessages
-      );
       SendMessage(userMessage, model);
     }
   }, [frameId]);
