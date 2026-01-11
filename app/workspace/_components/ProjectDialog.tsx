@@ -33,6 +33,7 @@ import CopyTextButton from "@/app/playground/_components/CopyTextButton";
 import { renameProject } from "@/app/actions/renameProject";
 import toast from "react-hot-toast";
 import deleteProject from "@/app/actions/deleteProject";
+import { Spinner } from "@/components/ui/spinner";
 
 export function ProjectDialog({
   projectId,
@@ -146,7 +147,7 @@ export function ProjectDialog({
               onClick={() => handleDeleteProject(projectId)}
               disabled={loading}
             >
-              Delete
+              {loading ? <Spinner className="w-12.5" /> : "Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>

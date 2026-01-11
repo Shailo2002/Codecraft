@@ -99,7 +99,11 @@ function Hero({ user }: { user?: UserType }) {
         </div>
 
         <div className="absolute right-14 bottom-4">
-          <SelectModel model={model} handleSetModel={handleSetModel} />
+          <SelectModel
+            model={model}
+            handleSetModel={handleSetModel}
+            userSubscription={user?.plan}
+          />
         </div>
       </div>
 

@@ -1,7 +1,8 @@
 import ClientPlayground from "./ClientPlayground";
 import { redirect } from "next/navigation";
-import { Frame } from "@/types";
+import { Frame, UserType } from "@/types";
 import prisma from "@/lib/db";
+import { getCurrentDbUser } from "@/lib/getCurrentDbUser";
 
 type PageProps = {
   params: Promise<{ projectId: string }>;
@@ -14,6 +15,11 @@ export default async function Page({ params, searchParams }: PageProps) {
 
   const projectId = resolvedParams.projectId;
   const frameId = resolvedSearchParams.frameId;
+
+  const user = (await getCurrentDbUser()) as UserType;
+  if (!user) {
+    redirect("/");
+  }
 
   if (!frameId) {
     redirect("/workspace");
@@ -35,6 +41,7 @@ export default async function Page({ params, searchParams }: PageProps) {
       projectId={projectId}
       frameId={frameId}
       initialFrame={frame as unknown as Frame}
+      user={user}
     />
   );
 }

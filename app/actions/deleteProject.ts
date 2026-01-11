@@ -16,7 +16,6 @@ export default async function deleteProject({
 
   try {
     await prisma.$transaction(async (tx) => {
-      console.log("check1");
       const dbUser = await tx.user.findUnique({
         where: { email: user.primaryEmailAddress?.emailAddress },
       });
@@ -24,11 +23,10 @@ export default async function deleteProject({
       if (!dbUser) {
         throw new Error("Unauthorized");
       }
-      console.log("check2");
 
       const project = await tx.project.findFirst({
         where: {
-          id:projectId,
+          id: projectId,
           userId: dbUser.id,
         },
         include: {
@@ -39,7 +37,6 @@ export default async function deleteProject({
       if (!project) {
         throw new Error("Project not found");
       }
-      console.log("check3");
 
       const frameIds = project.frames.map((f) => f.id);
 
@@ -48,14 +45,12 @@ export default async function deleteProject({
           frameId: { in: frameIds },
         },
       });
-      console.log("check4");
 
       await tx.frame.deleteMany({
         where: {
           projectId: project.id,
         },
       });
-      console.log("check5");
 
       await tx.project.delete({
         where: {

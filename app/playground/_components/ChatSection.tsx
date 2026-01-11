@@ -4,16 +4,17 @@ import { ArrowUp, Eye } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import SelectModel from "@/app/_components/SelectModel";
-import { ChatMessage } from "@/types";
+import { ChatMessage, UserType } from "@/types";
 
 type Props = {
   messages: ChatMessage[];
+  user: UserType;
   onSend: any;
   loading: boolean;
   handleIsChat: (value: Boolean) => void;
 };
 
-function ChatSection({ messages, onSend, loading, handleIsChat }: Props) {
+function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
   const [input, setInput] = useState<string>("");
   const [model, setModel] = useState<string>("gpt-4o-mini");
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -36,7 +37,6 @@ function ChatSection({ messages, onSend, loading, handleIsChat }: Props) {
       bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
     }, 0);
   }, [messages]);
-
 
   return (
     <div className="flex flex-col w-120 h-[87vh]">
@@ -95,7 +95,11 @@ function ChatSection({ messages, onSend, loading, handleIsChat }: Props) {
         </div>
 
         <div className="absolute right-14 bottom-1.5">
-          <SelectModel model={model} handleSetModel={handleSetModel} />
+          <SelectModel
+            model={model}
+            handleSetModel={handleSetModel}
+            userSubscription={user?.plan}
+          />
         </div>
 
         <Button className="m-2 absolute right-1 bottom-0" onClick={handleSend}>

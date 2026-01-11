@@ -7,13 +7,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Lock } from "lucide-react";
+import { useState } from "react";
 
 type Props = {
   model: string;
   handleSetModel: (value: string) => void;
+  userSubscription: string | undefined;
 };
 
-function SelectModel({ model, handleSetModel }: Props) {
+function SelectModel({ model, handleSetModel, userSubscription }: Props) {
+
   return (
     <Select value={model} onValueChange={(value) => handleSetModel(value)}>
       <SelectTrigger className="w-[130px] border-none shadow-none ring-0 outline-none">
@@ -24,9 +28,17 @@ function SelectModel({ model, handleSetModel }: Props) {
           <SelectLabel>model</SelectLabel>
           <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
           <SelectItem value="gemini-2.5-flash">gemini-2.5-flash</SelectItem>
-          <SelectItem value="gpt-5-mini">gpt-5-mini</SelectItem>
-          <SelectItem value="gemini-3-flash-preview">
-            gemini-3-flash-preview
+          <SelectItem
+            value="gpt-5-mini"
+            disabled={userSubscription !== "PREMIUM"}
+          >
+            {userSubscription !== "PREMIUM" && <Lock />} gpt-5-mini
+          </SelectItem>
+          <SelectItem
+            value="gemini-3-flash-preview"
+            disabled={userSubscription !== "PREMIUM"}
+          >
+            {userSubscription !== "PREMIUM" && <Lock />} gemini-3-flash-preview
           </SelectItem>
         </SelectGroup>
       </SelectContent>

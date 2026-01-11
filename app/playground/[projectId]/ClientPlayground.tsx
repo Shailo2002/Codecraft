@@ -6,16 +6,18 @@ import WebsiteDesign from "../_components/WebsiteDesign";
 import axios from "axios";
 import toast from "react-hot-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Frame, Message } from "@/types";
+import { Frame, Message, UserType } from "@/types";
 
 function ClientPlayground({
   projectId,
   frameId,
   initialFrame,
+  user,
 }: {
   projectId: string;
   frameId: string;
   initialFrame: Frame;
+  user: UserType
 }) {
   const [frameDetail, setFrameDetail] = useState(initialFrame);
   const [messages, setMessages] = useState(initialFrame.chatMessages);
@@ -363,6 +365,7 @@ function ClientPlayground({
         {(isChat || !isMobile) && (
           <ChatSection
             messages={messages ?? []}
+            user={user}
             onSend={(input: string, model: string) => SendMessage(input, model)}
             loading={loading}
             handleIsChat={handleIsChat}
