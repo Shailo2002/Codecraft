@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -7,27 +6,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Copy } from "lucide-react";
-import toast from "react-hot-toast";
 import SyntaxHighlighter from "react-syntax-highlighter";
-import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import CopyTextButton from "./CopyTextButton";
 
 export function ViewCodeBlock({ children, code }: any) {
-  const handleCopy = async () => {
-    try {
-      const copyPromise = navigator.clipboard.writeText(code);
-
-      await toast.promise(copyPromise, {
-        loading: "Copying…",
-        success: "Code copied",
-        error: "Failed to copy code",
-      });
-    } catch (error) {
-      console.error("Copy error:", error);
-      toast.error("Unexpected error while copying");
-    }
-  };
-
   return (
     <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
@@ -35,9 +17,7 @@ export function ViewCodeBlock({ children, code }: any) {
         <DialogHeader>
           <DialogTitle className="flex justify-start items-center gap-2">
             Source Code
-            <Button onClick={handleCopy} variant="secondary">
-              <Copy size={12} />
-            </Button>
+            <CopyTextButton text={code} />
           </DialogTitle>
           <DialogDescription>
             <div className="max-w-[86vw] pr-6 lg:max-w-[1000px] overflow-auto rounded-lg">

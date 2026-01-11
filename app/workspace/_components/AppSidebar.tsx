@@ -95,7 +95,11 @@ export function AppSidebar({
                                 {item.id === currentHoverProject && (
                                   <ProjectDialog
                                     projectId={item?.id}
-                                    projectName={item?.projectName}
+                                    projectName={
+                                      item?.projectName ||
+                                      item.frames[0]?.chatMessages[0]
+                                        ?.chatMessage[0]?.content
+                                    }
                                     deploymentUrl={item?.deploymentUrl}
                                   />
                                 )}

@@ -29,6 +29,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import CopyTextButton from "@/app/playground/_components/CopyTextButton";
+import { renameProject } from "@/app/actions/renameProject";
+import toast from "react-hot-toast";
 import deleteProject from "@/app/actions/deleteProject";
 
 export function ProjectDialog({
@@ -44,12 +47,53 @@ export function ProjectDialog({
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
   const [newProjectName, setnewProjectName] = useState(
-    projectName || "project 1"
+    projectName || "projectName"
   );
   const [shareUrl, setShareUrl] = useState(deploymentUrl || undefined);
+  const [loading, setLoading] = useState(false);
 
   const handleDeleteProject = async (id: string) => {
-    const response = await deleteProject(id);
+    console.log("handleDelete Project : ", id);
+    setLoading(true);
+    try {
+      const response = await deleteProject({ projectId: id });
+      console.log("response : ", response);
+      if (response?.ok) {
+        toast.success("Project deleted");
+        setShowDeleteDialog(false);
+      }
+    } catch (error) {
+      toast.error("Delete failed");
+      console.log("error while deleting project : ", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRenameProject = async ({
+    projectId,
+    newProjectName,
+  }: {
+    projectId: string;
+    newProjectName: string;
+  }) => {
+    setLoading(true);
+    try {
+      const response = await renameProject({
+        projectId: projectId,
+        newProjectName: newProjectName,
+      });
+      console.log("response : ", response);
+      if (response?.ok) {
+        toast.success("Project renamed");
+        setShowRenameDialog(false);
+      }
+    } catch (error) {
+      toast.error("Rename failed");
+      console.log("error while renaming project : ", error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -68,7 +112,7 @@ export function ProjectDialog({
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={() => setShowShareDialog(true)}
-              disabled
+              disabled={!shareUrl}
             >
               <Share /> Share
             </DropdownMenuItem>
@@ -100,6 +144,7 @@ export function ProjectDialog({
             <Button
               variant="destructive"
               onClick={() => handleDeleteProject(projectId)}
+              disabled={loading}
             >
               Delete
             </Button>
@@ -107,6 +152,7 @@ export function ProjectDialog({
         </DialogContent>
       </Dialog>
 
+      {/* rename project dialog */}
       <Dialog open={showRenameDialog} onOpenChange={setShowRenameDialog}>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -124,7 +170,7 @@ export function ProjectDialog({
                 value={newProjectName}
                 onChange={(e) => setnewProjectName(e.target.value)}
                 placeholder="My project"
-                autoFocus
+                onFocus={(e) => e.target.select()}
               />
             </Field>
           </FieldGroup>
@@ -135,8 +181,10 @@ export function ProjectDialog({
             </DialogClose>
 
             <Button
-              onClick={() => console.log("handle rename")}
-              disabled={!projectName?.trim()}
+              onClick={() => handleRenameProject({ projectId, newProjectName })}
+              disabled={
+                projectName?.trim() === newProjectName.trim() || loading
+              }
             >
               Save
             </Button>
@@ -167,19 +215,14 @@ export function ProjectDialog({
                   }
                   readOnly
                 />
-                <Button
-                  variant="outline"
-                  onClick={() => console.log("handle copy link")}
-                >
-                  Copy
-                </Button>
+                <CopyTextButton text={shareUrl || "Project not deployed yet"} />
               </div>
             </Field>
           </FieldGroup>
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button variant="outline">Close</Button>
+              <Button variant="default">Close</Button>
             </DialogClose>
           </DialogFooter>
         </DialogContent>
