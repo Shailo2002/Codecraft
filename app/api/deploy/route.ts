@@ -37,7 +37,7 @@ export async function POST(req: Request) {
     if (dbUser.plan !== "PREMIUM") {
       return NextResponse.json(
         {
-          message: "Premium plan required to deploy project",
+          message: "Upgrade to the Premium plan to enable project deployment.",
         },
         { status: 403 }
       );

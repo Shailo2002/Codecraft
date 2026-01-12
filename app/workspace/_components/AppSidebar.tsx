@@ -22,6 +22,7 @@ import { Project, UserType } from "@/types";
 import { useState } from "react";
 import { ProjectDialog } from "./ProjectDialog";
 import { UserButtonClient } from "@/app/_components/UserButtonClient";
+import { useUpgradeModal } from "../../../hooks/useUpgradeModal";
 
 export function AppSidebar({
   projects,
@@ -34,8 +35,10 @@ export function AppSidebar({
     null
   );
   const [position, setPosition] = useState("bottom");
+  const upgrade = useUpgradeModal();
+
   return (
-    <Sidebar >
+    <Sidebar>
       <SidebarHeader>
         <div className="flex flex-col gap-4 mx-2">
           <Image
@@ -125,10 +128,11 @@ export function AppSidebar({
             </h2>
             <Progress value={user?.credits} />
             {user?.plan === "FREE" ? (
-              <PaymentModel>
-                <Button className="w-full">Upgrade for Unlimited</Button>
-              </PaymentModel>
+              <Button className="w-full" onClick={upgrade.show}>
+                Upgrade for Unlimited
+              </Button>
             ) : null}
+            {upgrade.modal}
           </div>
 
           <div className="flex px-2 items-center">

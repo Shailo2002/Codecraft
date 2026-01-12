@@ -22,6 +22,7 @@ function Hero({ user }: { user?: UserType }) {
   const MAX_HEIGHT = 200;
   const { openSignIn } = useClerk();
 
+
   const handleSetModel = (value: string) => {
     console.log("model : ", value);
     setModel(value);
@@ -34,6 +35,12 @@ function Hero({ user }: { user?: UserType }) {
         role: "user",
         content: userInput,
       });
+
+      if (!userInput || userInput?.trim() === "") {
+        toast.error("no message found");
+        return;
+      }
+
       const response = await createProject({
         chatMessage: [{ role: "user", content: userInput }],
       });
@@ -68,8 +75,17 @@ function Hero({ user }: { user?: UserType }) {
     el.style.overflowY = el.scrollHeight > MAX_HEIGHT ? "auto" : "hidden";
   };
 
+  const handleTextareaFocus = () => {
+    if (!user) {
+      openSignIn({
+        redirectUrl: "/workspace",
+      });
+      textareaRef.current?.blur(); // prevent typing
+    }
+  };
+
   return (
-    <div className="p-4 flex flex-col justify-center items-center w-full h-[92vh] md:h-[91.4vh]  ">
+    <div className="p-4 flex flex-col justify-center items-center w-full h-[92vh] md:h-[94vh]">
       {/* description */}
       <div className="flex flex-col justify-center items-center">
         <h1 className="text-5xl text-center md:text-6xl font-extrabold tracking-tight text-balance">
@@ -94,16 +110,23 @@ function Hero({ user }: { user?: UserType }) {
           value={userInput}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+
               if (!user) {
                 openSignIn({
                   redirectUrl: "/workspace",
                 });
                 return;
               }
-
-              CreateNewProject();
+              if (userInput && userInput?.trim() !== "") {
+                CreateNewProject();
+              } else {
+                toast("Please type a message to continue.", { icon: "✏️" });
+              }
             }
           }}
+          onFocus={handleTextareaFocus}
+          onClick={handleTextareaFocus}
         />
         <div className="flex justify-between items-center">
           <Button variant={"ghost"}>
@@ -158,7 +181,7 @@ function Hero({ user }: { user?: UserType }) {
         </div>
 
         <div className="mt-2 flex flex-wrap justify-center gap-4">
-          {showCaseProjects.map((project,index) => (
+          {showCaseProjects.map((project, index) => (
             <div className="w-64" key={index}>
               <ShowcaseCard
                 title={project?.title}

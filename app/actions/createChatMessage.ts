@@ -24,6 +24,10 @@ export const createChatMessage = cache(
         return { ok: false, error: "Unauthorized" };
       }
 
+      if (!chatMessage[0]?.content || chatMessage[0]?.content?.trim() === "") {
+        return { ok: false, error: "no message found" };
+      }
+
       const dbFrame = await prisma.frame.findUnique({
         where: { frameId },
         include: {

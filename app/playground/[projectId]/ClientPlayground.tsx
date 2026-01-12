@@ -10,6 +10,8 @@ import { Frame, Message, UserType } from "@/types";
 import saveFrameCode from "@/app/actions/saveFrameCode";
 import { createChatMessage } from "@/app/actions/createChatMessage";
 import { templateHtml } from "@/app/constants/templateHtml";
+import { useRouter } from "next/navigation";
+import { useUpgradeModal } from "@/hooks/useUpgradeModal";
 
 function ClientPlayground({
   projectId,
@@ -32,6 +34,7 @@ function ClientPlayground({
   const [model, setModel] = useState<string>("gemini-2.5-flash");
   const [isChat, setIsChat] = useState<Boolean>(false);
   const isMobile = useIsMobile();
+  const upgrade = useUpgradeModal();
 
   const getIframeHTML = async () => {
     setCodeSaveLoading(true);
@@ -350,6 +353,7 @@ function ClientPlayground({
             response?.error ||
               "Chat limit reached. Upgrade to Premium to continue."
           );
+          upgrade?.show();
           console.log(response?.error);
           return response?.error;
         } else {
@@ -396,6 +400,7 @@ function ClientPlayground({
           .replace(/(?<!<)html(?![>/])/g, "")}
         projectName={projectId}
         projectId={projectId}
+        user={user}
       />
 
       <div className="flex justify-center bg-zinc-50 p-4 gap-4">
@@ -424,6 +429,8 @@ function ClientPlayground({
           />
         )}
       </div>
+
+      {upgrade?.modal}
     </div>
   );
 }

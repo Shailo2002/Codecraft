@@ -62,6 +62,8 @@ export function ProjectDialog({
       if (response?.ok) {
         toast.success("Project deleted");
         setShowDeleteDialog(false);
+      } else {
+        toast.error("Delete failed");
       }
     } catch (error) {
       toast.error("Delete failed");

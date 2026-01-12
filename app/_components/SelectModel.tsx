@@ -14,7 +14,7 @@ type Props = {
   handleSetModel: (value: string) => void;
   userSubscription: string | undefined;
   width?: string | "130px";
-  className?:string;
+  className?: string;
 };
 
 function SelectModel({
@@ -34,8 +34,8 @@ function SelectModel({
       <SelectContent>
         <SelectGroup>
           <SelectLabel>model</SelectLabel>
-          <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
           <SelectItem value="gemini-2.5-flash">gemini-2.5-flash</SelectItem>
+          <SelectItem value="gpt-4o-mini">gpt-4o-mini</SelectItem>
           <SelectItem
             value="gpt-5-mini"
             disabled={userSubscription !== "PREMIUM"}

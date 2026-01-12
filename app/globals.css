@@ -145,3 +145,9 @@
     --sidebar-ring: oklch(0.439 0 0);
   }
 }
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+}

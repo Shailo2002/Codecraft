@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { getDeploymentUrl } from "@/app/actions/getDeploymentUrl";
 import axios, { AxiosError } from "axios";
-import { ExternalLink, Globe, X } from "lucide-react"; // Optional icons if you use lucide-react
+import { Globe } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React, { useState } from "react";
+import { useState } from "react";
 import toast from "react-hot-toast";
+import { UserType } from "@/types";
+import { useUpgradeModal } from "@/hooks/useUpgradeModal";
 
 function PlayGroundHeader({
   onSave,
@@ -15,22 +17,29 @@ function PlayGroundHeader({
   code,
   projectName,
   projectId,
+  user,
 }: {
   onSave: () => void;
   loading: boolean;
   code: string;
   projectName: string;
   projectId: string;
+  user: UserType;
 }) {
-  // New state for deployment
   const [deploying, setDeploying] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
+  const upgrade = useUpgradeModal();
 
   const handleDeploy = async () => {
     console.log("project deployment initiated");
-    // Basic validation
     if (!code) {
       alert("Please generate some code first!");
+      return;
+    }
+
+    if (user?.plan !== "PREMIUM") {
+      toast.error("Upgrade to the Premium plan to enable project deployment.");
+      upgrade.show();
       return;
     }
 
@@ -132,6 +141,7 @@ function PlayGroundHeader({
         >
           {loading ? <Spinner /> : "Save"}
         </Button>
+        {upgrade.modal}
       </div>
 
       {/* SUCCESS POPUP: Shows absolute positioned below the header when deployed */}
