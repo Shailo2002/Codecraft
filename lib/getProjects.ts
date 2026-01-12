@@ -2,7 +2,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { cache } from "react";
 import prisma from "./db";
 
-export const getProjects = cache(async  () => {
+export const getProjects = cache(async () => {
   try {
     console.log("project get endpoint check");
     const userDetail = await currentUser();
@@ -20,13 +20,12 @@ export const getProjects = cache(async  () => {
       include: {
         frames: { include: { chatMessages: true } },
       },
+      orderBy: { createdAt: "desc" },
     });
-
 
     return projects;
   } catch (error) {
     return console.error("getOrCreateCurrentUser failed:", error);
     throw error;
   }
-}
-)
+});

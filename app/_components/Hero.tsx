@@ -45,7 +45,7 @@ function Hero({ user }: { user?: UserType }) {
 
       const data = response as { projectId: string; frameId: string };
 
-      toast.success("Project created!");
+      toast.success("Project initiated!");
       router.push(
         `/playground/${data.projectId}?frameId=${encodeURIComponent(
           data.frameId
@@ -158,8 +158,8 @@ function Hero({ user }: { user?: UserType }) {
         </div>
 
         <div className="mt-2 flex flex-wrap justify-center gap-4">
-          {showCaseProjects.map((project) => (
-            <div className="w-64">
+          {showCaseProjects.map((project,index) => (
+            <div className="w-64" key={index}>
               <ShowcaseCard
                 title={project?.title}
                 link={project?.link}

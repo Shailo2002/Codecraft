@@ -3,6 +3,7 @@ import WebPageTools from "./WebPageTools";
 import ElementSettingSection from "./ElementSettingSection";
 import ImageSettingSection from "./ImageSettingSection";
 import Image from "next/image";
+import { loadingTemplateHtml, templateHtml } from "@/app/constants/templateHtml";
 
 type Props = {
   generatedCode: string;
@@ -29,23 +30,21 @@ function WebsiteDesign({
     const doc = iframeRef.current.contentDocument;
     const root = doc?.getElementById("root");
 
-    // Inject the code
     if (root) {
       root.innerHTML = generatedCode;
-
-      // Re-attach listeners whenever the innerHTML changes
-      // attachEventListeners(doc);
     }
   }, [generatedCode, isIframeLoaded]);
 
-  // Update body only when code changes
   useEffect(() => {
     const doc = iframeRef.current?.contentDocument;
     const root = doc?.getElementById("root");
-    if (root) root.innerHTML = generatedCode;
+    let finalcode = generatedCode;
+    if (generatedCode.trim() === "") {
+      finalcode = loadingTemplateHtml;
+    }
+    if (root) root.innerHTML = finalcode;
   }, [generatedCode]);
 
-  // Initialize iframe shell once
   useEffect(() => {
     if (!iframeRef.current) return;
     const doc = iframeRef.current.contentDocument;

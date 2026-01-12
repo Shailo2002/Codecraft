@@ -19,16 +19,19 @@ export const getFrameData = cache(
       const frame = await prisma.frame.findUnique({
         where: { frameId },
         include: {
-          chatMessages: true,
+          chatMessages: {
+            orderBy: { createdAt: "desc" },
+            take: 50,
+          },
         },
       });
 
-      return { ok: true, data:frame };
+      frame?.chatMessages?.reverse();
+
+      return { ok: true, data: frame };
     } catch (error) {
-      return {ok:false, message:"internal server error ", error}
+      return { ok: false, message: "internal server error ", error };
       throw error;
     }
   }
 );
-
-
