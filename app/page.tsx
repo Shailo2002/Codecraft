@@ -11,7 +11,7 @@ export default async function Home() {
   }
 
   return (
-    <div>
+    <div className="relative overflow-hidden bg-[radial-gradient(125%_125%_at_50%_10%,var(--background)_40%,var(--primary)_100%)]">
       <Header user={user} />
       <Hero />
     </div>

@@ -28,7 +28,7 @@ function ClientPlayground({
   const generatedCodeRef = useRef("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [codeSaveLoading, setCodeSaveLoading] = useState<boolean>(false);
-  const [model, setModel] = useState<string>("gpt-4o-mini");
+  const [model, setModel] = useState<string>("gemini-2.5-flash");
   const [isChat, setIsChat] = useState<Boolean>(false);
   const isMobile = useIsMobile();
 

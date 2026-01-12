@@ -7,15 +7,16 @@ import { getFrameData } from "@/lib/getFrameData";
 
 type PageProps = {
   params: Promise<{ projectId: string }>;
-  searchParams: Promise<{ frameId?: string }>;
+  searchParams: Promise<{ frameId?: string; modelName?: string }>;
 };
 
 export default async function Page({ params, searchParams }: PageProps) {
-  const resolvedParams = await params;
-  const resolvedSearchParams = await searchParams;
+  const { projectId } = await params;
+  const { frameId, modelName } = await searchParams;
 
-  const projectId = resolvedParams.projectId;
-  const frameId = resolvedSearchParams.frameId;
+  console.log("projectId : ", projectId);
+  console.log("frameId : ", frameId);
+  console.log("modelName : ", modelName);
 
   const user = (await getCurrentDbUser()) as UserType;
   if (!user) {

@@ -35,7 +35,7 @@ export function AppSidebar({
   );
   const [position, setPosition] = useState("bottom");
   return (
-    <Sidebar>
+    <Sidebar >
       <SidebarHeader>
         <div className="flex flex-col gap-4 mx-2">
           <Image
