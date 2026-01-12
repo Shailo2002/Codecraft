@@ -10,20 +10,18 @@ export default async function createProject({
 }: {
   chatMessage: any;
 }) {
-  console.log("create project in action : ", chatMessage);
+  console.log("create project in action");
   const userDetail = await currentUser();
   if (!userDetail) {
     return { ok: false, error: "Unauthorized" };
   }
 
   try {
-    console.log("check1");
     const result = await prisma.$transaction(
       async (tx: Prisma.TransactionClient) => {
         const dbUser = await tx.user.findUnique({
           where: { email: userDetail.primaryEmailAddress?.emailAddress },
         });
-        console.log("check2");
 
         if (!dbUser) {
           return { ok: false, error: "Unauthorized" };
@@ -32,7 +30,6 @@ export default async function createProject({
         if (dbUser.credits <= 0) {
           return { ok: false, error: "No credits remaining" };
         }
-        console.log("check3");
 
         const projectId = uuidv4();
         const frameId = crypto.randomUUID().slice(0, 8);
@@ -41,12 +38,9 @@ export default async function createProject({
             ? chatMessage[0]?.content?.slice(0, 47) + "..."
             : chatMessage[0]?.content;
 
-        console.log("check4a : ", projectName);
-
         const newProject = await tx.project.create({
           data: { projectId, userId: dbUser.id, projectName },
         });
-        console.log("check4b");
 
         const newFrame = await tx.frame.create({
           data: {
@@ -55,7 +49,6 @@ export default async function createProject({
             designCode: templateHtml,
           },
         });
-        console.log("check5");
 
         await tx.chatMessage.create({
           data: {
@@ -64,13 +57,11 @@ export default async function createProject({
             frameId: newFrame.id,
           },
         });
-        console.log("check6");
 
         await tx.user.update({
           where: { id: dbUser.id },
           data: { credits: { decrement: 1 } },
         });
-        console.log("check7");
 
         return { ok: true, projectId, frameId };
       }

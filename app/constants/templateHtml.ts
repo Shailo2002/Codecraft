@@ -97,3 +97,25 @@ export const templateHtml = `    <div style="font-family: 'Inter', sans-serif;">
 
     </div>
   </div>`;
+
+
+  export const watermarkHTML = `
+<div style="
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  z-index: 999999;
+">
+  Made by
+  <img src="https://ik.imagekit.io/yga9zy0ujk/logosymbol.svg?updatedAt=1767812213851" width="20" height="20" />
+</div>
+`;

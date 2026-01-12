@@ -390,6 +390,7 @@ function ClientPlayground({
               .replace(/```/g, "")
               .replace(/(?<!<)html(?![>/])/g, "")}
             handleIsChat={handleIsChat}
+            isPremium={user?.plan === "PREMIUM"}
           />
         )}
       </div>

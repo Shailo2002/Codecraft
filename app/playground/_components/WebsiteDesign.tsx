@@ -8,9 +8,15 @@ type Props = {
   generatedCode: string;
   iframeRef: RefObject<HTMLIFrameElement | null>;
   handleIsChat: (value: Boolean) => void;
+  isPremium?: boolean;
 };
 
-function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
+function WebsiteDesign({
+  generatedCode,
+  iframeRef,
+  handleIsChat,
+  isPremium = false,
+}: Props) {
   const [selectedSize, setSelectedSize] = useState("web");
   const [selectedElement, setSelectedElement] = useState<
     HTMLElement | HTMLImageElement | null
@@ -163,15 +169,17 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
                         </html>`}
             />
 
-            <div className="absolute flex justify-center items-center gap-1 bottom-4 right-4 border border-slate-100 bg-white shadow text-sm px-2 py-1 rounded">
-              Made in{" "}
-              <Image
-                src={"/logosymbol.svg"}
-                alt="codeCraft"
-                width={20}
-                height={20}
-              />
-            </div>
+            {!isPremium && (
+              <div className="absolute flex justify-center items-center gap-1 bottom-4 right-4 border border-slate-100 bg-white shadow text-sm px-2 py-1 rounded">
+                Made by{" "}
+                <Image
+                  src={"/logosymbol.svg"}
+                  alt="codeCraft"
+                  width={20}
+                  height={20}
+                />
+              </div>
+            )}
           </div>
 
           {selectedElement && (
@@ -201,6 +209,7 @@ function WebsiteDesign({ generatedCode, iframeRef, handleIsChat }: Props) {
         </div>
 
         <WebPageTools
+          isPremium={isPremium}
           selectedSize={selectedSize}
           setSelectedScreenSize={(v: string) => setSelectedSize(v)}
           generatedCode={generatedCode}

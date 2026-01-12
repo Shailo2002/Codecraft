@@ -10,17 +10,19 @@ import {
 } from "lucide-react";
 import { ViewCodeBlock } from "./ViewCodeBlock";
 import { useEffect, useState } from "react";
+import { watermarkHTML } from "@/app/constants/templateHtml";
 
 function WebPageTools({
   selectedSize,
   setSelectedScreenSize,
   generatedCode,
   handleIsChat,
+  isPremium,
 }: any) {
   const [finalCode, setFinalCode] = useState<string>("");
 
   useEffect(() => {
-    const cleanCode = ` <!DOCTYPE html>
+    const tempCode = ` <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8" />
@@ -63,11 +65,16 @@ function WebPageTools({
       <body id="root">
       ${generatedCode}</body>
       </html>`;
+
+    const cleanCode = !isPremium
+      ? tempCode.replace("</body>", `${watermarkHTML}</body>`)
+      : tempCode;
     setFinalCode(cleanCode);
   }, [generatedCode]);
 
   const ViewInNewTab = () => {
     if (!finalCode) return;
+
     const blob = new Blob([finalCode], { type: "text/html" });
     const url = URL.createObjectURL(blob);
     window.open(url, "_blank");
