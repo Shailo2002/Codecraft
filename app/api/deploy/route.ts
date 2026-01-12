@@ -79,8 +79,10 @@ export async function POST(req: Request) {
 
     const publicUrl = `https://${data.name}.vercel.app`;
 
+    console.log("projectId : ", projectId);
+
     await prisma.project.update({
-      where: { id: projectId },
+      where: { projectId: projectId },
       data: { deploymentUrl: publicUrl },
     });
 

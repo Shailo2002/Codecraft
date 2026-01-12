@@ -18,7 +18,7 @@ function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
   const [input, setInput] = useState<string>("");
   const [model, setModel] = useState<string>("gemini-2.5-flash");
   const bottomRef = useRef<HTMLDivElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const MAX_HEIGHT = 200; // px (adjust as needed)
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -31,11 +31,12 @@ function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
     el.style.overflowY = el.scrollHeight > MAX_HEIGHT ? "auto" : "hidden";
   };
 
-
   const handleSend = () => {
     if (!input?.trim()) return;
     onSend(input, model);
     setInput("");
+    if (!textareaRef.current) return;
+    textareaRef.current.style.height = `${96}px`;
   };
 
   const handleSetModel = (value: string) => {

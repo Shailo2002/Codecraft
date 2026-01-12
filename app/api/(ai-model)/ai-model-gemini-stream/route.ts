@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: Request) {
   try {
     const { prompt, modelName } = await req.json();
-    console.log("gemini stream : ", modelName, prompt);
+    console.log("gemini route check ", modelName);
 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
