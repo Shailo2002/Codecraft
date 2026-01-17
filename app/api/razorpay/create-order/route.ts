@@ -11,7 +11,7 @@ const PRICING = {
   },
 } as const;
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   console.log("razorpay order api");
   try {
     const { type, pricing_type } = (await req.json()) as {
@@ -62,7 +62,6 @@ export async function POST(req: NextRequest, res: NextResponse) {
         currency: "INR",
         receipt: `rcpt_${crypto.randomUUID().slice(0, 30)}`,
       });
-
 
       await prisma.payment.create({
         data: {

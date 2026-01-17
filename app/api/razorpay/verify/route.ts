@@ -9,7 +9,7 @@ const instance = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET,
 });
 
-export async function POST(req: NextRequest, res: NextResponse) {
+export async function POST(req: NextRequest) {
   console.log("razorpay verify api");
   try {
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature } =

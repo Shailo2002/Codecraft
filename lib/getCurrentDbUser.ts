@@ -24,8 +24,6 @@ export const getCurrentDbUser = cache(async () => {
       email: user.email,
       name: user.name,
       credits: user.credits,
-      stripeCustomerId: user.stripeCustomerId,
-      stripeSubscriptionId: user.stripeSubscriptionId,
       plan: user.plan,
       premiumExpiresAt: user.premiumExpiresAt,
     };
