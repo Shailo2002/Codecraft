@@ -1,4 +1,6 @@
 import { gptPrompt } from "@/app/constants/prompt";
+import prisma from "@/lib/db";
+import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
@@ -9,10 +11,43 @@ const openai = new OpenAI({
 export async function POST(req: NextRequest) {
   try {
     const { messages, modelName } = await req.json();
-    console.log("openai route check ", modelName);
+
+    const userDetail = await currentUser();
+
+    if (!userDetail) {
+      return NextResponse.json(
+        {
+          message: "Authentication required",
+        },
+        { status: 401 }
+      );
+    }
+
+    const dbUser = await prisma.user.findUnique({
+      where: {
+        email: userDetail.primaryEmailAddress?.emailAddress,
+      },
+    });
+
+    if (!dbUser) {
+      return NextResponse.json(
+        {
+          message: "User not found",
+        },
+        { status: 404 }
+      );
+    }
+
+    let modelCheck = modelName;
+
+    if (dbUser.plan !== "PREMIUM") {
+      if (modelName !== "gpt-4o-mini") {
+        modelCheck = "gpt-4o-mini";
+      }
+    }
 
     const completion = await openai.chat.completions.create({
-      model: modelName || "gpt-4o-mini",
+      model: modelCheck || "gpt-4o-mini",
       messages: [{ role: "system", content: gptPrompt }, ...messages],
       stream: true,
     });

@@ -12,7 +12,6 @@ const PRICING = {
 } as const;
 
 export async function POST(req: NextRequest) {
-  console.log("razorpay order api");
   try {
     const { type, pricing_type } = (await req.json()) as {
       type: string;
@@ -77,14 +76,37 @@ export async function POST(req: NextRequest) {
         {
           message: "Payment initiated",
           data: order,
+          isSubscription: false,
         },
         { status: 201 }
       );
     } else if (type === "subscription") {
-      console.log("subscription loop check");
+      const subscription = await razorpay.subscriptions.create({
+        plan_id: process.env.RAZORPAY_SUBSCRIPTION_PLAN_ID!,
+        customer_notify: 1,
+        total_count: 120,
+        quantity: 1,
+        notes: {
+          userId: dbUser.id,
+        },
+      });
+
+      await prisma.payment.create({
+        data: {
+          userId: dbUser.id,
+          subscriptionId: subscription?.id,
+          amount: 9900,
+          currency: "INR",
+          type: PaymentType.subscription,
+        },
+      });
 
       return NextResponse.json(
-        { message: "Subscription payment initiated" },
+        {
+          message: "subscription initiated",
+          data: subscription,
+          isSubscription: true,
+        },
         { status: 201 }
       );
     }

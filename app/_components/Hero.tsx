@@ -21,17 +21,12 @@ function Hero({ user }: { user?: UserType }) {
   const { openSignIn } = useClerk();
 
   const handleSetModel = (value: string) => {
-    console.log("model : ", value);
     setModel(value);
   };
 
   const CreateNewProject = async () => {
     setLoading(true);
     try {
-      console.log("project create handle : ", {
-        role: "user",
-        content: userInput,
-      });
 
       if (!userInput || userInput?.trim() === "") {
         toast.error("no message found");

@@ -10,7 +10,6 @@ export default async function createProject({
 }: {
   chatMessage: any;
 }) {
-  console.log("create project in action");
   const userDetail = await currentUser();
   if (!userDetail) {
     return { ok: false, error: "Unauthorized" };

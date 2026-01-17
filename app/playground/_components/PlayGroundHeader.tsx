@@ -32,10 +32,8 @@ function PlayGroundHeader({
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
   const upgrade = useUpgradeModal();
   const path = usePathname()
-  console.log("path : ", path)
 
   const handleDeploy = async () => {
-    console.log("project deployment initiated");
     if (!code) {
       alert("Please generate some code first!");
       return;
@@ -50,7 +48,6 @@ function PlayGroundHeader({
     const url = await getDeploymentUrl(projectId);
 
     if (url) {
-      console.log("inside url if : ", url);
       setDeployedUrl(url);
     } else {
       const finalCode = `

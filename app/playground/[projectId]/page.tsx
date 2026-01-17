@@ -14,10 +14,6 @@ export default async function Page({ params, searchParams }: PageProps) {
   const { projectId } = await params;
   const { frameId, modelName } = await searchParams;
 
-  console.log("projectId : ", projectId);
-  console.log("frameId : ", frameId);
-  console.log("modelName : ", modelName);
-
   const user = (await getCurrentDbUser()) as UserType;
   if (!user) {
     redirect("/");

@@ -3,7 +3,6 @@ import { currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  console.log("deployement api check");
   try {
     const { htmlCode, projectName, projectId } = await req.json();
 
@@ -79,8 +78,6 @@ export async function POST(req: Request) {
 
     const publicUrl = `https://${data.name}.vercel.app`;
 
-    console.log("projectId : ", projectId);
-    console.log("publicUrl : ", publicUrl);
     await prisma.project.update({
       where: { projectId: projectId },
       data: { deploymentUrl: publicUrl },

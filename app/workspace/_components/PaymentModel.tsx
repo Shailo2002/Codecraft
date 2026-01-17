@@ -34,31 +34,28 @@ export function PaymentModel({
   ) => {
     setSelectedPlan(name);
 
-    console.log("type of payment : ", type);
     try {
       setLoading(true);
       const response = await axios.post("/api/razorpay/create-order", {
         type,
         pricing_type,
       });
-      console.log("razorpay order create response : ", response?.data?.data);
+
+      const paymentData = response.data.data || response.data;
+      const isSubscription = paymentData.id.startsWith("sub_");
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
-        amount: response?.data?.data?.amount || 1000,
-        currency: "INR",
         name: "CodeCraft",
         description: "Test Transaction",
-        order_id: response?.data?.data?.id,
+        order_id: isSubscription ? undefined : paymentData.id,
+        subscription_id: isSubscription ? paymentData.id : undefined,
+
         handler: async function (response: any) {
-          console.log(
-            "Payment Success:",
-            response?.razorpay_payment_id,
-            response?.razorpay_order_id,
-            response?.razorpay_signature
-          );
-          await axios.post("/api/razorpay/verify", response);
+          await axios.post("/api/razorpay/verify", { ...response, type });
+          toast.success("Payment Successful!");
           router.refresh();
         },
+
         prefill: {
           name: "Gaurav Kumar",
           email: "gaurav.kumar@example.com",
@@ -81,14 +78,13 @@ export function PaymentModel({
           reason: response.error.reason,
         });
       });
-
+      onOpenChange(false);
       rzp.open();
     } catch (error) {
       console.log("error : ", error);
 
       toast.error("payment failed");
     } finally {
-      console.log("finally run");
       setLoading(false);
     }
   };
@@ -104,8 +100,11 @@ export function PaymentModel({
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-wrap md:grid md:grid-cols-2 lg:grid-cols-3 justify-center items-center gap-4">
-          {pricingPlans.map((plan) => (
-            <div className="border dark:border-neutral-700 rounded-lg shadow w-70 p-4">
+          {pricingPlans.map((plan, index) => (
+            <div
+              className="border dark:border-neutral-700 rounded-lg shadow w-70 p-4"
+              key={index}
+            >
               <div className="font-semibold text-lg">{plan.name}</div>
               <div className="flex justify-start items-end gap-2 mt-2">
                 <span className="text-5xl font-semibold">{plan.price}</span>

@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("check ai-upload route");
     const { url } = await req.json();
 
     const response = await imagekit.upload({

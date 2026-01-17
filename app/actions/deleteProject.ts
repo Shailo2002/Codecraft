@@ -8,7 +8,6 @@ export default async function deleteProject({
 }: {
   projectId: string;
 }) {
-  console.log("delete project : ", projectId);
   const user = await currentUser();
   if (!user) {
     return { ok: false, error: "Unauthorized" };

@@ -26,6 +26,7 @@ export const getCurrentDbUser = cache(async () => {
       credits: user.credits,
       plan: user.plan,
       premiumExpiresAt: user.premiumExpiresAt,
+      razorpaySubscriptionId:user?.razorpaySubscriptionId
     };
   } catch (error) {
     console.error("getOrCreateCurrentUser failed:", error);

@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    console.log("imagekit  upload call");
     const form = await req.formData();
 
     const file = form.get("file") as File;

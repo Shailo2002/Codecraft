@@ -11,7 +11,6 @@ export const renameProject = cache(
     projectId: string;
     newProjectName: string;
   }) => {
-    console.log("rename project : ", projectId, newProjectName);
 
     if (!projectId || !newProjectName) {
       return { ok: false, error: "All fields are required" };

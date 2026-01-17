@@ -14,6 +14,8 @@ model User {
   name     String?
   credits  Int           @default(2)
   plan Plan @default(FREE)
+  razorpaySubscriptionId String? @unique 
+  razorpayCustomerId     String?
   premiumExpiresAt DateTime?
   chats    ChatMessage[]
   projects Project[]
@@ -57,8 +59,9 @@ model ChatMessage {
 model Payment {
   id              String   @id @default(uuid())
   userId          String
-  orderId         String   @unique
-  paymentId       String?
+  orderId         String?   @unique
+  paymentId       String?  @unique
+  subscriptionId  String?
   amount          Int
   currency        String
   status          PaymentStatus @default(created)

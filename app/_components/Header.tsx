@@ -45,9 +45,11 @@ function Header({ user }: { user: UserType }) {
       </div>
 
       {/* get started button */}
-      <div className="flex justify-center items-center gap-2">
+      <div className="flex justify-center items-center gap-4">
         {" "}
-        <ModeToggle />
+        <div>
+          <ModeToggle />
+        </div>
         {!user ? (
           <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
             <Button className="hover:cursor-pointer" variant={"default"}>

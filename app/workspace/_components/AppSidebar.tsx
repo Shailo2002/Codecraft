@@ -22,13 +22,16 @@ import { useState } from "react";
 import { ProjectDialog } from "./ProjectDialog";
 import { UserButtonClient } from "@/app/_components/UserButtonClient";
 import { useUpgradeModal } from "../../../hooks/useUpgradeModal";
+import { Payment } from "@/types/payment";
 
 export function AppSidebar({
   projects,
   user,
+  payments,
 }: {
   projects: Project[];
   user: UserType | null;
+  payments: Payment[];
 }) {
   const [currentHoverProject, setCurrentHoverProject] = useState<string | null>(
     null
@@ -150,9 +153,8 @@ export function AppSidebar({
                     : ""
                 }`}
             >
-              {/* WRAPPER DIV: Keeps the DOM structure stable */}
               <div className="flex items-center justify-center h-full w-full ">
-                <UserButtonClient />
+                <UserButtonClient payments={payments} user={user} />
               </div>
 
               {user?.plan === "PREMIUM" && (

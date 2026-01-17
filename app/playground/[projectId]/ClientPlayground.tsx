@@ -86,7 +86,6 @@ function ClientPlayground({
   const saveMsgToDb = async (msg: Message) => {
     try {
       const response = await createChatMessage({ frameId, chatMessage: [msg] });
-      console.log("response for saving message : ", response);
       return response;
     } catch (error) {
       console.error("Failed to save message:", error);
@@ -260,7 +259,6 @@ function ClientPlayground({
 
         if (value) {
           const chunkValue = decoder.decode(value, { stream: true });
-          console.log("chunkValue : ", chunkValue);
           if (!inCode) {
             aiResponse += chunkValue;
             const startIdx = aiResponse.indexOf("AICODE :");

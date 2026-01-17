@@ -5,5 +5,5 @@ export type UserType = {
   credits: number;
   plan: string;
   premiumExpiresAt?: Date | null;
+  razorpaySubscriptionId?: string | null;
 };
-

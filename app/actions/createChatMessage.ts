@@ -12,7 +12,6 @@ export const createChatMessage = cache(
     frameId: string;
     chatMessage: Message[];
   }) => {
-    console.log("create chat initiated");
     try {
       const userDetail = await currentUser();
 
@@ -34,13 +33,6 @@ export const createChatMessage = cache(
           chatMessages: true,
         },
       });
-
-      console.log(
-        "number of chatmessage in frame : ",
-        dbFrame?.chatMessages?.length,
-        " user type : ",
-        dbUser?.plan
-      );
 
       const numberOfMessage = dbFrame?.chatMessages?.length || 0;
 

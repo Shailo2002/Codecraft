@@ -2,7 +2,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { cache } from "react";
 import prisma from "./db";
 
-export const getProjects = cache(async () => {
+export const getPaymentDetails = cache(async () => {
   try {
     const userDetail = await currentUser();
 
@@ -14,15 +14,12 @@ export const getProjects = cache(async () => {
       return null;
     }
 
-    const projects = await prisma.project.findMany({
+    const payments = await prisma.payment.findMany({
       where: { userId: dbUser.id },
-      include: {
-        frames: { include: { chatMessages: true } },
-      },
       orderBy: { createdAt: "desc" },
     });
 
-    return projects;
+    return payments;
   } catch (error) {
     return console.error("getOrCreateCurrentUser failed:", error);
     throw error;

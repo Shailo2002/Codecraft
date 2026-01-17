@@ -5,7 +5,6 @@ import prisma from "./db";
 export const getFrameData = cache(
   async ({ projectId, frameId }: { projectId?: string; frameId: string }) => {
     try {
-      console.log("frame get endpoint check");
       const userDetail = await currentUser();
 
       const dbUser = await prisma.user.findUnique({

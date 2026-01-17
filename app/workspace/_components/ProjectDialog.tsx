@@ -54,11 +54,9 @@ export function ProjectDialog({
   const [loading, setLoading] = useState(false);
 
   const handleDeleteProject = async (id: string) => {
-    console.log("handleDelete Project : ", id);
     setLoading(true);
     try {
       const response = await deleteProject({ projectId: id });
-      console.log("response : ", response);
       if (response?.ok) {
         toast.success("Project deleted");
         setShowDeleteDialog(false);
@@ -86,7 +84,6 @@ export function ProjectDialog({
         projectId: projectId,
         newProjectName: newProjectName,
       });
-      console.log("response : ", response);
       if (response?.ok) {
         toast.success("Project renamed");
         setShowRenameDialog(false);

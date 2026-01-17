@@ -5,7 +5,6 @@ import prisma from "../../lib/db";
 
 export const getDeploymentUrl = cache(async (projectId: string) => {
   try {
-    console.log("project get deploymenturl route : ", projectId);
 
     const projects = await prisma.project.findFirst({
       where: { id: projectId },
