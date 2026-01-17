@@ -403,7 +403,7 @@ function ClientPlayground({
         user={user}
       />
 
-      <div className="flex justify-center bg-zinc-50 p-4 gap-4">
+      <div className="flex justify-center dark:bg-transparent gap-4 px-2">
         {/* chatSection */}
 
         {(isChat || !isMobile) && (

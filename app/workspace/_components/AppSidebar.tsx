@@ -13,7 +13,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { UserButton } from "@clerk/nextjs";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -38,15 +37,22 @@ export function AppSidebar({
   const upgrade = useUpgradeModal();
 
   return (
-    <Sidebar>
-      <SidebarHeader>
+    <Sidebar className="dark:bg-neutral-900">
+      <SidebarHeader className="dark:bg-neutral-900">
         <div className="flex flex-col gap-4 mx-2">
+          <Image
+            src={"/logo_dark.svg"}
+            alt="logo"
+            width={140}
+            height={140}
+            className="hidden dark:block m-1 my-2"
+          />
           <Image
             src={"/logo.svg"}
             alt="logo"
             width={140}
             height={140}
-            className="m-1"
+            className="block dark:hidden m-1 my-2"
           />
           {projects.length === 0 ? (
             <Button className="w-full">
@@ -57,7 +63,7 @@ export function AppSidebar({
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="dark:bg-neutral-900">
         <SidebarGroup className="p-2">
           <SidebarGroupLabel>Projects</SidebarGroupLabel>
           {projects.length == 0 ? (
@@ -119,9 +125,9 @@ export function AppSidebar({
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter>
+      <SidebarFooter className="dark:bg-neutral-900">
         <div className="flex flex-col gap-4">
-          <div className="p-3 border rounded-xl space-y-4 bg-secondary">
+          <div className="p-3 border rounded-xl space-y-4 bg-secondary dark:bg-neutral-900">
             <h2 className="flex justify-between items-center">
               Remaining Credits{" "}
               <span className="font-semibold text-lg">{user?.credits}</span>

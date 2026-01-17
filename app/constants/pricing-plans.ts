@@ -14,6 +14,7 @@ export const pricingPlans = [
       "No watermark on code/website",
     ],
     payment_type: "one_time",
+    pricing_type: "monthly",
   },
   {
     name: "Premium Plan Subscription",
@@ -30,11 +31,12 @@ export const pricingPlans = [
       "No watermark on code/website",
     ],
     payment_type: "subscription",
+    pricing_type: "monthly",
   },
 
   {
     name: "Testing Premium Plan",
-    price: "₹9",
+    price: "₹10",
     period: "for 1 day",
     description: "Short-term premium access for testing and evaluation.",
     cta: "Try Premium",
@@ -47,6 +49,6 @@ export const pricingPlans = [
       "No watermark on code/website",
     ],
     payment_type: "one_time",
-    plan_category: "testing",
+    pricing_type: "testing",
   },
 ];

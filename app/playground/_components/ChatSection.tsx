@@ -53,10 +53,10 @@ function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
   }, [messages]);
 
   return (
-    <div className="flex flex-col w-120 h-[87vh]">
+    <div className="flex flex-col w-120 h-[89vh]">
       {/* Message Section */}
-      <ScrollArea className="flex-1 flex flex-col overflow-y-auto rounded-lg border bg-white">
-        <div className="  p-4 space-y-4 ">
+      <ScrollArea className="flex-1 flex flex-col overflow-y-auto rounded-lg border-2 dark:border-neutral-950 bg-white dark:bg-neutral-900">
+        <div className="p-4 space-y-4 ">
           {messages?.length === 0 ? (
             <p className="text-gray-400 text-center">No Messages Yet</p>
           ) : (
@@ -70,10 +70,10 @@ function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
                 key={index}
               >
                 <div
-                  className={`p-2 rounded-lg max-w-[80%] overflow-hidden whitespace-pre-wrap  ${
+                  className={`p-2 rounded-lg max-w-[80%] text-start overflow-hidden whitespace-pre-wrap ${
                     msg?.chatMessage[0]?.role == "user"
-                      ? "bg-gray-100 text-black"
-                      : "bg-gray-300 text-black break-words break-all"
+                      ? "bg-gray-100 dark:bg-neutral-800"
+                      : "bg-gray-300 dark:bg-neutral-700 break-words break-all"
                   }`}
                 >
                   {msg?.chatMessage[0]?.content}
@@ -86,7 +86,7 @@ function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
       </ScrollArea>
 
       {/* Footer Section */}
-      <div className="relative flex border rounded-lg items-end mt-2 bg-white">
+      <div className="relative flex border-2 dark:border-neutral-950 rounded-lg items-end mt-2 bg-white text-black dark:bg-neutral-900 dark:text-slate-100">
         <textarea
           ref={textareaRef}
           className="w-full min-h-24 p-2 mb-12 resize-none focus:outline-none overflow-y-hidden"
@@ -102,15 +102,15 @@ function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
           style={{ maxHeight: `${MAX_HEIGHT}px` }}
         />
 
-        <div
-          className="absolute left-3 bottom-3 bg-slate-200 hover:bg-slate-300 p-1 rounded flex justify-center items-center gap-1 text-sm cursor-pointer md:hidden"
-          onClick={() => handleIsChat(false)}
-        >
-          <Eye size={16} />
-          Preview
-        </div>
+        <div className="absolute left-4 bottom-1.5 flex justify-center items-center gap-2 rounded-full">
+          <div
+            className="bg-background rounded-full hover:bg-accent hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 p-2 flex justify-center items-center gap-1 text-sm cursor-pointer md:hidden"
+            onClick={() => handleIsChat(false)}
+          >
+            <Eye size={16} />
+            Preview
+          </div>
 
-        <div className="absolute left-4 bottom-1.5 bg-slate-100 rounded-full">
           <SelectModel
             model={model}
             handleSetModel={handleSetModel}

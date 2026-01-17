@@ -10,6 +10,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { UserType } from "@/types";
 import { useUpgradeModal } from "@/hooks/useUpgradeModal";
+import { ModeToggle } from "@/app/_components/mode-toggle";
+import { usePathname } from "next/navigation";
 
 function PlayGroundHeader({
   onSave,
@@ -29,6 +31,8 @@ function PlayGroundHeader({
   const [deploying, setDeploying] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
   const upgrade = useUpgradeModal();
+  const path = usePathname()
+  console.log("path : ", path)
 
   const handleDeploy = async () => {
     console.log("project deployment initiated");
@@ -112,12 +116,13 @@ function PlayGroundHeader({
   };
 
   return (
-    <div className="relative flex justify-between items-center p-4 shadow h-[8.75vh]">
+    <div className={`relative flex justify-between items-center p-4 ${path === "/playground" ? "shadow" : ""} h-[8.75vh]`}>
       <Link href={"/workspace"}>
         <Image src={"/logo.svg"} alt="logo" width={140} height={140} />
       </Link>
 
       <div className="flex justify-center items-center gap-4">
+        <ModeToggle/>
         <Button
           onClick={handleDeploy}
           disabled={deploying}

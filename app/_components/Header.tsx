@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useContext } from "react";
 import { UserType } from "@/types";
+import { ModeToggle } from "./mode-toggle";
 
 const menuOptions = [
   { name: "Pricing", path: "/pricing" },
@@ -14,11 +15,25 @@ const menuOptions = [
   },
 ];
 
-function Header({user}: {user: UserType}) {
+function Header({ user }: { user: UserType }) {
+
   return (
-    <div className="flex justify-between items-center p-4 shadow-lg h-[10vh] ">
+    <div className="top-0 left-0 flex justify-between items-center p-4 shadow-lg h-[8vh] bg-opacity-0 ">
       {/* logo  */}
-      <Image src={"/logo.svg"} alt="logo" width={140} height={140} />
+      <Image
+        src={"/logo_dark.svg"}
+        alt="logo"
+        width={140}
+        height={140}
+        className="hidden dark:block"
+      />
+      <Image
+        src={"/logo.svg"}
+        alt="logo"
+        width={140}
+        height={140}
+        className="block dark:hidden"
+      />
 
       {/* menu options */}
       <div className="hidden md:block flex gap-2">
@@ -30,15 +45,21 @@ function Header({user}: {user: UserType}) {
       </div>
 
       {/* get started button */}
-      {!user ? (
-        <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
-          <Button className="hover:cursor-pointer">Get Started</Button>
-        </SignInButton>
-      ) : (
-        <Link href={"/workspace"}>
-          <Button className="hover:cursor-pointer">Get Started</Button>
-        </Link>
-      )}
+      <div className="flex justify-center items-center gap-2">
+        {" "}
+        <ModeToggle />
+        {!user ? (
+          <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
+            <Button className="hover:cursor-pointer" variant={"default"}>
+              Get Started
+            </Button>
+          </SignInButton>
+        ) : (
+          <Link href={"/workspace"}>
+            <Button className="hover:cursor-pointer">Get Started</Button>
+          </Link>
+        )}
+      </div>
     </div>
   );
 }

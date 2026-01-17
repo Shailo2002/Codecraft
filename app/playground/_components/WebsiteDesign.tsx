@@ -3,7 +3,10 @@ import WebPageTools from "./WebPageTools";
 import ElementSettingSection from "./ElementSettingSection";
 import ImageSettingSection from "./ImageSettingSection";
 import Image from "next/image";
-import { loadingTemplateHtml, templateHtml } from "@/app/constants/templateHtml";
+import {
+  loadingTemplateHtml,
+  templateHtml,
+} from "@/app/constants/templateHtml";
 
 type Props = {
   generatedCode: string;
@@ -118,15 +121,15 @@ function WebsiteDesign({
   }, [generatedCode]);
 
   return (
-    <div className="flex gap-2 w-full h-[87vh]">
-      <div className="flex flex-col items-center justify-center w-full border-t border-x rounded-lg">
+    <div className="flex gap-2 w-full h-[89vh] ">
+      <div className="flex flex-col items-center justify-center w-full border-t dark:border-t-neutral-950 border-x rounded-lg bg-slate-100 dark:bg-neutral-900">
         <div className="flex flex-col md:flex-row w-full h-full overflow-hidden">
           <div
             className="relative flex justify-center items-center
       h-1/2 md:h-auto
       flex-1 md:flex-1
       min-h-0 min-w-0
-      border-b md:border-b-0 md:border-r"
+      border-b dark:border-neutral-950"
           >
             <iframe
               ref={iframeRef}
@@ -134,7 +137,7 @@ function WebsiteDesign({
               onLoad={() => setIsIframeLoaded(true)}
               className={`${
                 selectedSize === "web"
-                  ? "w-full h-full md:h-[80vh] rounded-tl-lg"
+                  ? "w-full h-full md:h-[82vh] rounded-tl-lg"
                   : "w-full max-w-[360px] h-full md:h-[76vh] rounded-lg"
               } ${!selectedElement && "rounded-tr-lg"} border bg-white`}
               sandbox="allow-scripts allow-same-origin"
@@ -169,7 +172,7 @@ function WebsiteDesign({
             />
 
             {!isPremium && (
-              <div className="absolute flex justify-center items-center gap-1 bottom-4 right-4 border border-slate-100 bg-white shadow text-sm px-2 py-1 rounded">
+              <div className="absolute flex justify-center items-center gap-1 bottom-4 right-4 border border-slate-100 dark:border-neutral-950 dark:border-2 bg-white dark:bg-neutral-900 shadow text-sm px-2 py-1 rounded-lg">
                 Made by{" "}
                 <Image
                   src={"/logosymbol.svg"}

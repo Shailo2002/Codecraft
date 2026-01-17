@@ -204,7 +204,7 @@ function ImageSettingSection({ selectedEl, clearSelection }: Props) {
           <ImageIcon /> Image Settings
         </h2>
         <div
-          className="bg-slate-200 rounded p-1 hover:bg-slate-300"
+          className="bg-slate-200 rounded p-1 hover:bg-slate-300 dark:bg-neutral-700 dark:hover:bg-neutral-600"
           onClick={() => clearSelection()}
         >
           <X size={16} />

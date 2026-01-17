@@ -17,7 +17,7 @@ export function ShowcaseCard({
   websitePrompt,
 }: ShowcaseCardProps) {
   return (
-    <Card className="group relative h-48 overflow-hidden rounded-xl border bg-transparent p-0">
+    <Card className="group relative h-56 overflow-hidden rounded-xl border bg-transparent p-0">
       {/* Background image */}
       <div
         className="absolute inset-0 bg-cover bg-start transition-all duration-300 group-hover:blur-sm group-hover:brightness-75"

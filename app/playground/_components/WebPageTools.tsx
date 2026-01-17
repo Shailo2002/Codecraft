@@ -92,19 +92,27 @@ function WebPageTools({
 
   return (
     <div
-      className={`p-3 w-full border shadow rounded-b-lg flex justify-between items-center h-[7vh] bg-white`}
+      className={`p-3 w-full border shadow rounded-b-lg flex justify-between items-center h-[7vh] bg-white dark:bg-neutral-900`}
     >
       <div className="hidden md:flex items-center justify-center gap-2">
         <Button
           variant={"outline"}
-          className={`${selectedSize == "web" ? "border-primary" : null}`}
+          className={` ${
+            selectedSize == "web"
+              ? "border-primary dark:border-slate-100"
+              : null
+          }`}
           onClick={() => setSelectedScreenSize("web")}
         >
           <Monitor />
         </Button>
         <Button
           variant={"outline"}
-          className={`${selectedSize == "mobile" ? "border-primary" : null}`}
+          className={`${
+            selectedSize == "mobile"
+              ? "border-primary dark:border-slate-100"
+              : null
+          }`}
           onClick={() => setSelectedScreenSize("mobile")}
         >
           <TabletSmartphone />

@@ -9,9 +9,7 @@ import { useEffect, useState } from "react";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -53,14 +51,14 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
   }, [selectedEl]);
 
   return (
-    <div className="w-full md:w-72 shadow p-4 space-y-4 rounded-tr-lg h-[80vh] overflow-y-auto ">
+    <div className="w-full md:w-72 shadow p-4 space-y-2 rounded-tr-lg h-[82vh] overflow-hidden ">
       <div className="flex justify-between items-start">
         <h2 className="flex gap-2 items-center font-bold">
           <SwatchBook />
           Settings
         </h2>
         <div
-          className="bg-slate-200 rounded p-1 hover:bg-slate-300"
+          className="bg-slate-200 rounded p-1 hover:bg-slate-300 dark:bg-neutral-700 dark:hover:bg-neutral-600"
           onClick={() => clearSelection()}
         >
           <X size={16} />
@@ -93,31 +91,36 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
           <div>
             <input
               type="color"
-              className="w-11 h-11 rounded-2xl"
+              className="w-11 h-11"
               onChange={(e) => handleChange("color", e.target.value)}
             />
           </div>
         </div>
       </div>
 
-      <div className="mt-2">
+      <div className="">
         <label className="text-sm">Text Alignment</label>
-        <div className="bg-neutral-200 flex justify-around items-center p-0.5 mt-1 rounded">
+        <div className="bg-transparent dark:bg-neutral-800 border border-input flex gap-2 items-center mt-1 rounded-lg">
           <Button
-            variant={"ghost"}
-            onClick={(e) => handleChange("text-align", "start")}
+            variant="ghost"
+            className="flex-1 flex justify-center hover:bg-slate-200 hover:dark:bg-neutral-700"
+            onClick={() => handleChange("text-align", "start")}
           >
             <TextAlignStart />
           </Button>
+
           <Button
-            variant={"ghost"}
-            onClick={(e) => handleChange("text-align", "center")}
+            variant="ghost"
+            className="flex-1 flex justify-center hover:bg-slate-200 hover:dark:bg-neutral-700"
+            onClick={() => handleChange("text-align", "center")}
           >
             <TextAlignCenter />
           </Button>
+
           <Button
-            variant={"ghost"}
-            onClick={(e) => handleChange("text-align", "end")}
+            variant="ghost"
+            className="flex-1 flex justify-center hover:bg-slate-200 hover:dark:bg-neutral-700"
+            onClick={() => handleChange("text-align", "end")}
           >
             <TextAlignEnd />
           </Button>
@@ -130,7 +133,7 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
           <div>
             <input
               type="color"
-              className="w-11 h-11 rounded-2xl"
+              className="w-11 h-11"
               onChange={(e) => handleChange("background-color", e.target.value)}
             />
           </div>
@@ -162,13 +165,13 @@ function ElementSettingSection({ selectedEl, clearSelection }: Props) {
         />
       </div>
 
-      <div className="mt-2 flex flex-col gap-1 border border-slate-200 rounded-lg p-2 ">
+      <div className="mt-4 flex flex-col gap-1 border border-slate-200 dark:border-neutral-500 rounded-lg p-2 ">
         <label className="text-sm">Classes</label>
-        <div className="flex flex-wrap gap-2 max-h-60 overflow-y-auto border-t mt-2">
+        <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto border-t mt-2">
           {classes.map((value, key) => (
             <div
               key={key}
-              className="flex items-center gap-2 bg-slate-200 px-3 py-1 rounded-2xl border border-slate-300 leading-none"
+              className="flex items-center gap-2 bg-slate-200 dark:bg-neutral-800 px-3 py-1 rounded-2xl border border-slate-300 dark:border-neutral-600 leading-none"
             >
               <span className="leading-none">{value}</span>
               <X

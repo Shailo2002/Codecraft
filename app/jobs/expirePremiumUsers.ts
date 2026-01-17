@@ -17,6 +17,7 @@ export async function expirePremiumUsers() {
     },
   });
 
+
   for (const user of expiredUsers) {
     let newCredit = 2;
     if (user?._count?.projects >= 2) {

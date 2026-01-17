@@ -7,14 +7,14 @@ export const showCaseProjects = [
     previewImage:
       "https://ik.imagekit.io/yga9zy0ujk/Screenshot%202026-01-12%20at%2010.01.19%E2%80%AFAM.png",
   },
-  // {
-  //   title: "Cafe WebPage",
-  //   website_prompt:
-  //     "Please generate a beautiful, realistic landing page for a service that provides the ultimate coffee enthusiast a $200/month subscription that provides equipment rental and coaching for coffee roasting and creating the ultimate espresso. The target audience is a bay area middle-aged person who might work in tech and is educated, has disposable income, and is passionate about the art and science of coffee. Optimize for conversion for a 6 month signup.",
-  //   link: " https://15-1768179859774.vercel.app/",
-  //   previewImage:
-  //     "https://ik.imagekit.io/yga9zy0ujk/Screenshot%202026-01-12%20at%2010.05.36%E2%80%AFAM.png",
-  // },
+  {
+    title: "Cafe WebPage",
+    website_prompt:
+      "Please generate a beautiful, realistic landing page for a service that provides the ultimate coffee enthusiast a $200/month subscription that provides equipment rental and coaching for coffee roasting and creating the ultimate espresso. The target audience is a bay area middle-aged person who might work in tech and is educated, has disposable income, and is passionate about the art and science of coffee. Optimize for conversion for a 6 month signup.",
+    link: " https://15-1768179859774.vercel.app/",
+    previewImage:
+      "https://ik.imagekit.io/yga9zy0ujk/Screenshot%202026-01-12%20at%2010.05.36%E2%80%AFAM.png",
+  },
   {
     title: "AlphaQubit WebPage",
     website_prompt: `Create a premium, single-file scientific landing page for the AlphaQubit research paper (Nature 2024) using the provided HTML/CDN template.
@@ -64,4 +64,31 @@ export const showCaseProjects = [
     previewImage:
       "https://ik.imagekit.io/yga9zy0ujk/Screenshot%202026-01-12%20at%2010.04.05%E2%80%AFAM.png",
   },
+
+  //duplicates
+  {
+    title: "Cafe WebPage",
+    website_prompt:
+      "Please generate a beautiful, realistic landing page for a service that provides the ultimate coffee enthusiast a $200/month subscription that provides equipment rental and coaching for coffee roasting and creating the ultimate espresso. The target audience is a bay area middle-aged person who might work in tech and is educated, has disposable income, and is passionate about the art and science of coffee. Optimize for conversion for a 6 month signup.",
+    link: " https://15-1768179859774.vercel.app/",
+    previewImage:
+      "https://ik.imagekit.io/yga9zy0ujk/Screenshot%202026-01-12%20at%2010.05.36%E2%80%AFAM.png",
+  },
+  {
+    title: "AlphaQubit WebPage",
+    website_prompt: `Create a premium, single-file scientific landing page for the AlphaQubit research paper (Nature 2024) using the provided HTML/CDN template.
+                    Technical Requirements:
+                    Immersive Hero: Use Vanta.net (configured with THREE) for a deep-charcoal and gold (#C5A059) quantum network background. Initialize Typed.js for a dynamic sub-headline about 'AI-driven error correction'.
+                    Smooth Experience: Implement Lenis for momentum scrolling and AOS (Animate On Scroll) for elegant fade-in-up transitions on all text blocks.
+                    Interactive Science:
+                    Build a Surface Code Grid using Vanilla JS and Tailwind. Clicking 'Data Qubits' (circles) must toggle their state and programmatically highlight 'Stabilizer' (squares) based on parity logic.
+                    Apply Vanilla-Tilt to the Author cards for a premium 3D hover effect.
+                    UI/UX: Use Lucide-React icons for navigation and Flowbite for a sticky glassmorphism navbar and a responsive footer.
+                    Visual Language: Use the 'Nobel Gold' (#C5A059) and Stone White palette. Use Playfair Display for headers and Inter for body text.
+                    Structure: Hero Section -> The Noise Barrier (Intro) -> Interactive Decoder Diagram -> Performance Comparison Bar Chart -> The Research Team (Tilt Cards).
+                    `,
+    link: "https://34-1768183034167.vercel.app/",
+    previewImage:
+      "https://ik.imagekit.io/yga9zy0ujk/Screenshot%202026-01-12%20at%2010.02.28%E2%80%AFAM.png",
+  }
 ];

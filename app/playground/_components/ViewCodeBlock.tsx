@@ -20,7 +20,7 @@ export function ViewCodeBlock({ children, code }: any) {
             <CopyTextButton text={code} />
           </DialogTitle>
           <DialogDescription>
-            <div className="max-w-[86vw] pr-6 lg:max-w-[1000px] overflow-auto rounded-lg">
+            <div className="max-w-[86vw] pr-6 lg:max-w-[1000px] overflow-auto rounded-lg ">
               <SyntaxHighlighter>{code}</SyntaxHighlighter>
             </div>
           </DialogDescription>
