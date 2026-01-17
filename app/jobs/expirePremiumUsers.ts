@@ -6,9 +6,7 @@ export async function expirePremiumUsers() {
       plan: "PREMIUM",
       premiumExpiresAt: { lt: new Date(), not: null },
     },
-    select: {
-      id: true,
-      credits: true,
+    include: {
       _count: {
         select: {
           projects: true,
@@ -17,17 +15,22 @@ export async function expirePremiumUsers() {
     },
   });
 
+  console.log("expiredUser : ", expiredUsers);
 
-  for (const user of expiredUsers) {
-    let newCredit = 2;
-    if (user?._count?.projects >= 2) {
-      newCredit = 0;
-    } else if (user?._count?.projects === 1) {
-      newCredit = 1;
-    }
-    await prisma.user.update({
-      where: { id: user.id },
-      data: { credits: newCredit, premiumExpiresAt: null, plan: "FREE" },
-    });
-  }
+  // for (const user of expiredUsers) {
+  //   let newCredit = 2;
+
+  //   const projectCount = user._count?.projects ?? 0;
+
+  //   if (projectCount >= 2) {
+  //     newCredit = 0;
+  //   } else if (projectCount === 1) {
+  //     newCredit = 1;
+  //   }
+
+  //   await prisma.user.update({
+  //     where: { id: user.id },
+  //     data: { credits: newCredit, premiumExpiresAt: null, plan: "FREE" },
+  //   });
+  // }
 }

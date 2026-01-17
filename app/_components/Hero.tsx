@@ -38,7 +38,7 @@ function Hero({ user }: { user?: UserType }) {
       });
 
       if (!response?.ok) {
-        toast.error(response?.error || "Failed to create project");
+        toast.error("Failed to create project");
         return;
       }
 
