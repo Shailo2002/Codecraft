@@ -9,6 +9,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Spinner } from "@/components/ui/spinner";
+import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { Check } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -26,6 +27,7 @@ export function PaymentModel({
   const [loading, setLoading] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState("");
   const router = useRouter();
+  const { user } = useUser();
 
   const handlePayment = async (
     type: string,
@@ -46,23 +48,27 @@ export function PaymentModel({
       const options = {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         name: "CodeCraft",
-        description: "Test Transaction",
+        description: "Premium Plan",
+        image:
+          "https://ik.imagekit.io/yga9zy0ujk/logosymbol.svg?updatedAt=1767812213851",
         order_id: isSubscription ? undefined : paymentData.id,
         subscription_id: isSubscription ? paymentData.id : undefined,
 
         handler: async function (response: any) {
           await axios.post("/api/razorpay/verify", { ...response, type });
           toast.success("Payment Successful!");
-          router.refresh();
+          router.push(
+            `/payment-success?payment_id=${response.razorpay_payment_id}`
+          );
         },
 
         prefill: {
-          name: "Gaurav Kumar",
-          email: "gaurav.kumar@example.com",
-          contact: "9999999999",
+          name: user?.fullName || "",
+          email: user?.primaryEmailAddress?.emailAddress || "",
+          contact: "",
         },
         theme: {
-          color: "#F37254",
+          color: "#012652",
         },
       };
 
@@ -72,11 +78,22 @@ export function PaymentModel({
         console.error("Payment Failed:", response.error);
         toast.error(response.error.description);
 
-        await axios.post("/api/razorpay/payment-failure", {
-          order_id: response.error.metadata.order_id,
-          payment_id: response.error.metadata.payment_id,
-          reason: response.error.reason,
-        });
+        const paymentId = response.error.metadata.payment_id || "";
+
+        const reason = encodeURIComponent(
+          response.error.description || "Transaction cancelled"
+        );
+        try {
+          await axios.post("/api/razorpay/payment-failure", {
+            order_id: response.error.metadata.order_id,
+            payment_id: response.error.metadata.payment_id,
+            reason: response.error.reason,
+          });
+        } catch (err) {
+          console.error("Log failed", err);
+        }
+
+        router.push(`/payment-cancel?reason=${reason}&payment_id=${paymentId}`);
       });
       onOpenChange(false);
       rzp.open();

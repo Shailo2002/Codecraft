@@ -59,7 +59,7 @@ function Header({ user }: { user: UserType }) {
           </SignInButton>
         ) : (
           <Link href={"/workspace"}>
-            <Button className="hover:cursor-pointer">Get Started</Button>
+            <Button className="hover:cursor-pointer">WorkSpace</Button>
           </Link>
         )}
       </div>
