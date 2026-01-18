@@ -8,15 +8,16 @@ import { UserType } from "@/types";
 import { ModeToggle } from "./mode-toggle";
 
 const menuOptions = [
-  { name: "Pricing", path: "/pricing" },
+  { name: "terms", path: "/terms" },
+  { name: "privacy", path: "/privacy" },
+  { name: "refund", path: "/refund" },
   {
     name: "Contact Us",
-    path: "/contact-us",
+    path: "/contact",
   },
 ];
 
 function Header({ user }: { user: UserType }) {
-
   return (
     <div className="top-0 left-0 flex justify-between items-center p-4 shadow-lg h-[8vh] bg-opacity-0 ">
       {/* logo  */}
@@ -38,8 +39,8 @@ function Header({ user }: { user: UserType }) {
       {/* menu options */}
       <div className="hidden md:block flex gap-2">
         {menuOptions.map((menu, key) => (
-          <Button variant={"ghost"} key={key}>
-            {menu?.name}
+          <Button variant="ghost" key={key} asChild>
+            <Link href={menu?.path}>{menu?.name}</Link>
           </Button>
         ))}
       </div>

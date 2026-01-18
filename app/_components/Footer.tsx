@@ -28,7 +28,7 @@ const footerSections = [
       },
       {
         title: "Pricing",
-        href: "#",
+        href: "/pricing",
       },
     ],
   },
@@ -70,7 +70,7 @@ const footerSections = [
       },
       {
         title: "Contact",
-        href: "#",
+        href: "/contact",
       },
     ],
   },

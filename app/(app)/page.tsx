@@ -10,9 +10,6 @@ import ShowCase from "../_components/ShowCase";
 
 export default async function Home() {
   const user = (await getCurrentDbUser()) as UserType;
-  if (user) {
-    redirect("/workspace");
-  }
 
   return (
     <div className="lock-scroll">
