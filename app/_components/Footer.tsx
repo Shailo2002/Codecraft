@@ -15,37 +15,29 @@ const footerSections = [
     title: "Platform",
     links: [
       {
-        title: "AI Builder",
-        href: "#",
-      },
-      {
-        title: "Templates",
-        href: "#",
-      },
-      {
-        title: "Integrations",
+        title: "AI Website Builder",
         href: "#",
       },
       {
         title: "Pricing",
         href: "/pricing",
       },
+      {
+        title: "Templates",
+        href: "#",
+      },
     ],
   },
   {
-    title: "Resources",
+    title: "Support",
     links: [
       {
-        title: "Documentation",
-        href: "#",
+        title: "Contact Us",
+        href: "/contact",
       },
       {
-        title: "API Reference",
-        href: "#",
-      },
-      {
-        title: "Community",
-        href: "#",
+        title: "Shipping Policy",
+        href: "/shipping",
       },
       {
         title: "Help Center",
@@ -54,23 +46,19 @@ const footerSections = [
     ],
   },
   {
-    title: "Company",
+    title: "Legal",
     links: [
       {
-        title: "About Us",
-        href: "#",
+        title: "Privacy Policy",
+        href: "/privacy",
       },
       {
-        title: "Careers",
-        href: "#",
+        title: "Terms & Conditions",
+        href: "/terms",
       },
       {
-        title: "Blog",
-        href: "#",
-      },
-      {
-        title: "Contact",
-        href: "/contact",
+        title: "Refund Policy",
+        href: "/refund",
       },
     ],
   },
@@ -84,7 +72,7 @@ const Footer = () => {
         <div className="max-w-(--breakpoint-xl) mx-auto">
           <div className="py-12 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-x-8 gap-y-10 px-6 xl:px-0">
             <div className="col-span-full xl:col-span-2">
-              {/* Logo - Assuming 'Codecraft' is the name based on context */}
+              {/* Logo */}
               <Image
                 src={"/logo_black_white.svg"}
                 alt="logo"
@@ -109,13 +97,13 @@ const Footer = () => {
 
             {footerSections.map(({ title, links }) => (
               <div key={title} className="text-muted-foreground">
-                <h6 className="font-semibold mb-6">{title}</h6>
+                <h6 className="font-semibold mb-6 text-foreground">{title}</h6>
                 <ul className="space-y-4">
                   {links.map(({ title, href }) => (
                     <li key={title}>
                       <Link
                         href={href}
-                        className="text-sm text-muted-foreground transition-colors"
+                        className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                       >
                         {title}
                       </Link>
@@ -127,7 +115,7 @@ const Footer = () => {
 
             {/* Subscribe Newsletter */}
             <div className="col-span-2">
-              <h6 className="font-semibold mb-2">
+              <h6 className="font-semibold mb-2 text-foreground">
                 Join the revolution
               </h6>
               <p className="text-sm text-muted-foreground mb-6">
@@ -139,9 +127,7 @@ const Footer = () => {
                   placeholder="Enter your email"
                   className="grow placeholder:text-muted-foreground focus-visible:ring-offset-0 focus-visible:ring-1 focus-visible:ring-white"
                 />
-                <Button >
-                  Subscribe
-                </Button>
+                <Button>Subscribe</Button>
               </form>
             </div>
           </div>
@@ -152,7 +138,10 @@ const Footer = () => {
             {/* Copyright */}
             <span className="text-sm">
               &copy; {new Date().getFullYear()}{" "}
-              <Link href="/" className="hover:text-white transition-colors">
+              <Link
+                href="/"
+                className="hover:text-foreground transition-colors"
+              >
                 Codecraft Inc
               </Link>
               . All rights reserved.
@@ -162,21 +151,21 @@ const Footer = () => {
               <Link
                 href="#"
                 target="_blank"
-                className="hover:text-white transition-colors"
+                className="hover:text-foreground transition-colors"
               >
                 <TwitterIcon className="h-5 w-5" />
               </Link>
               <Link
                 href="#"
                 target="_blank"
-                className="hover:text-white transition-colors"
+                className="hover:text-foreground transition-colors"
               >
                 <GithubIcon className="h-5 w-5" />
               </Link>
               <Link
                 href="#"
                 target="_blank"
-                className="hover:text-white transition-colors"
+                className="hover:text-foreground transition-colors"
               >
                 <DribbbleIcon className="h-5 w-5" />
               </Link>

@@ -4,7 +4,7 @@ import { ShowcaseCard } from "./ShowcaseCardProps";
 
 function ShowCase() {
   return (
-    <div className="hidden lg:block">
+    <div className="block">
       {/* project showcase */}
       <div className="bg-neutral-950 p-8">
         <div className="p-4">
