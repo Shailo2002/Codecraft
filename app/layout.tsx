@@ -22,13 +22,27 @@ export const metadata: Metadata = {
     apple: "/apple-touch-icon.png",
   },
   openGraph: {
+    title: "CodeCraft",
+    description: "AI website builder",
+    url: "https://codecraft.shaileshiitr.site",
+    siteName: "CodeCraft",
     images: [
       {
-        url: "http://localhost:3000/og-image.png",
+        url: "https://codecraft.shaileshiitr.site/og-image.png",
         width: 1200,
         height: 630,
+        alt: "CodeCraft – AI Website Builder",
       },
     ],
+    locale: "en_US",
+    type: "website",
+  },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "CodeCraft",
+    description: "AI website builder",
+    images: ["https://codecraft.shaileshiitr.site/og-image.png"],
   },
 };
 
