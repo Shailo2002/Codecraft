@@ -5,6 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "@/components/ui/spinner";
 import SelectModel from "@/app/_components/SelectModel";
 import { ChatMessage, UserType } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type Props = {
   messages: ChatMessage[];
@@ -80,6 +81,15 @@ function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
                 </div>
               </div>
             ))
+          )}
+          {loading && (
+            <div className={`flex justify-start`}>
+              <Skeleton
+                className={`p-4 rounded-lg w-[80%] text-start overflow-hidden whitespace-pre-wrap bg-gray-100 dark:bg-neutral-700 break-words break-all`}
+              >
+                🤖 : Generating your website…
+              </Skeleton>
+            </div>
           )}
           <div ref={bottomRef} />
         </div>

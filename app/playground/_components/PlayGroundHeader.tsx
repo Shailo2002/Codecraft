@@ -31,7 +31,7 @@ function PlayGroundHeader({
   const [deploying, setDeploying] = useState(false);
   const [deployedUrl, setDeployedUrl] = useState<string | null>(null);
   const upgrade = useUpgradeModal();
-  const path = usePathname()
+  const path = usePathname();
 
   const handleDeploy = async () => {
     if (!code) {
@@ -46,7 +46,7 @@ function PlayGroundHeader({
     }
 
     const url = await getDeploymentUrl(projectId);
-
+    console.log("deployed url : ", url);
     if (url) {
       setDeployedUrl(url);
     } else {
@@ -104,7 +104,7 @@ function PlayGroundHeader({
         console.log("error : ", deployError);
         toast.error(
           (deployError?.response?.data as any)?.message ||
-            "Deployment failed. Check console."
+            "Deployment failed. Check console.",
         );
       } finally {
         setDeploying(false);
@@ -113,13 +113,15 @@ function PlayGroundHeader({
   };
 
   return (
-    <div className={`relative flex justify-between items-center p-4 ${path === "/playground" ? "shadow" : ""} h-[8.75vh]`}>
+    <div
+      className={`relative flex justify-between items-center p-4 ${path === "/playground" ? "shadow" : ""} h-[8.75vh]`}
+    >
       <Link href={"/workspace"}>
         <Image src={"/logo.svg"} alt="logo" width={140} height={140} />
       </Link>
 
       <div className="flex justify-center items-center gap-4">
-        <ModeToggle/>
+        <ModeToggle />
         <Button
           onClick={handleDeploy}
           disabled={deploying}

@@ -7,7 +7,7 @@ export const getDeploymentUrl = cache(async (projectId: string) => {
   try {
 
     const projects = await prisma.project.findFirst({
-      where: { id: projectId },
+      where: { projectId: projectId },
     });
 
     return projects?.deploymentUrl;

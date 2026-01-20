@@ -48,77 +48,77 @@ function WebsiteDesign({
     if (root) root.innerHTML = finalcode;
   }, [generatedCode]);
 
-  // useEffect(() => {
-  //   if (!iframeRef.current) return;
-  //   const doc = iframeRef.current.contentDocument;
-  //   if (!doc) return;
+  useEffect(() => {
+    if (!iframeRef.current) return;
+    const doc = iframeRef.current.contentDocument;
+    if (!doc) return;
 
-  //   let hoverEl: HTMLElement | null = null;
-  //   let selectedEl: HTMLElement | null = null;
+    let hoverEl: HTMLElement | null = null;
+    let selectedEl: HTMLElement | null = null;
 
-  //   const handleMouseOver = (e: MouseEvent) => {
-  //     if (selectedEl) return;
-  //     const target = e.target as HTMLElement;
-  //     if (hoverEl && hoverEl !== target) {
-  //       hoverEl.style.outline = "";
-  //     }
-  //     hoverEl = target;
-  //     hoverEl.style.outline = "2px dotted blue";
-  //   };
+    const handleMouseOver = (e: MouseEvent) => {
+      if (selectedEl) return;
+      const target = e.target as HTMLElement;
+      if (hoverEl && hoverEl !== target) {
+        hoverEl.style.outline = "";
+      }
+      hoverEl = target;
+      hoverEl.style.outline = "2px dotted blue";
+    };
 
-  //   const handleMouseOut = (e: MouseEvent) => {
-  //     if (selectedEl) return;
-  //     if (hoverEl) {
-  //       hoverEl.style.outline = "";
-  //       hoverEl = null;
-  //     }
-  //   };
+    const handleMouseOut = (e: MouseEvent) => {
+      if (selectedEl) return;
+      if (hoverEl) {
+        hoverEl.style.outline = "";
+        hoverEl = null;
+      }
+    };
 
-  //   const handleClick = (e: MouseEvent) => {
-  //     e.preventDefault();
-  //     e.stopPropagation();
-  //     const target = e.target as HTMLElement;
+    const handleClick = (e: MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const target = e.target as HTMLElement;
 
-  //     if (selectedEl && selectedEl !== target) {
-  //       selectedEl.style.outline = "";
-  //       selectedEl.removeAttribute("contenteditable");
-  //     }
+      if (selectedEl && selectedEl !== target) {
+        selectedEl.style.outline = "";
+        selectedEl.removeAttribute("contenteditable");
+      }
 
-  //     selectedEl = target;
-  //     setSelectedElement(selectedEl);
-  //     selectedEl.style.outline = "2px solid red";
-  //     selectedEl.setAttribute("contenteditable", "true");
-  //     selectedEl.focus();
-  //   };
+      selectedEl = target;
+      setSelectedElement(selectedEl);
+      selectedEl.style.outline = "2px solid red";
+      selectedEl.setAttribute("contenteditable", "true");
+      selectedEl.focus();
+    };
 
-  //   const handleBlur = () => {
-  //     if (selectedEl) {
-  //       console.log("Final edited element:", selectedEl.outerHTML);
-  //     }
-  //   };
+    const handleBlur = () => {
+      if (selectedEl) {
+        console.log("Final edited element:", selectedEl.outerHTML);
+      }
+    };
 
-  //   const handleKeyDown = (e: KeyboardEvent) => {
-  //     if (e.key === "Escape" && selectedEl) {
-  //       selectedEl.style.outline = "";
-  //       selectedEl.removeAttribute("contenteditable");
-  //       selectedEl.removeEventListener("blur", handleBlur);
-  //       selectedEl = null;
-  //     }
-  //   };
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && selectedEl) {
+        selectedEl.style.outline = "";
+        selectedEl.removeAttribute("contenteditable");
+        selectedEl.removeEventListener("blur", handleBlur);
+        selectedEl = null;
+      }
+    };
 
-  //   doc.body?.addEventListener("mouseover", handleMouseOver);
-  //   doc.body?.addEventListener("mouseout", handleMouseOut);
-  //   doc.body?.addEventListener("click", handleClick);
-  //   doc?.addEventListener("keydown", handleKeyDown);
+    doc.body?.addEventListener("mouseover", handleMouseOver);
+    doc.body?.addEventListener("mouseout", handleMouseOut);
+    doc.body?.addEventListener("click", handleClick);
+    doc?.addEventListener("keydown", handleKeyDown);
 
-  //   // Cleanup on unmount
-  //   return () => {
-  //     doc.body?.removeEventListener("mouseover", handleMouseOver);
-  //     doc.body?.removeEventListener("mouseout", handleMouseOut);
-  //     doc.body?.removeEventListener("click", handleClick);
-  //     doc?.removeEventListener("keydown", handleKeyDown);
-  //   };
-  // }, [generatedCode]);
+    // Cleanup on unmount
+    return () => {
+      doc.body?.removeEventListener("mouseover", handleMouseOver);
+      doc.body?.removeEventListener("mouseout", handleMouseOut);
+      doc.body?.removeEventListener("click", handleClick);
+      doc?.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [generatedCode]);
 
   return (
     <div className="flex gap-2 w-full h-[89vh] ">

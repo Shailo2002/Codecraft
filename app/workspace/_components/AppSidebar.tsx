@@ -86,7 +86,7 @@ export function AppSidebar({
                       <SidebarMenuItem>
                         <SidebarMenuButton asChild>
                           <Link
-                            href={`/playground/${item?.id}?frameId=${item?.frames[0]?.frameId}`}
+                            href={`/playground/${item?.projectId}?frameId=${item?.frames[0]?.frameId}`}
                           >
                             <div className="flex items-center justify-between w-full">
                               {/* Project name */}
