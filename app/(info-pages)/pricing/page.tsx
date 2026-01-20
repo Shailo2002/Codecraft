@@ -1,7 +1,7 @@
 import { ArrowLeft, ShieldCheck } from "lucide-react";
-import PricingDisplay from "../_components/PricingSection";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import PricingDisplay from "@/app/_components/PricingSection";
 
 export default function PricingPage() {
   return (
