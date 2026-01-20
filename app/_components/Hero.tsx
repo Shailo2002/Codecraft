@@ -27,7 +27,6 @@ function Hero({ user }: { user?: UserType }) {
   const CreateNewProject = async () => {
     setLoading(true);
     try {
-
       if (!userInput || userInput?.trim() === "") {
         toast.error("no message found");
         return;
@@ -36,7 +35,6 @@ function Hero({ user }: { user?: UserType }) {
       const response = await createProject({
         chatMessage: [{ role: "user", content: userInput }],
       });
-
 
       if (!response?.ok) {
         toast.error("Failed to create project");
@@ -48,8 +46,8 @@ function Hero({ user }: { user?: UserType }) {
       toast.success("Project initiated!");
       router.push(
         `/playground/${data.projectId}?frameId=${encodeURIComponent(
-          data.frameId
-        )}&modelName=${encodeURIComponent(model)}`
+          data.frameId,
+        )}&modelName=${encodeURIComponent(model)}`,
       );
     } catch {
       toast.error("Something went wrong. Please try again.");
@@ -83,18 +81,18 @@ function Hero({ user }: { user?: UserType }) {
       <div className="flex flex-col justify-center items-center">
         <h1 className="text-5xl text-center md:text-6xl font-extrabold tracking-tight text-balance">
           What should we design?
-          {/* <span className="bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">
-            design?
-          </span> */}
         </h1>
 
-        <h4 className="text-lg text-center mt-2 md:text-xl tracking-tight">
+        <h2 className="text-lg text-center mt-2 md:text-xl tracking-tight">
           Generate, Edit and Explore design with AI. Export to code.
-        </h4>
+        </h2>
       </div>
 
       {/* input */}
-      <div className="not-only-of-type:relative w-full max-w-2xl p-4 mt-5 border rounded-2xl bg-white  dark:bg-neutral-900 ">
+      <div
+        className="not-only-of-type:relative w-full max-w-2xl p-4 mt-5 border rounded-2xl bg-white  dark:bg-neutral-900"
+        id="Ai-Website-Builder"
+      >
         <textarea
           ref={textareaRef}
           placeholder="Describe your page design"
@@ -123,22 +121,35 @@ function Hero({ user }: { user?: UserType }) {
         />
 
         <div className="flex justify-between items-center">
-          <Button variant={"ghost"}>
-            <ImagePlus />
+          <Button variant={"ghost"} id="image-input" aria-label="Upload image">
+            <ImagePlus aria-hidden="true" />
           </Button>
 
           {!user ? (
             <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
-              <Button size={"icon"} disabled={!userInput || loading}>
-                <ArrowUp />
+              <Button
+                size={"icon"}
+                disabled={!userInput || loading}
+                id="auth-check-gen-web"
+                aria-label="Generate website"
+              >
+                <ArrowUp aria-hidden="true" />
               </Button>
             </SignInButton>
           ) : (
             <Button
               onClick={() => CreateNewProject()}
               disabled={!userInput || loading}
+              id="generate-website"
             >
-              {loading ? <Loader2Icon className="animate-spin" /> : <ArrowUp />}
+              {loading ? (
+                <>
+                  <span className="sr-only">Generating website</span>
+                  <Loader2Icon className="animate-spin" aria-hidden="true" />
+                </>
+              ) : (
+                <ArrowUp aria-hidden="true" />
+              )}{" "}
             </Button>
           )}
         </div>

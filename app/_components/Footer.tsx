@@ -16,7 +16,7 @@ const footerSections = [
     links: [
       {
         title: "AI Website Builder",
-        href: "#",
+        href: "#Ai-Website-Builder",
       },
       {
         title: "Pricing",
@@ -24,7 +24,7 @@ const footerSections = [
       },
       {
         title: "Templates",
-        href: "#",
+        href: "#Templates",
       },
     ],
   },
@@ -41,7 +41,7 @@ const footerSections = [
       },
       {
         title: "Help Center",
-        href: "#",
+        href: "/contact",
       },
     ],
   },
@@ -97,7 +97,7 @@ const Footer = () => {
 
             {footerSections.map(({ title, links }) => (
               <div key={title} className="text-muted-foreground">
-                <h6 className="font-semibold mb-6 text-foreground">{title}</h6>
+                <h1 className="font-semibold mb-6 text-foreground">{title}</h1>
                 <ul className="space-y-4">
                   {links.map(({ title, href }) => (
                     <li key={title}>
@@ -148,27 +148,32 @@ const Footer = () => {
             </span>
 
             <div className="flex items-center gap-5">
-              <Link
-                href="#"
-                target="_blank"
-                className="hover:text-foreground transition-colors"
+              <button
+                type="button"
+                aria-label="Twitter (coming soon)"
+                className="hover:text-foreground transition-colors opacity-60 cursor-not-allowed"
+                disabled
               >
-                <TwitterIcon className="h-5 w-5" />
-              </Link>
-              <Link
-                href="#"
-                target="_blank"
-                className="hover:text-foreground transition-colors"
+                <TwitterIcon className="h-5 w-5" aria-hidden="true" />
+              </button>
+
+              <button
+                type="button"
+                aria-label="GitHub repository (coming soon)"
+                className="hover:text-foreground transition-colors opacity-60 cursor-not-allowed"
+                disabled
               >
-                <GithubIcon className="h-5 w-5" />
-              </Link>
-              <Link
-                href="#"
-                target="_blank"
-                className="hover:text-foreground transition-colors"
+                <GithubIcon className="h-5 w-5" aria-hidden="true" />
+              </button>
+
+              <button
+                type="button"
+                aria-label="Dribbble profile (coming soon)"
+                className="hover:text-foreground transition-colors opacity-60 cursor-not-allowed"
+                disabled
               >
-                <DribbbleIcon className="h-5 w-5" />
-              </Link>
+                <DribbbleIcon className="h-5 w-5" aria-hidden="true" />
+              </button>
             </div>
           </div>
         </div>

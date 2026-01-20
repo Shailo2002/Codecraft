@@ -22,7 +22,7 @@ export default function RefundPage() {
           </div>
           <Link href="/">
             <Button variant="ghost" size="sm">
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-4 h-4 mr-2" aria-hidden="true" />
               Back
             </Button>
           </Link>

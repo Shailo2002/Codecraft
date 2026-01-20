@@ -53,7 +53,7 @@ function Header({ user }: { user: UserType }) {
         </div>
         {!user ? (
           <SignInButton mode="modal" forceRedirectUrl={"/workspace"}>
-            <Button className="hover:cursor-pointer" variant={"default"}>
+            <Button className="hover:cursor-pointer" variant={"default"} >
               Get Started
             </Button>
           </SignInButton>

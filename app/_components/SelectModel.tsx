@@ -26,7 +26,11 @@ function SelectModel({
 }: Props) {
   return (
     <Select value={model} onValueChange={(value) => handleSetModel(value)}>
+      <label htmlFor="model-select" className="sr-only">
+        Select AI model
+      </label>
       <SelectTrigger
+        id="model-select"
         className={`w-[${width}] border-none shadow-none ring-0 outline-none ${className}`}
       >
         <SelectValue placeholder="Select a model" />

@@ -6,11 +6,11 @@ function ShowCase() {
   return (
     <div className="block">
       {/* project showcase */}
-      <div className="bg-neutral-950 p-8">
+      <div className="bg-neutral-950 p-8" id="Templates">
         <div className="p-4">
-          <h4 className="text-lg text-center md:text-xl tracking-tight">
+          <h1 className="text-lg text-center md:text-xl tracking-tight">
             ShowCase
-          </h4>
+          </h1>
         </div>
 
         <div className="p-4 flex flex-wrap justify-center gap-8">
