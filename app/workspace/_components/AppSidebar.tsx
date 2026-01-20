@@ -39,6 +39,7 @@ export function AppSidebar({
   const [position, setPosition] = useState("bottom");
   const upgrade = useUpgradeModal();
 
+ 
   return (
     <Sidebar className="dark:bg-neutral-900">
       <SidebarHeader className="dark:bg-neutral-900">

@@ -2,14 +2,14 @@ import { expirePremiumUsers } from "@/app/jobs/expirePremiumUsers";
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function GET(req: NextRequest) {
-  // const authHeader = req.headers.get("authorization");
+  const authHeader = req.headers.get("authorization");
 
-  // if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
-  //   return NextResponse.json(
-  //     { success: false, message: "Unauthorized" },
-  //     { status: 401 }
-  //   );
-  // }
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+    return NextResponse.json(
+      { success: false, message: "Unauthorized" },
+      { status: 401 }
+    );
+  }
 
   console.log("CRON FIRED AT:", new Date().toISOString());
 

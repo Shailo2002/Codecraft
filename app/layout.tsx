@@ -21,6 +21,15 @@ export const metadata: Metadata = {
     shortcut: "/logosymbol.svg",
     apple: "/apple-touch-icon.png",
   },
+  openGraph: {
+    images: [
+      {
+        url: "http://localhost:3000/og-image.png",
+        width: 1200,
+        height: 630,
+      },
+    ],
+  },
 };
 
 export default function RootLayout({

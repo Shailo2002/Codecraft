@@ -1,4 +1,5 @@
-import { gptPrompt } from "@/app/constants/prompt";
+import { gptPrompt, testingPrompt } from "@/app/constants/prompt";
+import { templateHtml } from "@/app/constants/templateHtml";
 import prisma from "@/lib/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
@@ -10,7 +11,7 @@ const openai = new OpenAI({
 
 export async function POST(req: NextRequest) {
   try {
-    const { messages, modelName } = await req.json();
+    const { messages, modelName, generatedCode } = await req.json();
 
     const userDetail = await currentUser();
 
@@ -46,9 +47,18 @@ export async function POST(req: NextRequest) {
       }
     }
 
+    const codeContext = (generatedCode || generatedCode === templateHtml)
+      ? `\n\nHere is the current code context the user is working on:\n\`\`\`\n${generatedCode}\n\`\`\``
+      : "";
+
+    const finalSystemInstruction = `${testingPrompt}${codeContext}`;
+
     const completion = await openai.chat.completions.create({
       model: modelCheck || "gpt-4o-mini",
-      messages: [{ role: "system", content: gptPrompt }, ...messages],
+      messages: [
+        { role: "system", content: finalSystemInstruction },
+        ...messages,
+      ],
       stream: true,
     });
 

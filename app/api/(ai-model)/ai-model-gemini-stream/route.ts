@@ -1,4 +1,5 @@
-import { geminiPrompt } from "@/app/constants/prompt";
+import { geminiPrompt, testingPrompt } from "@/app/constants/prompt";
+import { templateHtml } from "@/app/constants/templateHtml";
 import prisma from "@/lib/db";
 import { currentUser } from "@clerk/nextjs/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
@@ -8,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const { prompt, modelName } = await req.json();
+    const { prompt, modelName, generatedCode, messages } = await req.json();
 
     const userDetail = await currentUser();
 
@@ -17,7 +18,7 @@ export async function POST(req: Request) {
         {
           message: "Authentication required",
         },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -32,7 +33,7 @@ export async function POST(req: Request) {
         {
           message: "User not found",
         },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -49,10 +50,25 @@ export async function POST(req: Request) {
       return new Response("API Key not found", { status: 500 });
     }
 
+    const codeContext = (generatedCode || generatedCode === templateHtml)
+      ? `\n\nHere is the current code context the user is working on:\n\`\`\`\n${generatedCode}\n\`\`\``
+      : "";
+
+    const finalSystemInstruction = `${testingPrompt}${codeContext}`;
+
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
       model: modelCheck || "gemini-2.5-flash",
-      systemInstruction: geminiPrompt,
+      systemInstruction: finalSystemInstruction,
+    });
+
+    const chatHistory = (messages || []).map((msg: any) => ({
+      role: msg.chatMessage[0]?.role === "assistant" ? "model" : "user",
+      parts: [{ text: msg.chatMessage[0]?.content || "" }],
+    }));
+
+    const chat = model.startChat({
+      history: chatHistory,
     });
 
     const result = await model.generateContentStream(prompt);

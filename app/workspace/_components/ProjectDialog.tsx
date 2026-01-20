@@ -48,7 +48,7 @@ export function ProjectDialog({
   const [showShareDialog, setShowShareDialog] = useState(false);
   const [showRenameDialog, setShowRenameDialog] = useState(false);
   const [newProjectName, setnewProjectName] = useState(
-    projectName || "projectName"
+    projectName || "projectName",
   );
   const [shareUrl, setShareUrl] = useState(deploymentUrl || undefined);
   const [loading, setLoading] = useState(false);

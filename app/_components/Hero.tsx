@@ -37,6 +37,7 @@ function Hero({ user }: { user?: UserType }) {
         chatMessage: [{ role: "user", content: userInput }],
       });
 
+
       if (!response?.ok) {
         toast.error("Failed to create project");
         return;

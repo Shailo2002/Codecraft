@@ -12,6 +12,7 @@ import { createChatMessage } from "@/app/actions/createChatMessage";
 import { templateHtml } from "@/app/constants/templateHtml";
 import { useRouter } from "next/navigation";
 import { useUpgradeModal } from "@/hooks/useUpgradeModal";
+import { after } from "node:test";
 
 function ClientPlayground({
   projectId,
@@ -72,7 +73,7 @@ function ClientPlayground({
       }
       await saveFrameCode({
         frameId,
-        designCode: clone.innerHTML.replace(/html/g, "").replace(/```/g, ""),
+        designCode: clone.innerHTML.replace(/```/g, ""),
       });
       toast.success("Code Saved!");
     } catch (error) {
@@ -102,7 +103,7 @@ function ClientPlayground({
       } else {
         await saveFrameCode({
           frameId,
-          designCode: tempCode.replace(/html/g, "").replace(/```/g, ""),
+          designCode: tempCode.replace(/```/g, ""),
         });
         toast.success("Website is Ready!");
       }
@@ -115,6 +116,9 @@ function ClientPlayground({
   const handleGpt = async (userInput: string, model: string) => {
     try {
       setLoading(true);
+      const tempCode = generatedCode.includes(templateHtml)
+        ? ""
+        : generatedCode;
       setGeneratedCode("");
 
       const res = await fetch("/api/ai-model-openai", {
@@ -127,6 +131,7 @@ function ClientPlayground({
             },
           ],
           modelName: model,
+          generatedCode: tempCode,
         }),
       });
 
@@ -164,10 +169,13 @@ function ClientPlayground({
 
               const startIdx = aiResponse.indexOf("AICODE :");
               if (startIdx !== -1) {
-                const afterFence = aiResponse.slice(startIdx + 9);
+                const afterFence = aiResponse.slice(startIdx + 8);
                 const textBefore = aiResponse
                   .slice(0, startIdx)
                   .replace(/^AI\s*:\s*/i, "");
+
+                  console.log("afterFence : ", afterFence)
+                  console.log("beforeFence : ", textBefore)
 
                 inCode = true;
                 codeBuffer = afterFence;
@@ -233,15 +241,19 @@ function ClientPlayground({
   const handleStreamGemini = async (userInput: string, model: string) => {
     if (!userInput) return;
     setLoading(true);
+    const tempCode = generatedCode.includes(templateHtml) ? "" : generatedCode;
     setGeneratedCode("");
 
     try {
-      // 1. Use fetch instead of axios to get the stream reader
-
       const res = await fetch("/api/ai-model-gemini-stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: userInput, modelName: model }),
+        body: JSON.stringify({
+          prompt: userInput,
+          modelName: model,
+          generatedCode: tempCode,
+          messages,
+        }),
       });
 
       if (!res.body) throw new Error("No response body");
@@ -260,6 +272,7 @@ function ClientPlayground({
         if (value) {
           const chunkValue = decoder.decode(value, { stream: true });
           if (!inCode) {
+            console.log("chunkValue : ", chunkValue);
             aiResponse += chunkValue;
             const startIdx = aiResponse.indexOf("AICODE :");
             if (startIdx !== -1) {
@@ -349,7 +362,7 @@ function ClientPlayground({
           setLoading(false);
           toast.error(
             response?.error ||
-              "Chat limit reached. Upgrade to Premium to continue."
+              "Chat limit reached. Upgrade to Premium to continue.",
           );
           upgrade?.show();
           console.log(response?.error);
@@ -393,9 +406,7 @@ function ClientPlayground({
       <PlayGroundHeader
         onSave={getIframeHTML}
         loading={codeSaveLoading}
-        code={(generatedCode ?? "")
-          .replace(/```/g, "")
-          .replace(/(?<!<)html(?![>/])/g, "")}
+        code={(generatedCode ?? "").replace(/```/g, "")}
         projectName={projectId}
         projectId={projectId}
         user={user}
@@ -419,9 +430,7 @@ function ClientPlayground({
           <WebsiteDesign
             key="desktop-iframe"
             iframeRef={iframeRef}
-            generatedCode={(generatedCode ?? "")
-              .replace(/```/g, "")
-              .replace(/(?<!<)html(?![>/])/g, "")}
+            generatedCode={(generatedCode ?? "").replace(/```/g, "")}
             handleIsChat={handleIsChat}
             isPremium={user?.plan === "PREMIUM"}
           />
