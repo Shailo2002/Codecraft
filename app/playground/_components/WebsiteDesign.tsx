@@ -13,6 +13,7 @@ type Props = {
   iframeRef: RefObject<HTMLIFrameElement | null>;
   handleIsChat: (value: Boolean) => void;
   isPremium?: boolean;
+  loading: boolean;
 };
 
 function WebsiteDesign({
@@ -20,6 +21,7 @@ function WebsiteDesign({
   iframeRef,
   handleIsChat,
   isPremium = false,
+  loading = false,
 }: Props) {
   const [selectedSize, setSelectedSize] = useState("web");
   const [selectedElement, setSelectedElement] = useState<
@@ -49,6 +51,8 @@ function WebsiteDesign({
   }, [generatedCode]);
 
   useEffect(() => {
+    if (loading) return;
+
     if (!iframeRef.current) return;
     const doc = iframeRef.current.contentDocument;
     if (!doc) return;
@@ -118,7 +122,7 @@ function WebsiteDesign({
       doc.body?.removeEventListener("click", handleClick);
       doc?.removeEventListener("keydown", handleKeyDown);
     };
-  }, [generatedCode]);
+  }, [generatedCode, loading]);
 
   return (
     <div className="flex gap-2 w-full h-[89vh] ">

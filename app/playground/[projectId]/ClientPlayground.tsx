@@ -433,6 +433,7 @@ function ClientPlayground({
             generatedCode={(generatedCode ?? "").replace(/```/g, "")}
             handleIsChat={handleIsChat}
             isPremium={user?.plan === "PREMIUM"}
+            loading = {loading}
           />
         )}
       </div>
