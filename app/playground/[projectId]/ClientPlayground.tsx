@@ -3,16 +3,16 @@ import { useEffect, useRef, useState } from "react";
 import PlayGroundHeader from "../_components/PlayGroundHeader";
 import ChatSection from "../_components/ChatSection";
 import WebsiteDesign from "../_components/WebsiteDesign";
-import axios from "axios";
 import toast from "react-hot-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Frame, Message, UserType } from "@/types";
 import saveFrameCode from "@/app/actions/saveFrameCode";
 import { createChatMessage } from "@/app/actions/createChatMessage";
-import { templateHtml } from "@/app/constants/templateHtml";
-import { useRouter } from "next/navigation";
+import {
+  loadingTemplateHtml,
+  templateHtml,
+} from "@/app/constants/templateHtml";
 import { useUpgradeModal } from "@/hooks/useUpgradeModal";
-import { after } from "node:test";
 
 function ClientPlayground({
   projectId,
@@ -174,8 +174,8 @@ function ClientPlayground({
                   .slice(0, startIdx)
                   .replace(/^AI\s*:\s*/i, "");
 
-                  console.log("afterFence : ", afterFence)
-                  console.log("beforeFence : ", textBefore)
+                console.log("afterFence : ", afterFence);
+                console.log("beforeFence : ", textBefore);
 
                 inCode = true;
                 codeBuffer = afterFence;
@@ -233,6 +233,70 @@ function ClientPlayground({
       await saveGeneratedCode();
     } catch (error) {
       console.log("error while building website");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGptNonStream = async (userInput: string, model: string) => {
+    try {
+      setLoading(true);
+      const tempCode = generatedCode.includes(templateHtml)
+        ? ""
+        : generatedCode;
+      setGeneratedCode(loadingTemplateHtml);
+
+      const res = await fetch("/api/ai-model-testing-gpt", {
+        method: "POST",
+        body: JSON.stringify({
+          messages: [{ role: "user", content: userInput }],
+          modelName: model,
+          generatedCode: tempCode,
+        }),
+      });
+
+      const data = await res.json();
+      const fullContent = data.choices?.[0]?.message?.content || "";
+
+      console.log("OpenAI response:", fullContent);
+
+      let aiResponse = "";
+      let codeBuffer = "";
+
+      const startIdx = fullContent.indexOf("AICODE :");
+
+      if (startIdx !== -1) {
+        aiResponse = fullContent
+          .slice(0, startIdx)
+          .replace(/^AI\s*:\s*/i, "")
+          .trim();
+        codeBuffer = fullContent.slice(startIdx + 8);
+
+        setGeneratedCode(codeBuffer);
+        generatedCodeRef.current = codeBuffer;
+      } else {
+        aiResponse = fullContent;
+      }
+
+      const finalMsg = aiResponse || "Your code is ready!";
+      if (finalMsg.trim() !== "") {
+        setLoading(false);
+      }
+
+      setMessages((prev: any) => [
+        ...prev,
+        { chatMessage: [{ role: "assistant", content: finalMsg }] },
+      ]);
+
+      await saveMsgToDb({ role: "assistant", content: finalMsg });
+
+      if (!codeBuffer || codeBuffer.trim() === "") {
+        setGeneratedCode(initialFrame?.designCode);
+      }
+
+      await saveGeneratedCode();
+    } catch (error) {
+      console.error("error while building website", error);
     } finally {
       setLoading(false);
     }
@@ -349,6 +413,71 @@ function ClientPlayground({
     }
   };
 
+  const handleGeminiNonStream = async (userInput: string, model: string) => {
+    if (!userInput) return;
+    setLoading(true);
+    const tempCode = generatedCode.includes(templateHtml) ? "" : generatedCode;
+    setGeneratedCode(loadingTemplateHtml);
+
+    try {
+      const res = await fetch("/api/ai-model-testing-gemini", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          prompt: userInput,
+          modelName: model,
+          generatedCode: tempCode,
+          messages,
+        }),
+      });
+
+      const data = await res.json();
+      const fullText = data.text || "";
+
+      console.log("Gemini response:", fullText);
+      let aiResponse = "";
+      let codeBuffer = "";
+
+      const startIdx = fullText.indexOf("AICODE :");
+      if (startIdx !== -1) {
+        aiResponse = fullText
+          .slice(0, startIdx)
+          .replace(/^AI\s*:\s*/i, "")
+          .trim();
+        codeBuffer = fullText.slice(startIdx + 8);
+
+        setGeneratedCode(codeBuffer);
+        generatedCodeRef.current = codeBuffer;
+      } else {
+        aiResponse = fullText.replace(/^AI\s*:\s*/i, "").trim();
+      }
+
+      const finalMsg = aiResponse || "Your code is ready!";
+
+      if (finalMsg.trim() !== "") {
+        setLoading(false);
+      }
+      console.log("loading after response : ", loading);
+
+      setMessages((prev: any) => [
+        ...prev,
+        { chatMessage: [{ role: "assistant", content: finalMsg }] },
+      ]);
+
+      await saveMsgToDb({ role: "assistant", content: finalMsg });
+
+      if (!codeBuffer || codeBuffer.trim() === "") {
+        setGeneratedCode(initialFrame?.designCode);
+      }
+      await saveGeneratedCode();
+    } catch (error) {
+      console.error("Gemini Error:", error);
+      alert("Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const SendMessage = async (userInput: string, model: string) => {
     setLoading(true);
     try {
@@ -375,9 +504,9 @@ function ClientPlayground({
       }
 
       if (model.includes("gemini")) {
-        await handleStreamGemini(userInput, model);
+        await handleGeminiNonStream(userInput, model);
       } else {
-        await handleGpt(userInput, model);
+        await handleGptNonStream(userInput, model);
       }
     } catch (error) {
       console.log("error while generating website");
@@ -433,7 +562,7 @@ function ClientPlayground({
             generatedCode={(generatedCode ?? "").replace(/```/g, "")}
             handleIsChat={handleIsChat}
             isPremium={user?.plan === "PREMIUM"}
-            loading = {loading}
+            loading={loading}
           />
         )}
       </div>

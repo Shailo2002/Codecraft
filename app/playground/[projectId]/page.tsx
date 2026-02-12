@@ -1,7 +1,6 @@
 import ClientPlayground from "./ClientPlayground";
 import { redirect } from "next/navigation";
 import { Frame, UserType } from "@/types";
-import prisma from "@/lib/db";
 import { getCurrentDbUser } from "@/lib/getCurrentDbUser";
 import { getFrameData } from "@/lib/getFrameData";
 

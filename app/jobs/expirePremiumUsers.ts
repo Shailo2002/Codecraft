@@ -15,22 +15,22 @@ export async function expirePremiumUsers() {
     },
   });
 
-  console.log("expiredUser : ", expiredUsers);
+  // console.log("expiredUser : ", expiredUsers);
 
-  // for (const user of expiredUsers) {
-  //   let newCredit = 2;
+  for (const user of expiredUsers) {
+    let newCredit = 2;
 
-  //   const projectCount = user._count?.projects ?? 0;
+    const projectCount = user._count?.projects ?? 0;
 
-  //   if (projectCount >= 2) {
-  //     newCredit = 0;
-  //   } else if (projectCount === 1) {
-  //     newCredit = 1;
-  //   }
+    if (projectCount >= 2) {
+      newCredit = 0;
+    } else if (projectCount === 1) {
+      newCredit = 1;
+    }
 
-  //   await prisma.user.update({
-  //     where: { id: user.id },
-  //     data: { credits: newCredit, premiumExpiresAt: null, plan: "FREE" },
-  //   });
-  // }
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { credits: newCredit, premiumExpiresAt: null, plan: "FREE" },
+    });
+  }
 }

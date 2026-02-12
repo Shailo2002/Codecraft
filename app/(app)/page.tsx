@@ -14,7 +14,7 @@ export default async function Home() {
   return (
     <div className="lock-scroll">
       <Header user={user} />
-      <Hero />
+      <Hero user={user} />
       <ShowCase />
       <Footer />
     </div>

@@ -3,10 +3,7 @@ import WebPageTools from "./WebPageTools";
 import ElementSettingSection from "./ElementSettingSection";
 import ImageSettingSection from "./ImageSettingSection";
 import Image from "next/image";
-import {
-  loadingTemplateHtml,
-  templateHtml,
-} from "@/app/constants/templateHtml";
+import { loadingTemplateHtml } from "@/app/constants/templateHtml";
 
 type Props = {
   generatedCode: string;
@@ -40,15 +37,18 @@ function WebsiteDesign({
     }
   }, [generatedCode, isIframeLoaded]);
 
-  useEffect(() => {
-    const doc = iframeRef.current?.contentDocument;
-    const root = doc?.getElementById("root");
-    let finalcode = generatedCode;
-    if (generatedCode.trim() === "") {
-      finalcode = loadingTemplateHtml;
-    }
-    if (root) root.innerHTML = finalcode;
-  }, [generatedCode]);
+  // useEffect(() => {
+  //   console.log("inside useeffect for check", iframeRef.current);
+  //   const doc = iframeRef.current?.contentDocument;
+  //   const root = doc?.getElementById("root");
+  //   console.log("root element in iframe: ", root);
+  //   let finalcode = generatedCode;
+  //   if (generatedCode.trim() === "") {
+  //     console.log("generated code is empty, using loading template");
+  //     finalcode = loadingTemplateHtml;
+  //   }
+  //   if (root) root.innerHTML = finalcode;
+  // }, [generatedCode]);
 
   useEffect(() => {
     if (loading) return;
@@ -138,7 +138,8 @@ function WebsiteDesign({
             <iframe
               ref={iframeRef}
               onLoad={() => setIsIframeLoaded(true)}
-              className={`${
+              className={`${loading ? "pointer-events-none opacity-70" : ""} 
+              ${
                 selectedSize === "web"
                   ? "w-full h-full md:h-[82vh] rounded-tl-lg"
                   : "w-full max-w-[360px] h-full md:h-[76vh] rounded-lg"
