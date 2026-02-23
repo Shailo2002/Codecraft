@@ -21,7 +21,6 @@ function ChatSection({ messages, user, onSend, loading, handleIsChat }: Props) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const MAX_HEIGHT = 200; // px (adjust as needed)
-  console.log("loading in chat section: ", loading);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const el = e.target;
