@@ -4,9 +4,9 @@ import {
   Download,
   MessageCircleMore,
   Monitor,
+  Palette,
   SquareArrowOutUpRight,
   TabletSmartphone,
-  View,
 } from "lucide-react";
 import { ViewCodeBlock } from "./ViewCodeBlock";
 import { useEffect, useState } from "react";
@@ -18,6 +18,8 @@ function WebPageTools({
   generatedCode,
   handleIsChat,
   isPremium,
+  isEdit,
+  ChangeEditState,
 }: any) {
   const [finalCode, setFinalCode] = useState<string>("");
 
@@ -126,6 +128,14 @@ function WebPageTools({
       </div>
 
       <div className="flex items-center justify-center gap-2">
+        <Button
+          variant={isEdit ? "default" : "outline"}
+          onClick={() => ChangeEditState()}
+        >
+          <span className="hidden md:inline">Design</span>
+          <Palette />
+        </Button>
+
         <Button variant={"outline"} onClick={() => ViewInNewTab()}>
           <span className="hidden md:inline">View</span>
           <SquareArrowOutUpRight />

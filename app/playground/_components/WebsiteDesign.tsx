@@ -25,6 +25,13 @@ function WebsiteDesign({
     HTMLElement | HTMLImageElement | null
   >();
   const [isIframeLoaded, setIsIframeLoaded] = useState(false);
+  const [isEdit, setIsEdit] = useState(false);
+  const hoverRef = useRef<HTMLElement | HTMLImageElement | null>(null);
+  const selectedRef = useRef<HTMLElement | HTMLImageElement | null>(null);
+
+  const ChangeEditState = () => {
+    setIsEdit((prev) => !prev);
+  };
 
   useEffect(() => {
     if (!isIframeLoaded || !iframeRef.current) return;
@@ -51,78 +58,117 @@ function WebsiteDesign({
   // }, [generatedCode]);
 
   useEffect(() => {
-    if (loading) return;
+    if (isEdit) return;
 
+    // Clear hover
+    if (hoverRef.current) {
+      hoverRef.current.style.outline = "";
+      hoverRef.current = null;
+    }
+
+    // Clear selected
+    if (selectedRef.current) {
+      selectedRef.current.style.outline = "";
+      selectedRef.current.removeAttribute("contenteditable");
+      selectedRef.current = null;
+    }
+
+    setSelectedElement(null);
+  }, [isEdit]);
+
+  useEffect(() => {
+    if (loading || !isEdit) return;
     if (!iframeRef.current) return;
+
     const doc = iframeRef.current.contentDocument;
     if (!doc) return;
 
-    let hoverEl: HTMLElement | null = null;
-    let selectedEl: HTMLElement | null = null;
-
     const handleMouseOver = (e: MouseEvent) => {
-      if (selectedEl) return;
       const target = e.target as HTMLElement;
-      if (hoverEl && hoverEl !== target) {
-        hoverEl.style.outline = "";
+
+      if (target === selectedRef.current) return;
+
+      if (hoverRef.current && hoverRef.current !== target) {
+        hoverRef.current.style.outline = "";
       }
-      hoverEl = target;
-      hoverEl.style.outline = "2px dotted blue";
+
+      hoverRef.current = target;
+      hoverRef.current.style.outline = "2px dotted blue";
     };
 
     const handleMouseOut = (e: MouseEvent) => {
-      if (selectedEl) return;
-      if (hoverEl) {
-        hoverEl.style.outline = "";
-        hoverEl = null;
+      const target = e.target as HTMLElement;
+
+      if (target === selectedRef.current) return;
+
+      if (hoverRef.current === target) {
+        hoverRef.current.style.outline = "";
+        hoverRef.current = null;
       }
     };
 
     const handleClick = (e: MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
+
       const target = e.target as HTMLElement;
 
-      if (selectedEl && selectedEl !== target) {
-        selectedEl.style.outline = "";
-        selectedEl.removeAttribute("contenteditable");
+      if (selectedRef.current && selectedRef.current !== target) {
+        selectedRef.current.style.outline = "";
+        selectedRef.current.removeAttribute("contenteditable");
       }
 
-      selectedEl = target;
-      setSelectedElement(selectedEl);
-      selectedEl.style.outline = "2px solid red";
-      selectedEl.setAttribute("contenteditable", "true");
-      selectedEl.focus();
-    };
-
-    const handleBlur = () => {
-      if (selectedEl) {
-        console.log("Final edited element:", selectedEl.outerHTML);
+      if (hoverRef.current === target) {
+        hoverRef.current = null;
       }
+
+      selectedRef.current = target;
+      setSelectedElement(target);
+
+      target.style.outline = "2px solid blue";
+      target.setAttribute("contenteditable", "true");
+      target.focus();
     };
 
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && selectedEl) {
-        selectedEl.style.outline = "";
-        selectedEl.removeAttribute("contenteditable");
-        selectedEl.removeEventListener("blur", handleBlur);
-        selectedEl = null;
+      if (e.key === "Escape" && selectedRef.current) {
+        selectedRef.current.style.outline = "";
+        selectedRef.current.removeAttribute("contenteditable");
+        selectedRef.current = null;
       }
     };
 
-    doc.body?.addEventListener("mouseover", handleMouseOver);
-    doc.body?.addEventListener("mouseout", handleMouseOut);
-    doc.body?.addEventListener("click", handleClick);
-    doc?.addEventListener("keydown", handleKeyDown);
+    doc.body.addEventListener("mouseover", handleMouseOver);
+    doc.body.addEventListener("mouseout", handleMouseOut);
+    doc.body.addEventListener("click", handleClick);
+    doc.addEventListener("keydown", handleKeyDown);
 
-    // Cleanup on unmount
     return () => {
-      doc.body?.removeEventListener("mouseover", handleMouseOver);
-      doc.body?.removeEventListener("mouseout", handleMouseOut);
-      doc.body?.removeEventListener("click", handleClick);
-      doc?.removeEventListener("keydown", handleKeyDown);
+      doc.body.removeEventListener("mouseover", handleMouseOver);
+      doc.body.removeEventListener("mouseout", handleMouseOut);
+      doc.body.removeEventListener("click", handleClick);
+      doc.removeEventListener("keydown", handleKeyDown);
     };
-  }, [generatedCode, loading]);
+  }, [generatedCode, loading, isEdit]);
+
+  useEffect(() => {
+    if (isEdit) return;
+
+    // Clear hover
+    if (hoverRef.current) {
+      hoverRef.current.style.outline = "";
+      hoverRef.current = null;
+    }
+
+    // Clear selected
+    if (selectedRef.current) {
+      selectedRef.current.style.outline = "";
+      selectedRef.current.removeAttribute("contenteditable");
+      selectedRef.current = null;
+    }
+
+    setSelectedElement(null);
+  }, [isEdit]);
 
   return (
     <div className="flex gap-2 w-full h-[89vh] ">
@@ -193,6 +239,8 @@ function WebsiteDesign({
           setSelectedScreenSize={(v: string) => setSelectedSize(v)}
           generatedCode={generatedCode}
           handleIsChat={handleIsChat}
+          isEdit={isEdit}
+          ChangeEditState={ChangeEditState}
         />
       </div>
     </div>
