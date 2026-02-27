@@ -57,8 +57,6 @@ function WebsiteDesign({
   //   if (root) root.innerHTML = finalcode;
   // }, [generatedCode]);
 
-  
-
   useEffect(() => {
     if (isEdit) return;
 
@@ -175,11 +173,16 @@ function WebsiteDesign({
   useEffect(() => {
     const iframe = iframeRef.current;
 
+    if (!iframe) return;
+
     const handleLoad = () => {
       const iframeDoc = iframe.contentDocument;
 
+      if (!iframeDoc) return;
+
       iframeDoc.addEventListener("click", (e) => {
-        const a = e.target.closest("a");
+        const target = e.target as HTMLElement;
+        const a = target?.closest("a");
         if (a && a.href) {
           e.preventDefault();
         }
