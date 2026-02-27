@@ -432,7 +432,6 @@ function ClientPlayground({
       });
 
       const data = await res.json();
-      console.log("Gemini full response:", data);
       const fullText = data.text || "";
 
       console.log("Gemini response:", fullText);
@@ -530,8 +529,6 @@ function ClientPlayground({
       SendMessage(userMessage, model);
     }
   }, [frameId]);
-
-  
 
   return (
     <div>

@@ -50,38 +50,6 @@ function PlayGroundHeader({
     if (url) {
       setDeployedUrl(url);
     } else {
-      const finalCode = `
-                        <!DOCTYPE html>
-                        <html lang="en">
-                        <head>
-                          <meta charset="UTF-8" />
-                          <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                          <title>AI Website Builder</title>
-                         <script src="https://cdn.tailwindcss.com"></script>
-                        <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet">
-                        
-                        <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.1/vanilla-tilt.min.js"></script>
-                        
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-                        <script src="https://cdn.jsdelivr.net/npm/vanta@latest/dist/vanta.net.min.js"></script>
-                        
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-                        <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-                        <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
-                        <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
-                        <link
-                          rel="stylesheet"
-                          href="https://cdnjs.cloudflare.com/ajax/libs/hover.css/2.3.1/css/hover-min.css"
-                        />
-                        <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/bundled/lenis.min.js"></script>
-
-                        </head>
-                        <body id="root">
-                        ${code}</body>
-                        </html>
-                      `;
-
       setDeploying(true);
       setDeployedUrl(null);
 
@@ -91,7 +59,7 @@ function PlayGroundHeader({
           .replace(/\s+/g, "-");
 
         const response = await axios.post("/api/deploy", {
-          htmlCode: finalCode,
+          htmlCode: code,
           projectName: uniqueName,
           projectId,
         });
