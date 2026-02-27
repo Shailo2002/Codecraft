@@ -531,6 +531,8 @@ function ClientPlayground({
     }
   }, [frameId]);
 
+  
+
   return (
     <div>
       <PlayGroundHeader

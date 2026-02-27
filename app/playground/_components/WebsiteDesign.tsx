@@ -57,6 +57,8 @@ function WebsiteDesign({
   //   if (root) root.innerHTML = finalcode;
   // }, [generatedCode]);
 
+  
+
   useEffect(() => {
     if (isEdit) return;
 
@@ -169,6 +171,25 @@ function WebsiteDesign({
 
     setSelectedElement(null);
   }, [isEdit]);
+
+  useEffect(() => {
+    const iframe = iframeRef.current;
+
+    const handleLoad = () => {
+      const iframeDoc = iframe.contentDocument;
+
+      iframeDoc.addEventListener("click", (e) => {
+        const a = e.target.closest("a");
+        if (a && a.href) {
+          e.preventDefault();
+        }
+      });
+    };
+
+    iframe.addEventListener("load", handleLoad);
+
+    return () => iframe.removeEventListener("load", handleLoad);
+  }, []);
 
   return (
     <div className="flex gap-2 w-full h-[89vh] ">
