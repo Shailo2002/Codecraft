@@ -5,8 +5,12 @@ import { validateWebhookSignature } from "razorpay/dist/utils/razorpay-utils";
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
-    const signature = req.headers.get("x-razorpay-signature") as string;
+    const signature = req.headers.get("x-razorpay-signature");
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET!;
+
+    if (!signature) {
+      return NextResponse.json({ message: "Invalid signature" }, { status: 400 });
+    }
 
     const isValid = validateWebhookSignature(rawBody, signature, secret);
 

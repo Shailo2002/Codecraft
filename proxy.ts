@@ -9,7 +9,9 @@ const isPublicRoute = createRouteMatcher([
   "/refund",
   "/contact",
   "/pricing",
-  "/shipping"
+  "/shipping",
+  // Razorpay authenticates webhook requests with its signature, not a Clerk session.
+  "/api/razorpay/webhook"
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
