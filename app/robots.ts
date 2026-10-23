@@ -9,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ["/api/", "/workspace", "/playground"],
       },
     ],
-    sitemap: "https://codecraft.shaileshiitr.site/sitemap.xml",
+    sitemap: "https://codecraft.shailabs.site/sitemap.xml",
   };
 }

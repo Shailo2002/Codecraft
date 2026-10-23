@@ -24,11 +24,11 @@ export const metadata: Metadata = {
   openGraph: {
     title: "CodeCraft",
     description: "AI website builder",
-    url: "https://codecraft.shaileshiitr.site",
+    url: "https://codecraft.shailabs.site",
     siteName: "CodeCraft",
     images: [
       {
-        url: "https://codecraft.shaileshiitr.site/og-image.png",
+        url: "https://codecraft.shailabs.site/og-image.png",
         width: 1200,
         height: 630,
         alt: "CodeCraft – AI Website Builder",
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "CodeCraft",
     description: "AI website builder",
-    images: ["https://codecraft.shaileshiitr.site/og-image.png"],
+    images: ["https://codecraft.shailabs.site/og-image.png"],
   },
 };
 
